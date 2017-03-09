@@ -7,6 +7,7 @@ Table of contents
 =================
 
 .. toctree::
+  specs
   contributing
   history
 
