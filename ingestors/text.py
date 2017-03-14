@@ -1,9 +1,9 @@
+from normality import stringify
 
 from .ingestor import Ingestor
-from .support.encoding import EncodingSupport
 
 
-class TextIngestor(Ingestor, EncodingSupport):
+class TextIngestor(Ingestor):
     """Plan text file ingestor class.
 
     Extracts the text from the document and enforces unicode on it.
@@ -14,15 +14,14 @@ class TextIngestor(Ingestor, EncodingSupport):
     def configure(self):
         """Ingestor configuration."""
         self.failure_exceptions += (UnicodeDecodeError,)
-        return {}
+        return super(TextIngestor, self).configure()
 
-    def ingest(self, config):
+    def ingest(self, original, transformed, config):
         """Ingestor implementation."""
-        encoding = self.detect_encoding(self.fio)
-        body = self.fio.read()
+        body = original.read()
 
         try:
-            return body.decode(encoding)
+            return stringify(body)
         except:
             return body
         finally:
