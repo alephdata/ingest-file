@@ -10,7 +10,7 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    # TODO: put package requirements here
+    'chardet==2.3.0'
 ]
 
 test_requirements = [
@@ -27,11 +27,8 @@ setup(
     author="Stas Sușcov",
     author_email='stas+ingestors@nerd.ro',
     url='https://github.com/alephdata/ingestors',
-    packages=[
-        'ingestors',
-    ],
-    package_dir={'ingestors':
-                 'ingestors'},
+    packages=['ingestors'],
+    package_dir={'ingestors': 'ingestors'},
     include_package_data=True,
     install_requires=requirements,
     license="MIT license",
