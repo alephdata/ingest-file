@@ -1,3 +1,5 @@
+import sys
+import traceback
 from datetime import datetime
 from logging import getLogger
 from uuid import uuid4
@@ -110,7 +112,12 @@ class Ingestor(object):
 
     def exception_handler(self, exception=None):
         """Ingestor error handler."""
-        self.logger.exception(exception)
+        self.log_exception()
+
+    def log_exception(self):
+        """Extract and log the latest exception."""
+        lines = traceback.format_exception(*sys.exc_info())
+        self.logger.error('\n'.join(lines))
 
     def convert_file(self, config):
         """File convertion implementation. Can be overwritten.
