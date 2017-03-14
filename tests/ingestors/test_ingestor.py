@@ -9,9 +9,9 @@ class MyIngestor(Ingestor):
         self.test = dict()
         return {'configured': True}
 
-    def convert_file(self, config):
+    def transform(self, original, config):
         self.test['convertion_conf'] = config
-        return self.fio
+        return original
 
     def before(self):
         self.test['before'] = True
@@ -19,20 +19,20 @@ class MyIngestor(Ingestor):
     def after(self):
         self.test['after'] = True
 
-    def ingest(self, config):
-        return str(self.fio)
+    def ingest(self, original, transformed, config):
+        return str(original)
 
 
 class MyFailedIngestor(MyIngestor):
 
-    def ingest(self, config):
+    def ingest(self, original, transformed, config):
         exception_class = Ingestor.FAILURE_EXCEPTIONS[0]
         raise exception_class()
 
 
 class MyStoppedIngestor(MyIngestor):
 
-    def ingest(self, config):
+    def ingest(self, original, transformed, config):
         raise IOError()
 
 
@@ -40,7 +40,7 @@ class IngestorTest(TestCase):
 
     def test_ingest_success(self):
         fio = {'fake_file_io': True}
-        ing = MyIngestor(fio, file_name='myfile.txt')
+        ing = MyIngestor(fio, file_path='myfile.txt')
 
         self.assertEqual(ing.status, Ingestor.STATUSES.SUCCESS)
         self.assertEqual(ing.state, Ingestor.STATES.NEW)
@@ -59,7 +59,7 @@ class IngestorTest(TestCase):
 
     def test_ingest_stopped(self):
         fio = {'fake_file_io': True}
-        ing = MyStoppedIngestor(fio, file_name='myfile.txt')
+        ing = MyStoppedIngestor(fio, file_path='myfile.txt')
 
         self.assertEqual(ing.status, Ingestor.STATUSES.SUCCESS)
         self.assertEqual(ing.state, Ingestor.STATES.NEW)
@@ -78,7 +78,7 @@ class IngestorTest(TestCase):
 
     def test_ingest_failure(self):
         fio = {'fake_file_io': True}
-        ing = MyFailedIngestor(fio, file_name='myfile.txt')
+        ing = MyFailedIngestor(fio, file_path='myfile.txt')
 
         self.assertEqual(ing.status, Ingestor.STATUSES.SUCCESS)
         self.assertEqual(ing.state, Ingestor.STATES.NEW)
