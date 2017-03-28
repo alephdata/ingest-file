@@ -1,4 +1,5 @@
 import unittest
+import logging
 from os import environ, path
 
 
@@ -6,6 +7,9 @@ class TestCase(unittest.TestCase):
 
     #: Flag to indicate if extra fixtures are available
     EXTRA_FIXTURES = path.exists(environ.get('EXTRA_FIXTURES_PATH') or '')
+
+    # Enable loggin
+    logging.basicConfig(level='DEBUG')
 
     def fixture(self, fixture_path):
         """Returns a fixture path.
