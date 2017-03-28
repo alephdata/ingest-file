@@ -1,9 +1,8 @@
 import sys
 import traceback
 import os.path
+import logging
 from datetime import datetime
-from logging import getLogger
-from uuid import uuid4
 
 
 class States:
@@ -30,10 +29,46 @@ class Statuses:
     ALL = [SUCCESS, FAILURE, STOPPED]
 
 
+class Result(dict):
+    """Generic ingestor result class.
+
+    Mainly a dict implementation with object like getters/setters.
+    """
+    __getattr__ = dict.__getitem__
+    __setattr__ = dict.__setitem__
+
+    def __init__(self, *args, **kwargs):
+        """Generic ingestor result class constructor.
+
+        Initializes some of the attributes:
+
+        - ``mime_type``, guessed MIME type of the file
+        - ``file_size``, the size of the file
+        - ``checksum``, the SHA digest of the file
+        - ``title``, the title of the document (optional)
+        - ``authors``, a list of the document authors (if any)
+        - ``content``, the document body, usually text
+        - ``order``, the order or page (if available)
+
+        """
+
+        self.mime_type = None
+        self.file_size = None
+        self.checksum = None
+        self.title = None
+        self.authors = []
+        self.content = None
+        self.order = 0
+
+        super(Result, self).__init__(self, *args, **kwargs)
+
+
 class Ingestor(object):
     """Generic ingestor class."""
 
-    #: List of MIME types it handles
+    #: Result object factory class.
+    RESULT_CLASS = Result
+    #: List of MIME types it handles.
     MIME_TYPES = []
     #: Available states.
     STATES = States
@@ -47,16 +82,7 @@ class Ingestor(object):
     ]
 
     def __init__(self, fio, file_path, parent=None):
-        """Constructor.
-
-        Initializes and makes available additional class attributes:
-            * ``mime_type``, guessed MIME type of the file
-            * ``file_size``, the size of the file
-            * ``checksum``, the SHA digest of the file
-            * ``title``, the title of the document (optional)
-            * ``authors``, a list of the document authors (if any)
-            * ``body``, the document body contents
-            * ``order``, the order or page (if available)
+        """Generic ingestor constructor class.
 
         :param :py:class:`io.FileIO` fio: An instance of the file to process.
         :param str file_path: The file path.
@@ -70,18 +96,10 @@ class Ingestor(object):
         self.status = Statuses.SUCCESS
         self.started_at = datetime.utcnow()
         self.ended_at = None
-        self.id = uuid4().hex
-        self.logger = getLogger(__name__)
+        self.logger = logging.getLogger(self.__module__)
         self.failure_exceptions = tuple(self.FAILURE_EXCEPTIONS)
 
-        # TODO: Move to a metadata _container_
-        self.mime_type = None
-        self.file_size = None
-        self.checksum = None
-        self.title = None
-        self.authors = None
-        self.body = None
-        self.order = None
+        self.result = Result()
 
     def configure(self):
         """Ingestor configuration endpoint.
@@ -122,20 +140,12 @@ class Ingestor(object):
         lines = traceback.format_exception(*sys.exc_info())
         self.logger.error('\n'.join(lines))
 
-    def transform(self, original, config):
-        """File transformation operations. Can be overwritten.
-
-        :param :py:class:`io.FileIO` original: The original file object IO.
-        :param dict config: A dictionary with settings.
-        :return: Defaults to the original file, can be overwritten.
-        """
-        return original
-
-    def ingest(self, original, transformed, config):
+    def ingest(self, config):
         """The ingestor implementation. Should be overwritten.
 
-        :param :py:class:`io.FileIO` original: The original file object IO.
-        :param transformed: The results of the transformation.
+        This method does not return anything.
+        Use the ``result`` attribute to store any resulted data.
+
         :param dict config: A dictionary with settings.
         """
         raise NotImplemented()
@@ -147,8 +157,7 @@ class Ingestor(object):
 
         try:
             self.before()
-            transformed = self.transform(self.fio, config)
-            self.body = self.ingest(self.fio, transformed, config)
+            self.ingest(config)
         except Exception as exception:
             self.exception_handler(exception)
 
