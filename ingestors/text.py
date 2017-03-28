@@ -16,13 +16,13 @@ class TextIngestor(Ingestor):
         self.failure_exceptions += (UnicodeDecodeError,)
         return super(TextIngestor, self).configure()
 
-    def ingest(self, original, transformed, config):
+    def ingest(self, config):
         """Ingestor implementation."""
-        body = original.read()
+        body = self.fio.read()
 
         try:
-            return stringify(body)
+            self.result.content = stringify(body)
         except:
-            return body
+            self.result.content = body
         finally:
             self.fio.seek(0)
