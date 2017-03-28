@@ -16,7 +16,7 @@ class TextIngestorTest(TestCase):
             ing = TextIngestor(fio, fixture_path)
             ing.run()
 
-        self.assertEqual(ing.body, u'Îș unî©ođ€.')
+        self.assertEqual(ing.result.content, u'Îș unî©ođ€.')
         self.assertEqual(ing.status, TextIngestor.STATUSES.SUCCESS)
         self.assertEqual(ing.state, TextIngestor.STATES.FINISHED)
 
@@ -27,7 +27,7 @@ class TextIngestorTest(TestCase):
             ing = TextIngestor(fio, fixture_path)
             ing.run()
 
-        self.assertEqual(ing.body, u'În latin1.')
+        self.assertEqual(ing.result.content, u'În latin1.')
 
     @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
     def test_ingest_extra_fixture(self):
@@ -37,4 +37,4 @@ class TextIngestorTest(TestCase):
             ing = TextIngestor(fio, fixture_path)
             ing.run()
 
-        self.assertIsNotNone(ing.body)
+        self.assertIsNotNone(ing.result.content)
