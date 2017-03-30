@@ -12,7 +12,9 @@ with open('HISTORY.rst') as history_file:
 requirements = [
     'normality==0.4.0',
     'urllib3==1.20',
-    'lxml==3.7.3'
+    'lxml==3.7.3',
+    'tesserwrap==0.1.6',
+    'pillow==4.0.0'
 ]
 
 test_requirements = [
