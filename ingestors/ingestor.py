@@ -78,7 +78,8 @@ class Ingestor(object):
     FAILURE_EXCEPTIONS = [
         TypeError,
         ValueError,
-        ArithmeticError
+        ArithmeticError,
+        AssertionError
     ]
 
     def __init__(self, fio, file_path, parent=None):
