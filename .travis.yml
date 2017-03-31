@@ -13,7 +13,8 @@ cache:
 before_install:
   - git clone --depth=1 https://gitlab.com/dzmitry-lahoda/ediscovery-files.git
   - sudo apt-get -qq update
-  - sudo apt-get install -y libxml2-dev tesseract-ocr libtesseract-dev imagemagick
+  - sudo apt-get install -y libxml2-dev tesseract-ocr libtesseract-dev \
+    imagemagick poppler-utils
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: pip install -r requirements_dev.txt
