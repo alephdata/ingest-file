@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from ingestors.ingestor import Ingestor
 
 from ..support import TestCase
@@ -41,9 +43,13 @@ class IngestorTest(TestCase):
         self.assertEqual(ing.status, Ingestor.STATUSES.SUCCESS)
         self.assertEqual(ing.state, Ingestor.STATES.NEW)
         self.assertIsInstance(ing.result, Ingestor.RESULT_CLASS)
+        self.assertIsNone(ing.started_at)
+        self.assertIsNone(ing.ended_at)
 
         ing.run()
 
+        self.assertIsInstance(ing.started_at, datetime)
+        self.assertIsInstance(ing.ended_at, datetime)
         self.assertEqual(ing.status, Ingestor.STATUSES.SUCCESS)
         self.assertEqual(ing.state, Ingestor.STATES.FINISHED)
         self.assertDictContainsSubset(
@@ -65,6 +71,8 @@ class IngestorTest(TestCase):
 
         ing.run()
 
+        self.assertIsInstance(ing.started_at, datetime)
+        self.assertIsInstance(ing.ended_at, datetime)
         self.assertEqual(ing.status, Ingestor.STATUSES.STOPPED)
         self.assertEqual(ing.state, Ingestor.STATES.FINISHED)
         self.assertDictContainsSubset(
@@ -80,6 +88,8 @@ class IngestorTest(TestCase):
 
         ing.run()
 
+        self.assertIsInstance(ing.started_at, datetime)
+        self.assertIsInstance(ing.ended_at, datetime)
         self.assertEqual(ing.status, Ingestor.STATUSES.FAILURE)
         self.assertEqual(ing.state, Ingestor.STATES.FINISHED)
         self.assertDictContainsSubset(

@@ -95,7 +95,7 @@ class Ingestor(object):
         self.children = []
         self.state = States.NEW
         self.status = Statuses.SUCCESS
-        self.started_at = datetime.utcnow()
+        self.started_at = None
         self.ended_at = None
         self.logger = logging.getLogger(self.__module__)
         self.failure_exceptions = tuple(self.FAILURE_EXCEPTIONS)
@@ -154,10 +154,11 @@ class Ingestor(object):
     def run(self):
         """Main execution loop of an ingestor."""
         self.state = States.STARTED
+        self.before()
+        self.started_at = datetime.utcnow()
         config = self.configure()
 
         try:
-            self.before()
             self.ingest(config)
         except Exception as exception:
             self.exception_handler(exception)
@@ -167,5 +168,6 @@ class Ingestor(object):
             else:
                 self.status = Statuses.STOPPED
         finally:
+            self.ended_at = datetime.utcnow()
             self.state = States.FINISHED
             self.after()
