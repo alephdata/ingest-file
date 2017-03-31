@@ -80,8 +80,8 @@ class PDFSupport(object):
     def pdf_page_to_image(self, pagenum, file_path, bin_path, temp_dir):
         """Extract a page as an image and perform OCR.
 
-        Used mainly because pdftohtml generated images could be really bad, e.g.
-        inverted colors and weird rotations in TIFF files.
+        Used mainly because pdftohtml generated images could be really bad,
+        e.g. inverted colors and weird rotations in TIFF files.
         A better idea is to make an image out of the whole page and OCR it.
         """
         bin_path = bin_path or find_executable('pdftoppm')
