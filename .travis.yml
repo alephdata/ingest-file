@@ -4,17 +4,27 @@
 language: python
 python: 2.7
 
-env: EXTRA_FIXTURES_PATH=ediscovery-files/assets
+env: EXTRA_FIXTURES_PATH=~/ediscovery-files/assets
 
 cache:
-  directories:
-  - ediscovery-files
+  - apt
+  - pip
+  - npm
+  - directories:
+    - ~/ediscovery-files
+
+addons:
+  apt:
+    packages:
+      - libtesseract-dev
+      - imagemagick
+      - poppler-utils
+      - wkhtmltopdf
+      - libreoffice
+      - djvulibre-bin
 
 before_install:
-  - git clone --depth=1 https://gitlab.com/dzmitry-lahoda/ediscovery-files.git
-  - sudo apt-get -qq update
-  - sudo apt-get install -y libxml2-dev tesseract-ocr libtesseract-dev \
-    imagemagick poppler-utils
+  - git clone --depth=1 https://gitlab.com/dzmitry-lahoda/ediscovery-files.git ~/ediscovery-files
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: pip install -r requirements_dev.txt
