@@ -30,14 +30,9 @@ class XMLSupport(object):
 
         return text.strip(), doc
 
-    def xml_to_text(self, xml, page_selector=None):
+    def xml_to_text(self, xml, page_selector):
         parser = etree.XMLParser(recover=True, remove_comments=True)
         doc = etree.fromstring(xml, parser=parser)
-
-        # If no page selector is set, just process the whole document
-        if not page_selector:
-            yield self.page_to_text(doc)
-            return
 
         # If a page selector is set, we split the document into pages
         for page in doc.findall(page_selector):
@@ -75,3 +70,8 @@ class XMLSupport(object):
         width = float(el.attrib.get('width', 1))
         height = float(el.attrib.get('height', 1))
         return width * height
+
+    def extract_links(self, tree):
+        """Extracts and embeds URLs from links."""
+        for link in tree.findall('.//a'):
+            yield link.get('href'), link.text
