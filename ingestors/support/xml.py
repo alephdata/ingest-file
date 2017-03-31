@@ -1,10 +1,34 @@
-from lxml import etree
+from lxml import etree, html
+from lxml.html.clean import Cleaner
 
 
 class XMLSupport(object):
     """Provides helpers for XML parsing tasks."""
 
     IMAGE_RATIO_FOR_OCR = 0.3
+
+    CLEANER = Cleaner(
+        scripts=True,
+        javascript=True,
+        style=True,
+        links=True,
+        embedded=True,
+        forms=True,
+        frames=True,
+        annoying_tags=True,
+        meta=True,
+        remove_tags=['a'],
+        kill_tags=['head']
+    )
+
+    def html_to_text(self, xml):
+        doc = html.fromstring(xml)
+        cleaned = self.CLEANER.clean_html(doc)
+        text = unicode(cleaned.text_content())
+
+        text = '\n'.join(map(unicode.strip, text.split('\n')))
+
+        return text.strip(), doc
 
     def xml_to_text(self, xml, page_selector=None):
         parser = etree.XMLParser(recover=True, remove_comments=True)
@@ -20,7 +44,7 @@ class XMLSupport(object):
             yield self.page_to_text(page)
 
     def page_to_text(self, page):
-        """Extracts page content.
+        """Extracts (PDF) page content.
 
         Returns the completion status, page number and the page text.
         If the status is not truthy, it requires extra processing (ex. OCR).
