@@ -22,8 +22,12 @@ class HTMLIngestorTest(TestCase):
         )
         self.assertEqual(ing.result.title, u'Ingestors Title')
         self.assertEqual(ing.result.description, u'Ingestors description')
-        self.assertEqual(ing.result.keywords, u'ingestors, key, words')
-        self.assertEqual(ing.result.news_keywords, u'news, key, words')
+        self.assertEqual(ing.result.keywords, ['ingestors', 'key', 'words'])
+        self.assertEqual(ing.result.news_keywords, ['news', 'key', 'words'])
+        self.assertEqual(
+            ing.result.urls,
+            {'https://github.com/alephdata/ingestors': ['GitHub page']}
+        )
         self.assertEqual(ing.status, HTMLIngestor.STATUSES.SUCCESS)
         self.assertEqual(ing.state, HTMLIngestor.STATES.FINISHED)
 

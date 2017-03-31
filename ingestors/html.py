@@ -37,6 +37,15 @@ class HTMLIngestor(Ingestor, XMLSupport):
             value = doc.find('.//meta[@name="{}"]'.format(field))
 
             if value is not None:
-                value = (value.get('content') or '').strip()
+                value = unicode(value.get('content') or '').strip()
+
+            if value and field in ['keywords', 'news_keywords']:
+                value = map(unicode.strip, value.split(','))
 
             self.result[field] = value
+
+        self.result.urls = {}
+
+        for url, title in self.extract_links(doc):
+            self.result.urls[url] = self.result.urls.get(url) or []
+            self.result.urls[url].append(title)
