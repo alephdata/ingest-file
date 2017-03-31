@@ -4,9 +4,7 @@
 language: python
 python: 2.7
 
-env:
-  - TOXENV=py27 EXTRA_FIXTURES_PATH=ediscovery-files/assets
-  - TOXENV=pypy
+env: EXTRA_FIXTURES_PATH=ediscovery-files/assets
 
 cache:
   directories:
@@ -18,7 +16,7 @@ before_install:
   - sudo apt-get install -y libxml2-dev tesseract-ocr libtesseract-dev imagemagick
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -U tox
+install: pip install -r requirements_dev.txt
 
 # command to run tests, e.g. python setup.py test
-script: tox -e ${TOXENV}
+script: make lint test
