@@ -18,9 +18,7 @@ class PDFSupport(object):
     #: TIKA response XML selector for page breaks
     TIKA_PAGE_SELECTOR = './/div[@class="page"]'
 
-    def pdf_to_xml(self, fio, file_path, config):
-        temp_dir = config.get('temp_dir')
-
+    def pdf_to_xml(self, fio, file_path, temp_dir, config):
         if config.get('TIKA_URI'):
             return self.pdf_to_xml_tika(fio, config['TIKA_URI'], temp_dir)
         elif config.get('PDFTOHTML_BIN'):
@@ -30,13 +28,13 @@ class PDFSupport(object):
             return self.pdf_to_xml_poppler(
                 file_path, find_executable('pdftohtml'), temp_dir)
         else:
-            return RuntimeError('No PDF extraction tools available.')
+            raise RuntimeError('No PDF extraction tools available.')
 
     def pdf_to_xml_poppler(self, file_path, bin_path, temp_dir):
+        out_file = os.path.join(temp_dir, 'pdf.xml')
         self.logger.info(
             'Converting %r using %r...', file_path, bin_path)
 
-        out_file = os.path.join(temp_dir, 'pdf.xml')
         pdftohtml = [
             bin_path,
             '-xml',
@@ -78,3 +76,35 @@ class PDFSupport(object):
         http.clear()
 
         return xml, self.TIKA_PAGE_SELECTOR
+
+    def pdf_page_to_image(self, pagenum, file_path, bin_path, temp_dir):
+        """Extract a page as an image and perform OCR.
+
+        Used mainly because pdftohtml generated images could be really bad, e.g.
+        inverted colors and weird rotations in TIFF files.
+        A better idea is to make an image out of the whole page and OCR it.
+        """
+        bin_path = bin_path or find_executable('pdftoppm')
+        out_path = os.path.join(temp_dir, '{}.pgm'.format(pagenum))
+
+        # TODO: figure out if there's something nicer than 300dpi. Seems
+        # like tesseract is trained on 300 and 600 actually sometimes gives
+        # worse results.
+        pdftoppm = [
+            bin_path,
+            '-f', pagenum,
+            '-singlefile',
+            '-r', '300',
+            '-gray',
+            file_path,
+            out_path.replace('.pgm', '')
+        ]
+
+        retcode = subprocess.call(pdftoppm)
+        assert retcode == 0, 'Execution failed: {}'.format(pdftoppm)
+        assert os.path.exists(out_path), 'File missing: {}'.format(out_path)
+
+        self.logger.debug(
+            'Extracted PDF page %r to image from: %r', pagenum, out_path)
+
+        return out_path
