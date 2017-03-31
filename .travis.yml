@@ -9,7 +9,6 @@ env: EXTRA_FIXTURES_PATH=~/ediscovery-files/assets
 cache:
   - apt
   - pip
-  - npm
   - directories:
     - ~/ediscovery-files
 
@@ -17,11 +16,9 @@ addons:
   apt:
     packages:
       - libtesseract-dev
+      - tesseract-ocr-eng
       - imagemagick
       - poppler-utils
-      - wkhtmltopdf
-      - libreoffice
-      - djvulibre-bin
 
 before_install:
   - git clone --depth=1 https://gitlab.com/dzmitry-lahoda/ediscovery-files.git ~/ediscovery-files
