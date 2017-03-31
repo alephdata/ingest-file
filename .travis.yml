@@ -8,6 +8,10 @@ env:
   - TOXENV=py27
   - TOXENV=pypy
 
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libxml2-dev tesseract-ocr imagemagick
+
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: pip install -U tox
 
