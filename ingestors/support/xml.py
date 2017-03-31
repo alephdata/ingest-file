@@ -22,6 +22,9 @@ class XMLSupport(object):
     )
 
     def html_to_text(self, xml):
+        if not xml:
+            return None, etree.Element('empty')
+
         doc = html.fromstring(xml)
         cleaned = self.CLEANER.clean_html(doc)
         text = unicode(cleaned.text_content())
@@ -36,7 +39,7 @@ class XMLSupport(object):
 
         # If a page selector is set, we split the document into pages
         for page in doc.findall(page_selector):
-            yield self.page_to_text(page)
+            yield page
 
     def page_to_text(self, page):
         """Extracts (PDF) page content.
@@ -45,8 +48,7 @@ class XMLSupport(object):
         If the status is not truthy, it requires extra processing (ex. OCR).
         """
         text = []
-        completed = True
-        pagenum = int(page.get('number') or 0)
+        needs_ocr = False
         size = self.element_size(page)
 
         for text_element in page.findall('.//text'):
@@ -57,14 +59,16 @@ class XMLSupport(object):
         for image in page.findall('.//image'):
             ratio = self.element_size(image) / size
             if len(text) < 2 or ratio > self.IMAGE_RATIO_FOR_OCR:
-                completed = False
+                needs_ocr = True
 
-        text = '\n'.join(text).strip()
+        text = u'\n'.join(text).strip()
 
         self.logger.debug(
-            'Extracted %d characters from page %r.', len(text), pagenum)
+            'Extracted %d characters from page %r.',
+            len(text), page.get('number')
+        )
 
-        return completed, pagenum, text
+        return needs_ocr, text
 
     def element_size(self, el):
         width = float(el.attrib.get('width', 1))

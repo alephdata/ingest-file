@@ -1,6 +1,9 @@
 import os
+import io
 
 from .ingestor import Ingestor, Result
+from .image import ImageIngestor
+from .html import HTMLIngestor
 from .support.pdf import PDFSupport
 from .support.fs import FSSupport
 from .support.xml import XMLSupport
@@ -28,25 +31,37 @@ class PDFIngestor(Ingestor, PDFSupport, FSSupport, XMLSupport):
     def ingest(self, config):
         """Ingestor implementation."""
         with self.create_temp_dir() as temp_dir:
-            config['temp_dir'] = temp_dir
 
             xml, page_selector = self.pdf_to_xml(
-                self.fio, self.file_path, config)
+                self.fio, self.file_path, temp_dir, config)
 
             for page in self.xml_to_text(xml, page_selector):
-                ok, pagenum, text = page
+                needs_ocr, text = self.page_to_text(page)
+                pagenum = page.get('number') or 0
 
-                # TODO:
-                # if not ok:
-                #     self.ocr_image()
+                if not needs_ocr:
+                    child = HTMLIngestor(
+                        fio=io.StringIO(text),
+                        file_path=self.file_path,
+                        parent=self
+                    )
+                else:
+                    page_image_path = self.pdf_page_to_image(
+                        pagenum,
+                        self.file_path,
+                        config['PDFTOPPM_BIN'],
+                        temp_dir
+                    )
 
-                self.children.append(
-                    Result(content=text, order=pagenum)
-                )
+                    child = ImageIngestor(
+                        fio=io.open(page_image_path, 'rb'),
+                        file_path=page_image_path,
+                        parent=self
+                    )
 
-        if len(self.children) == 1:
-            self.children.pop()
-            self.result.order = pagenum
-            self.result.content = text
+                child.result.order = pagenum
+                self.children.append(child)
 
-        config.pop('temp_dir')
+            for child in self.children:
+                child.run()
+                child.fio.close()
