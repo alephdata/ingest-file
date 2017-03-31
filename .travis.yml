@@ -5,9 +5,8 @@ language: python
 python: 2.7
 
 env:
-  - TOXENV=py27
+  - TOXENV=py27 EXTRA_FIXTURES_PATH=ediscovery-files/assets
   - TOXENV=pypy
-  - EXTRA_FIXTURES_PATH=ediscovery-files/assets
 
 cache:
   directories:
