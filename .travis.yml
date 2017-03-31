@@ -7,10 +7,16 @@ python: 2.7
 env:
   - TOXENV=py27
   - TOXENV=pypy
+  - EXTRA_FIXTURES_PATH=ediscovery-files/assets
+
+cache:
+  directories:
+  - ediscovery-files
 
 before_install:
+  - git clone --depth=1 https://gitlab.com/dzmitry-lahoda/ediscovery-files.git
   - sudo apt-get -qq update
-  - sudo apt-get install -y libxml2-dev tesseract-ocr imagemagick
+  - sudo apt-get install -y libxml2-dev tesseract-ocr libtesseract-dev imagemagick
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: pip install -U tox
