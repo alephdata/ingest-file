@@ -15,7 +15,8 @@ class ImageIngestorTest(TestCase):
             ing = ImageIngestor(fio, fixture_path)
             ing.run()
 
-        self.assertEqual(ing.result.content, u'Testing ingestors 1..2..3..')
+        self.assertIn(u'Testing ingestors', ing.result.content)
+        self.assertIn(u'1..2..3..', ing.result.content)
         self.assertEqual(ing.status, ImageIngestor.STATUSES.SUCCESS)
         self.assertEqual(ing.state, ImageIngestor.STATES.FINISHED)
 
