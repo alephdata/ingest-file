@@ -1,7 +1,7 @@
 import os
 import io
 
-from .ingestor import Ingestor, Result
+from .ingestor import Ingestor
 from .image import ImageIngestor
 from .html import HTMLIngestor
 from .support.pdf import PDFSupport

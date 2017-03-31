@@ -4,7 +4,6 @@ import subprocess
 from distutils.spawn import find_executable
 
 from PIL import Image
-from normality import stringify
 from tesserwrap import Tesseract, PageSegMode
 
 
@@ -45,7 +44,7 @@ class OCRSupport(object):
         img = Image.open(file_path)
 
         small = (img.width < self.MIN_WIDTH and img.height < self.MIN_HEIGHT)
-        assert small == False, 'Image size too small: {}'.format(img.size)
+        assert small is False, 'Image size too small: {}'.format(img.size)
 
         # TODO: play with contrast and sharpening the images.
         extractor = Tesseract(
