@@ -1,5 +1,7 @@
 Ingestors extract useful information in a structured standard format.
 
+Ingestors is free software under MIT license.
+
 .. image:: https://img.shields.io/travis/alephdata/ingestors.svg
    :target: https://travis-ci.org/alephdata/ingestors
    :alt: Build Status
@@ -8,12 +10,19 @@ Ingestors extract useful information in a structured standard format.
    :target: https://ingestors.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
-* Free software: MIT license
-* Documentation: https://ingestors.readthedocs.io.
+Supported file types:
 
-Here's some key features:
+* Plain text
+* Images
+* Web pages
+* PDF files
 
-* TODO
+Other features:
+
+* Extendable and composable using classes and mixins.
+* Serializable results object with basic metadata support.
+* Throughly tested using local and external set of fixtures.
+* Lightweight worker-style support for logging, failures and callbacks.
 
 ============
 Installation
