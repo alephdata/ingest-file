@@ -31,37 +31,39 @@ class PDFIngestor(Ingestor, PDFSupport, FSSupport, XMLSupport):
     def ingest(self, config):
         """Ingestor implementation."""
         with self.create_temp_dir() as temp_dir:
-
             xml, page_selector = self.pdf_to_xml(
                 self.fio, self.file_path, temp_dir, config)
 
             for page in self.xml_to_text(xml, page_selector):
-                needs_ocr, text = self.page_to_text(page)
-                pagenum = page.get('number') or 0
-
-                if not needs_ocr:
-                    child = HTMLIngestor(
-                        fio=io.StringIO(text),
-                        file_path=self.file_path,
-                        parent=self
-                    )
-                else:
-                    page_image_path = self.pdf_page_to_image(
-                        pagenum,
-                        self.file_path,
-                        config['PDFTOPPM_BIN'],
-                        temp_dir
-                    )
-
-                    child = ImageIngestor(
-                        fio=io.open(page_image_path, 'rb'),
-                        file_path=page_image_path,
-                        parent=self
-                    )
-
-                child.result.order = pagenum
-                self.children.append(child)
+                self.add_child(page, self.file_path, temp_dir, config)
 
             for child in self.children:
                 child.run()
                 child.fio.close()
+
+    def add_child(self, page, file_path, temp_dir, config):
+        needs_ocr, text = self.page_to_text(page)
+        pagenum = page.get('number') or 0
+
+        if not needs_ocr:
+            child = HTMLIngestor(
+                fio=io.StringIO(text),
+                file_path=file_path,
+                parent=self
+            )
+        else:
+            page_image_path = self.pdf_page_to_image(
+                pagenum,
+                file_path,
+                config['PDFTOPPM_BIN'],
+                temp_dir
+            )
+
+            child = ImageIngestor(
+                fio=io.open(page_image_path, 'rb'),
+                file_path=page_image_path,
+                parent=self
+            )
+
+        child.result.order = pagenum
+        self.children.append(child)
