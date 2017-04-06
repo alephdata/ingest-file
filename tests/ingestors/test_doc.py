@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import io
+from datetime import datetime
 from unittest import skipUnless
 
 from ingestors.doc import DocumentIngestor
@@ -9,7 +10,7 @@ from ..support import TestCase
 
 class DocumentIngestorTest(TestCase):
 
-    def test_ingest_on_unicode_file(self):
+    def test_ingest_word_doc(self):
         fixture_path = self.fixture('doc.doc')
 
         with io.open(fixture_path, mode='rb') as fio:
@@ -27,6 +28,23 @@ class DocumentIngestorTest(TestCase):
             ing.children[1].result.content
         )
 
+    def test_ingest_presentation_doc(self):
+        fixture_path = self.fixture('slides.ppt')
+
+        with io.open(fixture_path, mode='rb') as fio:
+            ing = DocumentIngestor(fio, fixture_path)
+            ing.run()
+
+        today = datetime.now()
+
+        self.assertIsNone(ing.result.content)
+        self.assertEqual(len(ing.children), 1)
+        self.assertIn(u'Now', ing.children[0].result.content)
+        self.assertIn(
+            today.strftime('%x %I:%M %p'),
+            ing.children[0].result.content
+        )
+
     @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
     def test_ingest_encrypted_doc(self):
         fixture_path = self.fixture('bad/encypted_by_libreoffice.docx')
@@ -38,8 +56,6 @@ class DocumentIngestorTest(TestCase):
         self.assertIsNone(ing.result.content)
 
         # TODO: This file should fail because it requires a password.
-        # Consider using alternative tools for handling the converstion
-        # See: https://github.com/dagwieers/unoconv
         self.assertEqual(len(ing.children), 17)
 
     @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
@@ -97,7 +113,5 @@ class DocumentIngestorTest(TestCase):
 
         self.assertIsNone(ing.result.content)
         self.assertEqual(len(ing.children), 1)
-        self.assertEqual(
-            u'b\nJ\n\n42. zip 42. zip.txt',
-            ing.children[0].result.content
-        )
+        self.assertIn(u'42.', ing.children[0].result.content)
+        self.assertIn(u'zip.txt', ing.children[0].result.content)
