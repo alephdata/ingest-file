@@ -14,7 +14,8 @@ requirements = [
     'urllib3==1.20',
     'lxml==3.7.3',
     'tesserwrap==0.1.6',
-    'pillow==4.0.0'
+    'pillow==4.0.0',
+    'subprocess32==3.2.7'
 ]
 
 test_requirements = [
