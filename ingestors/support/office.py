@@ -17,8 +17,7 @@ class OfficeSupport(object):
         unoconv_bin = config['UNOCONV_BIN'] or find_executable('unoconv')
         out_file = os.path.join(temp_dir, 'out.pdf')
 
-        unoconv = [
-            unoconv_bin,
+        unoconv = unoconv_bin.split(' ') + [
             '-f', 'pdf',
             '-o', out_file,
             file_path

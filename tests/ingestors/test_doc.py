@@ -20,7 +20,7 @@ class DocumentIngestorTest(TestCase):
         self.assertIsNone(ing.result.content)
         self.assertEqual(len(ing.children), 2)
         self.assertIn(
-            u'This is a sample Microsoft Word Document.',
+            u'This is a sample Microsoft Word Document.',
             ing.children[0].result.content
         )
         self.assertIn(
@@ -53,10 +53,9 @@ class DocumentIngestorTest(TestCase):
             ing = DocumentIngestor(fio, fixture_path)
             ing.run()
 
+        self.assertEqual(ing.status, DocumentIngestor.STATUSES.FAILURE)
         self.assertIsNone(ing.result.content)
-
-        # TODO: This file should fail because it requires a password.
-        self.assertEqual(len(ing.children), 17)
+        self.assertEqual(len(ing.children), 0)
 
     @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
     def test_ingest_bad_doc(self):
