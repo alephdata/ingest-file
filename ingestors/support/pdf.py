@@ -50,8 +50,8 @@ class PDFSupport(object):
         ]
 
         retcode = subprocess.call(pdftohtml)
-        assert retcode == 0, 'Execution failed: %r'.format(pdftohtml)
-        assert os.path.exists(out_file), 'File missing: %r'.format(out_file)
+        assert retcode == 0, 'Execution failed: {}'.format(pdftohtml)
+        assert os.path.exists(out_file), 'File missing: {}'.format(out_file)
 
         with open(out_file, 'r') as htmlio:
             xml = stringify(htmlio.read())

@@ -30,7 +30,7 @@ class OfficeSupport(object):
         self.logger.info('Converting %r using %r...', file_path, unoconv_bin)
 
         retcode = subprocess.call(unoconv, timeout=self.CONVERTION_TIMEOUT)
-        assert retcode == 0, 'Execution failed: %r'.format(unoconv)
-        assert os.path.exists(out_file), 'File missing: %r'.format(out_file)
+        assert retcode == 0, 'Execution failed: {}'.format(unoconv)
+        assert os.path.exists(out_file), 'File missing: {}'.format(out_file)
 
         return out_file
