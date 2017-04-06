@@ -1,17 +1,20 @@
 import os.path
-import subprocess
-from distutils.spawn import find_executable
-from logging import getLogger
+import logging
+import subprocess32 as subprocess
 from urlparse import urljoin
+from distutils.spawn import find_executable
 
 import urllib3
 from normality import stringify
 
 
 class PDFSupport(object):
-    """Provides support for extracting data from PDF."""
+    """Provides support for extracting data from PDF.
 
-    logger = getLogger(__name__)
+    Can use a TIKA server or Poppler system tools.
+    """
+
+    logger = logging.getLogger(__name__)
 
     #: Poppler tools XML selector for page breaks
     POPPLER_PAGE_SELECTOR = './page'
@@ -19,6 +22,7 @@ class PDFSupport(object):
     TIKA_PAGE_SELECTOR = './/div[@class="page"]'
 
     def pdf_to_xml(self, fio, file_path, temp_dir, config):
+        """Converts a PDF to XML using any of the available tools."""
         if config.get('TIKA_URI'):
             return self.pdf_to_xml_tika(fio, config['TIKA_URI'], temp_dir)
         elif config.get('PDFTOHTML_BIN'):

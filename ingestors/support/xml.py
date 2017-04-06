@@ -1,3 +1,5 @@
+import logging
+
 from lxml import etree, html
 from lxml.html.clean import Cleaner
 
@@ -5,6 +7,9 @@ from lxml.html.clean import Cleaner
 class XMLSupport(object):
     """Provides helpers for XML parsing tasks."""
 
+    logger = logging.getLogger(__name__)
+
+    #: Image ratio compared to the document size
     IMAGE_RATIO_FOR_OCR = 0.3
 
     CLEANER = Cleaner(

@@ -9,6 +9,12 @@ class DocumentIngestor(PDFIngestor, OfficeSupport):
     """Office/Word document ingestor class.
 
     Converts the document to PDF and extracts the text.
+
+    Requires system tools:
+
+    - unoconv (will bring Open/Libre Office dependencies)
+    - image ingestor dependencies to cover any embeded images OCR
+
     """
 
     MIME_TYPES = [
@@ -47,6 +53,7 @@ class DocumentIngestor(PDFIngestor, OfficeSupport):
                 xml, page_selector = self.pdf_to_xml(
                     pdfio, pdf_path, temp_dir, config)
 
+                # Pass pages similar to the way PDF is handling it.
                 for page in self.xml_to_text(xml, page_selector):
                     self.add_child(page, pdf_path, temp_dir, config)
 

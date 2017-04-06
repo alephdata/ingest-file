@@ -1,4 +1,5 @@
 import os.path
+import logging
 import subprocess32 as subprocess
 from distutils.spawn import find_executable
 
@@ -6,10 +7,13 @@ from distutils.spawn import find_executable
 class OfficeSupport(object):
     """Provides helpers for Libre/Open Office tools."""
 
+    logger = logging.getLogger(__name__)
+
     #: Convertion time before the job gets cancelled.
     CONVERTION_TIMEOUT = 5 * 60
 
     def doc_to_pdf(self, fio, file_path, temp_dir, config):
+        """Converts an office document to PDF."""
         unoconv_bin = config['UNOCONV_BIN'] or find_executable('unoconv')
         out_file = os.path.join(temp_dir, 'out.pdf')
 
