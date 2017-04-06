@@ -12,14 +12,13 @@ with open('HISTORY.rst') as history_file:
 requirements = [
     'normality==0.4.0',
     'urllib3==1.20',
-    'lxml==3.7.3',
-    'tesserwrap==0.1.6',
-    'pillow==4.0.0',
     'subprocess32==3.2.7'
 ]
 
-test_requirements = [
-    # TODO: put package test requirements here
+system_requirements = [
+    'lxml==3.7.3',
+    'tesserwrap==0.1.6',
+    'pillow==4.0.0'
 ]
 
 setup(
@@ -36,6 +35,7 @@ setup(
     package_dir={'ingestors': 'ingestors'},
     include_package_data=True,
     install_requires=requirements,
+    extras_require=dict(full=system_requirements),
     license="MIT license",
     zip_safe=False,
     keywords='ingestors',
@@ -47,11 +47,7 @@ setup(
         "Programming Language :: Python :: 2",
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
     ],
     test_suite='tests',
-    tests_require=test_requirements
+    tests_require=system_requirements
 )
