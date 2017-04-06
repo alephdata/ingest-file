@@ -10,35 +10,23 @@ class OfficeSupport(object):
     CONVERTION_TIMEOUT = 5 * 60
 
     def doc_to_pdf(self, fio, file_path, temp_dir, config):
-        soffice_bin = config['SOFFICE_BIN'] or find_executable('soffice')
-        work_dir = os.path.join(temp_dir, 'work_dir')
-        inst_dir = os.path.join(temp_dir, 'inst_dir')
-        inst_path = u'"-env:UserInstallation=file://{}"'.format(inst_dir)
+        unoconv_bin = config['UNOCONV_BIN'] or find_executable('unoconv')
+        out_file = os.path.join(temp_dir, 'out.pdf')
 
-        soffice = [
-            soffice_bin,
-            '--convert-to', 'pdf',
-            '--nofirststartwizard',
-            inst_path,
-            '--norestore',
-            '--nologo',
-            '--nodefault',
-            '--nolockcheck',
-            '--invisible',
-            '--outdir', work_dir,
-            '--headless',
+        unoconv = [
+            unoconv_bin,
+            '-f', 'pdf',
+            '-o', out_file,
             file_path
         ]
 
-        if not soffice_bin:
+        if not unoconv_bin:
             raise RuntimeError('No Libre/Open Office tools available.')
 
-        self.logger.info('Converting %r using %r...', file_path, soffice_bin)
+        self.logger.info('Converting %r using %r...', file_path, unoconv_bin)
 
-        retcode = subprocess.call(soffice, timeout=self.CONVERTION_TIMEOUT)
-        conv_files = os.listdir(work_dir)
-        assert retcode == 0, 'Execution failed: %r'.format(soffice)
-        assert len(conv_files) == 1, 'Unexpected files: %r'.format(work_dir)
+        retcode = subprocess.call(unoconv, timeout=self.CONVERTION_TIMEOUT)
+        assert retcode == 0, 'Execution failed: %r'.format(unoconv)
+        assert os.path.exists(out_file), 'File missing: %r'.format(out_file)
 
-        for out_file in conv_files:
-            yield os.path.join(work_dir, out_file)
+        return out_file
