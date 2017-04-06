@@ -19,6 +19,7 @@ addons:
       - tesseract-ocr-eng
       - imagemagick
       - poppler-utils
+      - unoconv
 
 before_install:
   - git clone --depth=1 https://gitlab.com/dzmitry-lahoda/ediscovery-files.git ~/ediscovery-files
