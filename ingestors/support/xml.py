@@ -1,7 +1,13 @@
 import logging
 
-from lxml import etree, html
-from lxml.html.clean import Cleaner
+try:
+    from lxml import etree, html
+    from lxml.html.clean import Cleaner
+except ImportError as error:
+    logging.exception(error)
+
+    def Cleaner(*args, **kwargs):
+        pass
 
 
 class XMLSupport(object):

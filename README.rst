@@ -34,6 +34,10 @@ To install Ingestors, use `pip` or add it to your project dependencies.
 
     $ pip install ingestors
 
+To install all system dependencies, use::
+
+    $ pip install ingestors[full]
+
 If you don't have `pip` installed, this `Python installation guide`_ can guide
 you through the process.
 
