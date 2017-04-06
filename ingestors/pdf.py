@@ -42,6 +42,7 @@ class PDFIngestor(Ingestor, PDFSupport, FSSupport, XMLSupport):
                 child.fio.close()
 
     def add_child(self, page, file_path, temp_dir, config):
+        """Creates a new child ingestor based on the page contents."""
         needs_ocr, text = self.page_to_text(page)
         pagenum = page.get('number') or 0
 
