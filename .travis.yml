@@ -1,6 +1,5 @@
-# Config file for automatic testing at travis-ci.org
-# This file will be regenerated if you run travis_pypi_setup.py
-
+dist: trusty
+sudo: required
 language: python
 python: 2.7
 
@@ -12,6 +11,11 @@ cache:
   - directories:
     - ~/ediscovery-files
 
+# This file is huge!
+before_cache:
+  - rm -f ~/ediscovery-files/.git
+  - rm -f ~/ediscovery-files/assets/scale/randomTextDataZip
+
 addons:
   apt:
     packages:
@@ -22,7 +26,7 @@ addons:
       - unoconv
 
 before_install:
-  - git clone --depth=1 https://gitlab.com/dzmitry-lahoda/ediscovery-files.git ~/ediscovery-files
+  - test -d ~/ediscovery-files || git clone --depth=1 https://gitlab.com/dzmitry-lahoda/ediscovery-files.git ~/ediscovery-files
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: pip install -r requirements_dev.txt
