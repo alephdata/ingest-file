@@ -28,7 +28,7 @@ addons:
 before_install:
   - pip install -U pip setuptools
   - curl https://raw.githubusercontent.com/dagwieers/unoconv/master/unoconv -o ~/unoconv && chmod +x ~/unoconv
-  - eval $UNOCONV_BIN -vvv -l &
+  - eval $UNOCONV_BIN --version
   - test -d ~/ediscovery-files/assets || git clone --depth=1 https://gitlab.com/dzmitry-lahoda/ediscovery-files.git ~/ediscovery-files
 
 env:
