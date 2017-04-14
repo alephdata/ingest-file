@@ -12,7 +12,8 @@ with open('HISTORY.rst') as history_file:
 requirements = [
     'normality==0.4.0',
     'urllib3==1.20',
-    'subprocess32==3.2.7'
+    'subprocess32==3.2.7',
+    'messytables==0.15.2'
 ]
 
 system_requirements = [
