@@ -48,9 +48,8 @@ class PDFIngestor(Ingestor, PDFSupport, FSSupport, XMLSupport):
 
         if not needs_ocr:
             child = HTMLIngestor(
-                fio=io.StringIO(text),
-                file_path=file_path,
-                parent=self
+                fio=io.BytesIO(bytearray(text, 'utf-8')),
+                file_path=file_path
             )
         else:
             page_image_path = self.pdf_page_to_image(
@@ -62,9 +61,8 @@ class PDFIngestor(Ingestor, PDFSupport, FSSupport, XMLSupport):
 
             child = ImageIngestor(
                 fio=io.open(page_image_path, 'rb'),
-                file_path=page_image_path,
-                parent=self
+                file_path=page_image_path
             )
 
-        child.result.order = pagenum
+        child.result.order = int(pagenum or 0)
         self.children.append(child)

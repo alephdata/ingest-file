@@ -2,12 +2,22 @@
 import io
 from unittest import skipUnless
 
-from ingestors.pdf import PDFIngestor
+from ingestors.pdf import Ingestor, PDFIngestor
 
 from ..support import TestCase
 
 
 class PDFIngestorTest(TestCase):
+
+    def test_match(self):
+        fixture_path = self.fixture('readme.pdf')
+
+        with io.open(fixture_path, mode='rb') as fio:
+            ingestor_class, mime_type = Ingestor.match(fio)
+
+        self.assertTrue(issubclass(ingestor_class, Ingestor))
+        self.assertIs(ingestor_class, PDFIngestor)
+        self.assertEqual(mime_type, 'application/pdf')
 
     def test_ingest_binary_mode(self):
         fixture_path = self.fixture('readme.pdf')
@@ -72,7 +82,7 @@ class PDFIngestorTest(TestCase):
 
         cur_page = 1
         for child in ing.children:
-            self.assertEqual(child.result.order, str(cur_page))
+            self.assertEqual(child.result.order, cur_page)
             self.assertEqual(child.status, PDFIngestor.STATUSES.SUCCESS)
             self.assertEqual(child.state, PDFIngestor.STATES.FINISHED)
             cur_page += 1
