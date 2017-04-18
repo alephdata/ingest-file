@@ -1,4 +1,3 @@
-import io
 from datetime import datetime
 
 from ingestors.ingestor import Ingestor
