@@ -10,13 +10,21 @@ class TabularIngestor(Ingestor, OfficeSupport):
 
     MIME_TYPES = [
         'text/csv',
+        'text/tsv',
+        'text/tab-separated-values',
+        'text/comma-separated-values',
+        'application/csv',
+        'application/tsv',
+        'application/xls',
         'application/excel',
         'application/x-excel',
+        'application/ms-excel',
         'application/x-msexcel',
         'application/vnd.ms-excel',
-        'text/tab-separated-values',
         'application/vnd.oasis.opendocument.spreadsheet',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        'application/x-vnd.oasis.opendocument.spreadsheet',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheetapplication/zip',  # noqa
     ]
 
     def configure(self):
@@ -36,10 +44,10 @@ class TabularIngestor(Ingestor, OfficeSupport):
             self.result.columns[rowset.name] = False
 
             for mapping in self.sheet_row_to_dicts(sheet_number, rowset):
-                row_ingestor = Ingestor(self.fio, self.file_path, self)
+                row_ingestor = Ingestor(self.fio, self.file_path)
                 row_ingestor.result.sheet_name = rowset.name
                 row_ingestor.result.sheet_number = sheet_number
-                row_ingestor.result.page = count
+                row_ingestor.result.order = count
                 row_ingestor.result.content = mapping
 
                 self.children.append(row_ingestor)
