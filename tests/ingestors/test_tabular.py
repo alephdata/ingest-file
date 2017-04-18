@@ -3,12 +3,25 @@ import io
 from datetime import datetime
 from unittest import skipUnless
 
-from ingestors.tabular import TabularIngestor
+from ingestors.tabular import TabularIngestor, Ingestor
 
 from ..support import TestCase
 
 
 class TabularIngestorTest(TestCase):
+
+    def test_match(self):
+        fixture_path = self.fixture('file.xlsx')
+
+        with io.open(fixture_path, mode='rb') as fio:
+            ingestor_class, mime_type = Ingestor.match(fio)
+
+        self.assertTrue(issubclass(ingestor_class, Ingestor))
+        self.assertIs(ingestor_class, TabularIngestor)
+        self.assertEqual(
+            mime_type,
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
 
     def test_ingest_excel_file(self):
         fixture_path = self.fixture('file.xlsx')
@@ -26,7 +39,7 @@ class TabularIngestorTest(TestCase):
 
         self.assertEqual(ing.children[0].result.sheet_name, 'Sheet1')
         self.assertEqual(ing.children[0].result.sheet_number, 0)
-        self.assertEqual(ing.children[0].result.page, 0)
+        self.assertEqual(ing.children[0].result.order, 0)
         self.assertEqual(dict(ing.children[0].result.content), {
             u'Name': u'Mihai Viteazul',
             u'Timestamp': datetime(1871, 12, 29, 13, 48),
@@ -35,7 +48,7 @@ class TabularIngestorTest(TestCase):
 
         self.assertEqual(ing.children[1].result.sheet_name, 'Sheet2')
         self.assertEqual(ing.children[1].result.sheet_number, 1)
-        self.assertEqual(ing.children[1].result.page, 1)
+        self.assertEqual(ing.children[1].result.order, 1)
         self.assertEqual(ing.children[1].result.content, {
             u'Title': u'Vlad Țepeș',
             u'Timestamp': datetime(1953, 9, 13, 22, 1),
@@ -58,7 +71,7 @@ class TabularIngestorTest(TestCase):
         )
         self.assertEqual(ing.children[0].result.sheet_name, 'table')
         self.assertEqual(ing.children[0].result.sheet_number, 0)
-        self.assertEqual(ing.children[0].result.page, 0)
+        self.assertEqual(ing.children[0].result.order, 0)
         self.assertEqual(dict(ing.children[0].result.content), {
             u'AUTHOR': u'J. Smith',
             u'BEGDOC': 1,
