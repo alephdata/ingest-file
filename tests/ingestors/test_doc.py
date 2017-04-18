@@ -3,12 +3,23 @@ import io
 from datetime import datetime
 from unittest import skipUnless
 
+from ingestors.ingestor import Ingestor
 from ingestors.doc import DocumentIngestor
 
 from ..support import TestCase
 
 
 class DocumentIngestorTest(TestCase):
+
+    def test_match(self):
+        fixture_path = self.fixture('doc.doc')
+
+        with io.open(fixture_path, mode='rb') as fio:
+            ingestor_class, mime_type = Ingestor.match(fio)
+
+        self.assertTrue(issubclass(ingestor_class, Ingestor))
+        self.assertIs(ingestor_class, DocumentIngestor)
+        self.assertEqual(mime_type, 'application/CDFV2-unknown')
 
     def test_ingest_word_doc(self):
         fixture_path = self.fixture('doc.doc')
