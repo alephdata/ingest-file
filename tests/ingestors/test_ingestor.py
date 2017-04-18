@@ -1,3 +1,4 @@
+import io
 from datetime import datetime
 
 from ingestors.ingestor import Ingestor
@@ -95,3 +96,11 @@ class IngestorTest(TestCase):
         self.assertDictContainsSubset(
             {'before': True, 'after': True}, ing.result
         )
+
+    def test_find_ingestors(self):
+        ingestors = Ingestor.find_ingestors()
+
+        self.assertEqual(len(ingestors), 6)
+
+        for ingestor_class in ingestors:
+            self.assertTrue(issubclass(ingestor_class, Ingestor))

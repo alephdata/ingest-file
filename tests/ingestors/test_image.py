@@ -1,12 +1,22 @@
 import io
 from unittest import skipUnless
 
-from ingestors.image import ImageIngestor
+from ingestors.image import ImageIngestor, Ingestor
 
 from ..support import TestCase
 
 
 class ImageIngestorTest(TestCase):
+
+    def test_match(self):
+        fixture_path = self.fixture('image.svg')
+
+        with io.open(fixture_path, mode='rb') as fio:
+            ingestor_class, mime_type = Ingestor.match(fio)
+
+        self.assertTrue(issubclass(ingestor_class, Ingestor))
+        self.assertIs(ingestor_class, ImageIngestor)
+        self.assertEqual(mime_type, 'image/svg+xml')
 
     def test_ingest_on_svg(self):
         fixture_path = self.fixture('image.svg')

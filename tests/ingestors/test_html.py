@@ -2,12 +2,22 @@
 import io
 from unittest import skipUnless
 
-from ingestors.html import HTMLIngestor
+from ingestors.html import HTMLIngestor, Ingestor
 
 from ..support import TestCase
 
 
 class HTMLIngestorTest(TestCase):
+
+    def test_match(self):
+        fixture_path = self.fixture('doc.html')
+
+        with io.open(fixture_path, mode='rb') as fio:
+            ingestor_class, mime_type = Ingestor.match(fio)
+
+        self.assertTrue(issubclass(ingestor_class, Ingestor))
+        self.assertIs(ingestor_class, HTMLIngestor)
+        self.assertEqual(mime_type, 'text/html')
 
     def test_ingest_on_unicode_file(self):
         fixture_path = self.fixture('doc.html')

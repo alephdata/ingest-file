@@ -2,12 +2,22 @@
 import io
 from unittest import skipUnless
 
-from ingestors.text import TextIngestor
+from ingestors.text import TextIngestor, Ingestor
 
 from ..support import TestCase
 
 
 class TextIngestorTest(TestCase):
+
+    def test_match(self):
+        fixture_path = self.fixture('utf.txt')
+
+        with io.open(fixture_path, mode='rb') as fio:
+            ingestor_class, mime_type = Ingestor.match(fio)
+
+        self.assertTrue(issubclass(ingestor_class, Ingestor))
+        self.assertIs(ingestor_class, TextIngestor)
+        self.assertEqual(mime_type, 'text/plain')
 
     def test_ingest_on_unicode_file(self):
         fixture_path = self.fixture('utf.txt')

@@ -2,7 +2,15 @@ import sys
 import traceback
 import os.path
 import logging
+import importlib
+import inspect
+import hashlib
 from datetime import datetime
+
+try:
+    import magic
+except ImportError as error:
+    logging.exception(error)
 
 
 class States:
@@ -53,7 +61,7 @@ class Result(dict):
         """
 
         self.mime_type = None
-        self.file_size = None
+        self.file_size = 0
         self.checksum = None
         self.title = None
         self.authors = []
@@ -61,6 +69,27 @@ class Result(dict):
         self.order = 0
 
         super(Result, self).__init__(self, *args, **kwargs)
+
+    def extract_file_info(self, fio, file_path, blocksize=65536):
+        """Extracts and updates general file info from its data and path.
+
+        :param fio: An instance of the file to process.
+        :type fio: py:class:`io.FileIO`
+        :param file_path: The file path.
+        :type file_path: str
+        :param blocksize: The blocksize to read chunks of data.
+        :type blocksize: int
+        """
+        sha_hash = hashlib.sha1()
+
+        for chunk in iter(lambda: fio.read(blocksize), b''):
+            sha_hash.update(chunk)
+
+        self.checksum = sha_hash.hexdigest()
+        self.file_size = fio.tell()
+        self.title = os.path.basename(file_path)
+
+        fio.seek(0)
 
 
 class Ingestor(object):
@@ -82,12 +111,16 @@ class Ingestor(object):
         AssertionError
     ]
 
-    def __init__(self, fio, file_path, parent=None):
+    def __init__(self, fio, file_path, parent=None, mime_type=None):
         """Generic ingestor constructor class.
 
-        :param :py:class:`io.FileIO` fio: An instance of the file to process.
-        :param str file_path: The file path.
-        :param :py:class:`Ingestor` parent: An instance of the parent ignestor.
+        :param fio: An instance of the file to process.
+        :type fio: py:class:`io.FileIO`
+        :param file_path: The file path.
+        :type file_path: str
+        :param parent: Indicates parent file if this is was part of a composed
+                       file. Examples: archives, email files, etc.
+        :type parent: :py:class:`Ingestor`
         """
         self.fio = fio
         self.file_path = os.path.realpath(file_path)
@@ -100,7 +133,11 @@ class Ingestor(object):
         self.logger = logging.getLogger(self.__module__)
         self.failure_exceptions = tuple(self.FAILURE_EXCEPTIONS)
 
-        self.result = Result()
+        self.result = Result(mime_type=mime_type)
+
+        # Do not extract file info unless it is a new file
+        if mime_type:
+            self.result.extract_file_info(self.fio, self.file_path)
 
     def configure(self):
         """Ingestor configuration endpoint.
@@ -171,3 +208,45 @@ class Ingestor(object):
             self.ended_at = datetime.utcnow()
             self.state = States.FINISHED
             self.after()
+
+    @classmethod
+    def find_ingestors(cls, cache=[]):
+        """Finds available ingestors and caches the results.
+
+        :return: A list of classes.
+        :rtype: list
+        """
+        if cache:
+            return cache
+
+        module = importlib.import_module(__package__)
+
+        for attr_name in dir(module):
+            attr = getattr(module, attr_name)
+
+            if inspect.isclass(attr) and issubclass(cls, Ingestor):
+                cache.append(attr)
+
+        return cache
+
+    @classmethod
+    def match(cls, fio, blocksize=4096):
+        """Runs file mime type detection to discover appropriate ingestor class.
+
+        :param fio: File object to run detection.
+        :type fio: :py:class:`io.FileIO`
+        :return: Detected ingestor class and file mime type.
+        :rtype: tuple
+        """
+        mime_type = magic.from_buffer(fio.read(blocksize), mime=True)
+        fio.seek(0)
+
+        for ingestor_class in cls.find_ingestors():
+
+            if mime_type in ingestor_class.MIME_TYPES:
+                return ingestor_class, mime_type
+
+        logging.getLogger(__package__).error(
+            'No ingestors matched mime type: {}'.format(mime_type))
+
+        return None, mime_type
