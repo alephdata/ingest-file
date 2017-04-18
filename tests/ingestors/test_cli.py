@@ -29,8 +29,8 @@ class CliTest(TestCase):
 
         self.assertEqual(data, {
             'title': 'readme.pdf',
-            'checksum': '08816cc659443a49ab9c682a2741e9b7d58cca9e',
-            'file_size': 338298,
+            'checksum': 'f26b980762285ab31143792df9b8d1dfa9643cb0',
+            'file_size': 73627,
             'content': None,
             'authors': [],
             'order': 0,
@@ -38,7 +38,6 @@ class CliTest(TestCase):
         })
 
         self.assertIsNotNone(children[0].pop('content'))
-        self.assertIsNotNone(children[1].pop('content'))
 
         self.assertEqual(children[0], {
             'news_keywords': None,
@@ -50,18 +49,5 @@ class CliTest(TestCase):
             'file_size': 0,
             'authors': [],
             'order': 1,
-            'mime_type': None
-        })
-
-        self.assertEqual(children[1], {
-            'news_keywords': None,
-            'keywords': None,
-            'description': None,
-            'urls': {},
-            'title': None,
-            'checksum': None,
-            'file_size': 0,
-            'authors': [],
-            'order': 2,
             'mime_type': None
         })
