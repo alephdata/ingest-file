@@ -36,7 +36,8 @@ class DocumentIngestor(PDFIngestor, OfficeSupport):
         'application/vnd.openxmlformats-officedocument.presentationml.presentation',  # noqa
 
         # MS Office files with short stream missing
-        'application/CDFV2-unknown'
+        'application/CDFV2-unknown',
+        'application/CDFV2-corrupt'
     ]
 
     def configure(self):
