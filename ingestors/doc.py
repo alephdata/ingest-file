@@ -34,6 +34,9 @@ class DocumentIngestor(PDFIngestor, OfficeSupport):
         'application/vnd.oasis.opendocument.presentation',
         'application/vnd.openxmlformats-officedocument.presentationml.slideshow',  # noqa
         'application/vnd.openxmlformats-officedocument.presentationml.presentation',  # noqa
+
+        # MS Office files with short stream missing
+        'application/CDFV2-unknown'
     ]
 
     def configure(self):
