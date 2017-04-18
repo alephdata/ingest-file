@@ -38,6 +38,39 @@ To install all system dependencies, use::
 
     $ pip install ingestors[full]
 
+Once installed, this package provides a command line tool::
+
+    $ python -m ingestors.cli <PATH TO YOUR FILE>
+
+This tool will print the JSON formatted results.
+
+.. code-block:: console
+
+    $ python -m ingestors.cli tests/fixtures/image.svg
+    {
+      "authors": [],
+      "checksum": "a0233ebbf9d64a0adf1ddf13be248cd48c2ad69f",
+      "content": "Testing ingestors 1..2..3..",
+      "file_size": 15969,
+      "mime_type": "image/svg+xml",
+      "order": 0,
+      "title": "image.svg"
+    }
+
+There's also a simple API you can use.
+For more help, please see the `usage <specs.html>`_.
+
+
+.. code-block:: python
+
+    import io
+    import ingestors
+
+    with io.open('myfile.txt', 'rb') as fio:
+        ingestor, data, children_data = ingestors.ingest(fio, file_path)
+
+        print ingestor, data, children_data
+
 If you don't have `pip` installed, this `Python installation guide`_ can guide
 you through the process.
 
