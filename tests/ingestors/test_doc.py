@@ -11,15 +11,19 @@ from ..support import TestCase
 
 class DocumentIngestorTest(TestCase):
 
+    @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
     def test_match(self):
-        fixture_path = self.fixture('doc.doc')
+        fixture_path = self.fixture('documents/hello world word.docx')
 
         with io.open(fixture_path, mode='rb') as fio:
             ingestor_class, mime_type = Ingestor.match(fio)
 
         self.assertTrue(issubclass(ingestor_class, Ingestor))
         self.assertIs(ingestor_class, DocumentIngestor)
-        self.assertEqual(mime_type, 'application/CDFV2-unknown')
+        self.assertEqual(
+            mime_type,
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'  # noqa
+        )
 
     def test_ingest_word_doc(self):
         fixture_path = self.fixture('doc.doc')

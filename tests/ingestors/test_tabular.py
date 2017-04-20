@@ -10,8 +10,9 @@ from ..support import TestCase
 
 class TabularIngestorTest(TestCase):
 
+    @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
     def test_match(self):
-        fixture_path = self.fixture('file.xlsx')
+        fixture_path = self.fixture('bad/no extension xlsx file')
 
         with io.open(fixture_path, mode='rb') as fio:
             ingestor_class, mime_type = Ingestor.match(fio)
