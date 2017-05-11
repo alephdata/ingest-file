@@ -169,7 +169,7 @@ class Ingestor(object):
         """Callback called after the processing of a child starts."""
         pass
 
-    def exception_handler(self, exception=None):
+    def exception_handler(self):
         """Ingestor error handler."""
         self.log_exception()
 
@@ -198,7 +198,7 @@ class Ingestor(object):
         try:
             self.ingest(config)
         except Exception as exception:
-            self.exception_handler(exception)
+            self.exception_handler()
 
             if isinstance(exception, self.failure_exceptions):
                 self.status = Statuses.FAILURE
