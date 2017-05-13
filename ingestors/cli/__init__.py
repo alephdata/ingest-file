@@ -3,7 +3,7 @@ import json
 import decimal
 import datetime
 
-from .. import ingest
+from ingestors import ingest
 
 
 def json_default(obj):
