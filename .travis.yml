@@ -23,18 +23,14 @@ addons:
       - imagemagick
       - poppler-utils
       - libreoffice
-      - unoconv
 
 before_install:
   - pip install -U pip setuptools
-  - curl https://raw.githubusercontent.com/dagwieers/unoconv/master/unoconv -o ~/unoconv && chmod +x ~/unoconv
-  - eval $UNOCONV_BIN --version
   - test -d ~/ediscovery-files/assets || git clone --depth=1 https://gitlab.com/dzmitry-lahoda/ediscovery-files.git ~/ediscovery-files
 
 env:
   global:
     - EXTRA_FIXTURES_PATH=~/ediscovery-files/assets
-    - UNOCONV_BIN="/usr/bin/python3 $HOME/unoconv -s 0.0.0.0 -p 102002 -vvv"
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: pip install -r requirements_dev.txt

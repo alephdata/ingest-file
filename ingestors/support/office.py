@@ -32,25 +32,38 @@ class OfficeSupport(object):
 
     def doc_to_pdf(self, fio, file_path, temp_dir, config):
         """Converts an office document to PDF."""
-        unoconv_bin = config['UNOCONV_BIN'] or find_executable('unoconv')
-        out_file = os.path.join(temp_dir, 'out.pdf')
+        soffice_bin = config['SOFFICE_BIN'] or find_executable('soffice')
+        instance_dir = os.path.join(temp_dir, 'soffice_instance')
+        out_dir = os.path.join(temp_dir, 'soffice_output')
 
-        unoconv = unoconv_bin.split(' ') + [
-            '-f', 'pdf',
-            '-o', out_file,
+        soffice = soffice_bin.split(' ') + [
+            '-env:UserInstallation=file://{}'.format(instance_dir),
+            '--nofirststartwizard',
+            '--norestore',
+            '--nologo',
+            '--nodefault',
+            '--nolockcheck',
+            '--invisible',
+            '--headless',
+            '--convert-to', 'pdf',
+            '--outdir', out_dir,
             file_path
         ]
 
-        if not unoconv_bin:
+        if not soffice_bin:
             raise RuntimeError('No Libre/Open Office tools available.')
 
-        self.logger.info('Converting %r using %r...', file_path, unoconv_bin)
+        self.logger.info('Converting %r using %r...', file_path, soffice)
 
-        retcode = subprocess.call(unoconv, timeout=self.CONVERTION_TIMEOUT)
-        assert retcode == 0, 'Execution failed: {}'.format(unoconv)
-        assert os.path.exists(out_file), 'File missing: {}'.format(out_file)
+        retcode = subprocess.call(soffice, timeout=self.CONVERTION_TIMEOUT)
+        assert retcode == 0, 'Execution failed: {}'.format(soffice)
+        assert os.path.exists(out_dir), 'Files missing in: {}'.format(out_dir)
 
-        return out_file
+        for out_file in os.listdir(out_dir):
+            out_file = os.path.join(out_dir, out_file)
+            return out_file
+
+        assert out_file, 'File missing: {}'.format(out_file)
 
     def tabular_to_tableset(self, fio, file_path, mimetype, config):
         """Parses tabular data into a set of sheets."""

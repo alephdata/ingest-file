@@ -12,7 +12,7 @@ class DocumentIngestor(PDFIngestor, OfficeSupport):
 
     Requires system tools:
 
-    - unoconv (will bring Open/Libre Office dependencies)
+    - Open/Libre Office with dependencies
     - image ingestor dependencies to cover any embeded images OCR
 
     """
@@ -43,7 +43,7 @@ class DocumentIngestor(PDFIngestor, OfficeSupport):
     def configure(self):
         """Ingestor configuration."""
         config = super(DocumentIngestor, self).configure()
-        config['UNOCONV_BIN'] = os.environ.get('UNOCONV_BIN')
+        config['SOFFICE_BIN'] = os.environ.get('SOFFICE_BIN')
         return config
 
     def ingest(self, config):
