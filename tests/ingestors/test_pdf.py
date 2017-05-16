@@ -27,11 +27,11 @@ class PDFIngestorTest(TestCase):
             ing.run()
 
         self.assertIsNone(ing.result.content)
-        self.assertEqual(len(ing.children), 1)
+        self.assertEqual(len(ing.detached), 1)
         self.assertIn(
             'Ingestors extract useful information'
             ' in a structured standard format',
-            ing.children[0].result.content
+            ing.detached[0].result.content
         )
 
     @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
@@ -44,9 +44,9 @@ class PDFIngestorTest(TestCase):
             ing.run()
 
         self.assertIsNone(ing.result.content)
-        self.assertEqual(len(ing.children), 500)
+        self.assertEqual(len(ing.detached), 500)
         self.assertEqual(
-            ing.children[0].result.content,
+            ing.detached[0].result.content,
             'Hello, World!\nHello, World!'
         )
 
@@ -59,10 +59,10 @@ class PDFIngestorTest(TestCase):
             ing.run()
 
         self.assertIsNone(ing.result.content)
-        self.assertEqual(len(ing.children), 588)
+        self.assertEqual(len(ing.detached), 588)
         self.assertIn(
             'ALGEBRA\nABSTRACT\nAND\nCONCRETE\nE\nDITION\n2.6',
-            ing.children[0].result.content
+            ing.detached[0].result.content
         )
 
     @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
@@ -74,17 +74,17 @@ class PDFIngestorTest(TestCase):
             ing.run()
 
         self.assertIsNone(ing.result.content)
-        self.assertEqual(len(ing.children), 6)
+        self.assertEqual(len(ing.detached), 6)
         self.assertIn(
             u'Würde und der gleichen und unveräußerlichen',
-            ing.children[0].result.content
+            ing.detached[0].result.content
         )
 
         cur_page = 1
-        for child in ing.children:
-            self.assertEqual(child.result.order, cur_page)
-            self.assertEqual(child.status, PDFIngestor.STATUSES.SUCCESS)
-            self.assertEqual(child.state, PDFIngestor.STATES.FINISHED)
+        for detached in ing.detached:
+            self.assertEqual(detached.result.order, cur_page)
+            self.assertEqual(detached.status, PDFIngestor.STATUSES.SUCCESS)
+            self.assertEqual(detached.state, PDFIngestor.STATES.FINISHED)
             cur_page += 1
 
     @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
@@ -96,7 +96,7 @@ class PDFIngestorTest(TestCase):
             ing.run()
 
         self.assertIsNone(ing.result.content)
-        self.assertEqual(len(ing.children), 15)
+        self.assertEqual(len(ing.detached), 15)
 
-        for child in ing.children:
-            self.assertIsNone(child.result.content)
+        for detached in ing.detached:
+            self.assertIsNone(detached.result.content)

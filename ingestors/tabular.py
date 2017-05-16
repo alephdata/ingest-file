@@ -34,23 +34,27 @@ class TabularIngestor(Ingestor, OfficeSupport):
 
     def ingest(self, config):
         """Ingestor implementation."""
+        count = 0
+        self.result.columns = dict()
+
         tableset = self.tabular_to_tableset(
             self.fio, self.file_path, self.result.mime_type, config)
-
-        self.result.columns = dict()
-        count = 0
 
         for sheet_number, rowset in enumerate(tableset):
             self.result.columns[rowset.name] = False
 
             for mapping in self.sheet_row_to_dicts(sheet_number, rowset):
-                row_ingestor = Ingestor(self.fio, self.file_path)
-                row_ingestor.result.sheet_name = rowset.name
-                row_ingestor.result.sheet_number = sheet_number
-                row_ingestor.result.order = count
-                row_ingestor.result.content = mapping
-
-                self.children.append(row_ingestor)
+                self.detach(
+                    ingestor_class=Ingestor,
+                    fio=None,
+                    file_path=self.file_path,
+                    result_extra={
+                        'sheet_name': rowset.name,
+                        'sheet_number': sheet_number,
+                        'order': count,
+                        'content': mapping,
+                    }
+                )
 
                 if not self.result.columns.get(rowset.name):
                     self.result.columns[rowset.name] = mapping.keys()

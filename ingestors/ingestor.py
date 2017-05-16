@@ -130,7 +130,7 @@ class Ingestor(object):
 
         self.result = Result(mime_type=mime_type)
 
-        # Do not extract file info unless it is a new file
+        # Do not extract file info unless the ingestor is detached.
         if mime_type:
             self.result.extract_file_info(self.fio, self.file_path)
 
@@ -164,6 +164,23 @@ class Ingestor(object):
         """Extract and log the latest exception."""
         lines = traceback.format_exception(*sys.exc_info())
         self.logger.error('\n'.join(lines))
+
+    def detach(self, ingestor_class, fio, file_path, result_extra=None):
+        """Handles the processing/dispatching of the partial work/ingestion.
+
+        The current implementation is just for demo purposes.
+        Feel free to overwrite and provide a more effective implementation.
+        """
+        self.detached = getattr(self, 'detached', [])
+
+        ingestor = ingestor_class(fio=fio, file_path=file_path)
+        self.detached.append(ingestor)
+
+        if result_extra and isinstance(result_extra, dict):
+            ingestor.result.update(result_extra)
+
+        if ingestor_class is not Ingestor:
+            ingestor.run()
 
     def ingest(self, config):
         """The ingestor implementation. Should be overwritten.
