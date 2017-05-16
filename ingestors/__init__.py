@@ -17,7 +17,7 @@ def ingest(fio, file_path):
     :type fio: py:class:`io.FileIO`
     :param file_path: The file path.
     :type file_path: str
-    :return: A tuple, the ingestor object, its data and detached ingestors data.
+    :return: Tuple, the ingestor object, its data and detached ingestors data.
     :rtype: tuple
     """
     ingestor_class, mime_type = TextIngestor.match(fio)
