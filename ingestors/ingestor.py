@@ -111,21 +111,16 @@ class Ingestor(object):
         AssertionError
     ]
 
-    def __init__(self, fio, file_path, parent=None, mime_type=None):
+    def __init__(self, fio, file_path, mime_type=None):
         """Generic ingestor constructor class.
 
         :param fio: An instance of the file to process.
         :type fio: py:class:`io.FileIO`
         :param file_path: The file path.
         :type file_path: str
-        :param parent: Indicates parent file if this is was part of a composed
-                       file. Examples: archives, email files, etc.
-        :type parent: :py:class:`Ingestor`
         """
         self.fio = fio
         self.file_path = os.path.realpath(file_path)
-        self.parent = parent
-        self.children = []
         self.state = States.NEW
         self.status = Statuses.SUCCESS
         self.started_at = None
@@ -159,14 +154,6 @@ class Ingestor(object):
 
     def after(self):
         """Callback called after the processing starts."""
-        pass
-
-    def before_child(self):
-        """Callback called before the processing of a child file starts."""
-        pass
-
-    def after_child(self):
-        """Callback called after the processing of a child starts."""
         pass
 
     def exception_handler(self):
