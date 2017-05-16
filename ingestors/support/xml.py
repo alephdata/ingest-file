@@ -45,6 +45,7 @@ class XMLSupport(object):
         return text.strip(), doc
 
     def xml_to_pages(self, xml, page_selector):
+        """Breaks a large XML into pages using an (lxml) selector."""
         parser = etree.XMLParser(recover=True, remove_comments=True)
         doc = etree.fromstring(xml, parser=parser)
 
