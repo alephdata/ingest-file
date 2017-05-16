@@ -17,7 +17,7 @@ def ingest(fio, file_path):
     :type fio: py:class:`io.FileIO`
     :param file_path: The file path.
     :type file_path: str
-    :return: A tuple with the ingestor object, its data and its children data.
+    :return: A tuple, the ingestor object, its data and detached ingestors data.
     :rtype: tuple
     """
     ingestor_class, mime_type = TextIngestor.match(fio)
@@ -27,6 +27,6 @@ def ingest(fio, file_path):
 
     ingestor = ingestor_class(fio, file_path, mime_type=mime_type)
     ingestor.run()
-    children_data = map(lambda c: c.result, ingestor.children)
+    detached_data = map(lambda c: c.result, getattr(ingestor, 'detached', []))
 
-    return ingestor, ingestor.result, children_data
+    return ingestor, ingestor.result, detached_data

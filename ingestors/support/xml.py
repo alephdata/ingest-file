@@ -44,7 +44,7 @@ class XMLSupport(object):
 
         return text.strip(), doc
 
-    def xml_to_text(self, xml, page_selector):
+    def xml_to_pages(self, xml, page_selector):
         parser = etree.XMLParser(recover=True, remove_comments=True)
         doc = etree.fromstring(xml, parser=parser)
 
@@ -53,7 +53,7 @@ class XMLSupport(object):
             yield page
 
     def page_to_text(self, page):
-        """Extracts (PDF) page content.
+        """Extracts (PDF converted to XML) page content.
 
         Returns the completion status, page number and the page text.
         If the status is not truthy, it requires extra processing (ex. OCR).

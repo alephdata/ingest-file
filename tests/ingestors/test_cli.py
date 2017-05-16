@@ -21,11 +21,11 @@ class CliTest(TestCase):
             'mime_type': 'text/plain'
         })
 
-    def test_cli_children(self):
+    def test_cli_pages(self):
         fixture_path = self.fixture('readme.pdf')
 
         data = cli.cli(fixture_path, echo=False)
-        children = data.pop('children')
+        pages = data.pop('pages')
 
         self.assertEqual(data, {
             'title': 'readme.pdf',
@@ -37,9 +37,9 @@ class CliTest(TestCase):
             'mime_type': 'application/pdf'
         })
 
-        self.assertIsNotNone(children[0].pop('content'))
+        self.assertIsNotNone(pages[0].pop('content'))
 
-        self.assertEqual(children[0], {
+        self.assertEqual(pages[0], {
             'news_keywords': None,
             'keywords': None,
             'description': None,

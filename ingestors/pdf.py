@@ -34,35 +34,32 @@ class PDFIngestor(Ingestor, PDFSupport, FSSupport, XMLSupport):
             xml, page_selector = self.pdf_to_xml(
                 self.fio, self.file_path, temp_dir, config)
 
-            for page in self.xml_to_text(xml, page_selector):
-                self.add_child(page, self.file_path, temp_dir, config)
+            for page in self.xml_to_pages(xml, page_selector):
+                self.add_page(page, self.file_path, temp_dir, config)
 
-            for child in self.children:
-                child.run()
-                child.fio.close()
-
-    def add_child(self, page, file_path, temp_dir, config):
-        """Creates a new child ingestor based on the page contents."""
+    def add_page(self, page, file_path, temp_dir, config):
+        """Detaches every page to specific ingestors."""
         needs_ocr, text = self.page_to_text(page)
-        pagenum = page.get('number') or 0
+        pagenum = int(page.get('number') or 0)
 
         if not needs_ocr:
-            child = HTMLIngestor(
-                fio=io.BytesIO(bytearray(text, 'utf-8')),
-                file_path=file_path
-            )
+            ingestor_class = HTMLIngestor
+            fio = io.BytesIO(bytearray(text, 'utf-8'))
         else:
-            page_image_path = self.pdf_page_to_image(
+            file_path = self.pdf_page_to_image(
                 pagenum,
                 file_path,
                 config['PDFTOPPM_BIN'],
                 temp_dir
             )
 
-            child = ImageIngestor(
-                fio=io.open(page_image_path, 'rb'),
-                file_path=page_image_path
-            )
+            ingestor_class = ImageIngestor
+            fio = io.open(file_path, 'rb')
 
-        child.result.order = int(pagenum or 0)
-        self.children.append(child)
+        with fio:
+            self.detach(
+                ingestor_class=ingestor_class,
+                fio=fio,
+                file_path=file_path,
+                result_extra={'order': pagenum}
+            )

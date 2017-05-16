@@ -9,6 +9,7 @@ class DocumentIngestor(PDFIngestor, OfficeSupport):
     """Office/Word document ingestor class.
 
     Converts the document to PDF and extracts the text.
+    Mostly a slightly adjusted PDF ingestor.
 
     Requires system tools:
 
@@ -58,9 +59,5 @@ class DocumentIngestor(PDFIngestor, OfficeSupport):
                     pdfio, pdf_path, temp_dir, config)
 
                 # Pass pages similar to the way PDF is handling it.
-                for page in self.xml_to_text(xml, page_selector):
-                    self.add_child(page, pdf_path, temp_dir, config)
-
-                for child in self.children:
-                    child.run()
-                    child.fio.close()
+                for page in self.xml_to_pages(xml, page_selector):
+                    self.add_page(page, pdf_path, temp_dir, config)

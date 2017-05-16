@@ -18,10 +18,10 @@ def json_default(obj):
 def cli(file_path, echo=True):
     """CLI main method."""
     with io.open(file_path, 'rb') as fio:
-        ingestor, data, children_data = ingest(fio, file_path)
+        ingestor, data, detached_data = ingest(fio, file_path)
 
-        if children_data:
-            data['children'] = children_data
+        if detached_data:
+            data['pages'] = detached_data
 
         if not echo:
             return data

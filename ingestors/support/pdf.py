@@ -96,7 +96,7 @@ class PDFSupport(object):
         # worse results.
         pdftoppm = [
             bin_path,
-            '-f', pagenum,
+            '-f', str(pagenum),
             '-singlefile',
             '-r', '300',
             '-gray',

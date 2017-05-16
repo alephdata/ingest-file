@@ -33,14 +33,14 @@ class DocumentIngestorTest(TestCase):
             ing.run()
 
         self.assertIsNone(ing.result.content)
-        self.assertEqual(len(ing.children), 2)
+        self.assertEqual(len(ing.detached), 2)
         self.assertIn(
             u'This is a sample Microsoft Word Document.',
-            ing.children[0].result.content
+            ing.detached[0].result.content
         )
         self.assertIn(
             u'This one is in a different one, the Signature style',
-            ing.children[1].result.content
+            ing.detached[1].result.content
         )
 
     def test_ingest_presentation_doc(self):
@@ -53,11 +53,11 @@ class DocumentIngestorTest(TestCase):
         today = datetime.now()
 
         self.assertIsNone(ing.result.content)
-        self.assertEqual(len(ing.children), 1)
-        self.assertIn(u'Now', ing.children[0].result.content)
+        self.assertEqual(len(ing.detached), 1)
+        self.assertIn(u'Now', ing.detached[0].result.content)
         self.assertIn(
             today.strftime('%x %I:%M %p'),
-            ing.children[0].result.content
+            ing.detached[0].result.content
         )
 
     @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
@@ -70,7 +70,6 @@ class DocumentIngestorTest(TestCase):
 
         self.assertEqual(ing.status, DocumentIngestor.STATUSES.FAILURE)
         self.assertIsNone(ing.result.content)
-        self.assertEqual(len(ing.children), 0)
 
     @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
     def test_ingest_bad_doc(self):
@@ -82,7 +81,7 @@ class DocumentIngestorTest(TestCase):
 
         self.assertIsNone(ing.result.content)
         # TODO: This file should fail because it is just binary garbage.
-        self.assertEqual(len(ing.children), 117)
+        self.assertEqual(len(ing.detached), 117)
 
     @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
     def test_ingest_noisy_doc(self):
@@ -95,10 +94,10 @@ class DocumentIngestorTest(TestCase):
             ing.run()
 
         self.assertIsNone(ing.result.content)
-        self.assertEqual(len(ing.children), 1)
+        self.assertEqual(len(ing.detached), 1)
         self.assertIn(
             'We should paint graffiti on all corners',
-            ing.children[0].result.content
+            ing.detached[0].result.content
         )
 
     @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
@@ -112,8 +111,8 @@ class DocumentIngestorTest(TestCase):
             ing.run()
 
         self.assertIsNone(ing.result.content)
-        self.assertEqual(len(ing.children), 1)
-        self.assertIsNone(ing.children[0].result.content)
+        self.assertEqual(len(ing.detached), 1)
+        self.assertIsNone(ing.detached[0].result.content)
 
     @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
     def test_ingest_doc_with_images(self):
@@ -126,6 +125,6 @@ class DocumentIngestorTest(TestCase):
             ing.run()
 
         self.assertIsNone(ing.result.content)
-        self.assertEqual(len(ing.children), 1)
-        self.assertIn(u'42.', ing.children[0].result.content)
-        self.assertIn(u'zip.txt', ing.children[0].result.content)
+        self.assertEqual(len(ing.detached), 1)
+        self.assertIn(u'42.', ing.detached[0].result.content)
+        self.assertIn(u'zip.txt', ing.detached[0].result.content)
