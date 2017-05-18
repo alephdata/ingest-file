@@ -25,7 +25,7 @@ system_requirements = [
 
 setup(
     name='ingestors',
-    version='0.1.0',
+    version='0.2.0',
     description="""
     Ingestors extract useful informationin a structured standard format.
     """.strip(),

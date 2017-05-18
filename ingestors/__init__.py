@@ -7,7 +7,7 @@ from .pdf import PDFIngestor  # noqa
 from .tabular import TabularIngestor  # noqa
 from .text import TextIngestor  # noqa
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 
 def ingest(fio, file_path):
