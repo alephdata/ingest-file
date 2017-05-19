@@ -45,9 +45,9 @@ class CliTest(TestCase):
             'description': None,
             'urls': {},
             'title': None,
-            'checksum': None,
-            'file_size': 0,
+            'checksum': 'fb20f98d89bc8c7d2406c61b94aa43199ef7ec0a',
+            'file_size': 907,
             'authors': [],
             'order': 1,
-            'mime_type': None
+            'mime_type': 'text/html'
         })

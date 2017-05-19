@@ -1,3 +1,4 @@
+import io
 from datetime import datetime
 
 from ingestors.ingestor import Ingestor
@@ -37,7 +38,7 @@ class MyStoppedIngestor(MyIngestor):
 class IngestorTest(TestCase):
 
     def test_ingest_success(self):
-        fio = {'fake_file_io': True}
+        fio = io.BytesIO(b'')
         ing = MyIngestor(fio, file_path='myfile.txt')
 
         self.assertEqual(ing.status, Ingestor.STATUSES.SUCCESS)
@@ -63,7 +64,7 @@ class IngestorTest(TestCase):
         )
 
     def test_ingest_stopped(self):
-        fio = {'fake_file_io': True}
+        fio = io.BytesIO(b'')
         ing = MyStoppedIngestor(fio, file_path='myfile.txt')
 
         self.assertEqual(ing.status, Ingestor.STATUSES.SUCCESS)
@@ -80,7 +81,7 @@ class IngestorTest(TestCase):
         )
 
     def test_ingest_failure(self):
-        fio = {'fake_file_io': True}
+        fio = io.BytesIO(b'')
         ing = MyFailedIngestor(fio, file_path='myfile.txt')
 
         self.assertEqual(ing.status, Ingestor.STATUSES.SUCCESS)
