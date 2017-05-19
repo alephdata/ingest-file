@@ -20,6 +20,7 @@ class ImageIngestor(Ingestor, FSSupport, OCRSupport):
     """
 
     MIME_TYPES = [
+        'image/x-portable-graymap',
         'image/png',
         'image/tiff',
         'image/x-tiff',
@@ -29,8 +30,7 @@ class ImageIngestor(Ingestor, FSSupport, OCRSupport):
         'image/x-portable-bitmap',
         'application/postscript',
         'image/vnd.dxf',
-        'image/svg+xml',
-        'image/x-portable-graymap'
+        'image/svg+xml'
     ]
 
     MIN_WIDTH = 100

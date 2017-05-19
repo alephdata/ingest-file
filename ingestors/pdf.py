@@ -45,6 +45,8 @@ class PDFIngestor(Ingestor, PDFSupport, FSSupport, XMLSupport):
         if not needs_ocr:
             ingestor_class = HTMLIngestor
             fio = io.BytesIO(bytearray(text, 'utf-8'))
+            mime_type = HTMLIngestor.MIME_TYPES[0]
+            file_path = ''
         else:
             file_path = self.pdf_page_to_image(
                 pagenum,
@@ -55,11 +57,13 @@ class PDFIngestor(Ingestor, PDFSupport, FSSupport, XMLSupport):
 
             ingestor_class = ImageIngestor
             fio = io.open(file_path, 'rb')
+            mime_type = ImageIngestor.MIME_TYPES[0]
 
         with fio:
             self.detach(
                 ingestor_class=ingestor_class,
                 fio=fio,
                 file_path=file_path,
-                result_extra={'order': pagenum}
+                mime_type=mime_type,
+                extra={'order': pagenum}
             )

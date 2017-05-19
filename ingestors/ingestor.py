@@ -129,10 +129,7 @@ class Ingestor(object):
         self.failure_exceptions = tuple(self.FAILURE_EXCEPTIONS)
 
         self.result = Result(mime_type=mime_type)
-
-        # Do not extract file info unless the ingestor is detached.
-        if mime_type:
-            self.result.extract_file_info(self.fio, self.file_path)
+        self.result.extract_file_info(self.fio, self.file_path)
 
     def configure(self):
         """Ingestor configuration endpoint.
@@ -165,7 +162,7 @@ class Ingestor(object):
         lines = traceback.format_exception(*sys.exc_info())
         self.logger.error('\n'.join(lines))
 
-    def detach(self, ingestor_class, fio, file_path, result_extra=None):
+    def detach(self, ingestor_class, fio, file_path, mime_type, extra=None):
         """Handles the processing/dispatching of the partial work/ingestion.
 
         The current implementation is just for demo purposes.
@@ -173,11 +170,12 @@ class Ingestor(object):
         """
         self.detached = getattr(self, 'detached', [])
 
-        ingestor = ingestor_class(fio=fio, file_path=file_path)
+        ingestor = ingestor_class(
+            fio=fio, file_path=file_path, mime_type=mime_type)
         self.detached.append(ingestor)
 
-        if result_extra and isinstance(result_extra, dict):
-            ingestor.result.update(result_extra)
+        if extra and isinstance(extra, dict):
+            ingestor.result.update(extra)
 
         if ingestor_class is not Ingestor:
             ingestor.run()
