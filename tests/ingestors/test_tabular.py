@@ -33,28 +33,33 @@ class TabularIngestorTest(TestCase):
 
         self.assertIsNone(ing.result.content)
         self.assertEqual(len(ing.detached), 2)
-        self.assertEqual(
-            ing.result.columns['Sheet1'], [u'Name', u'Timestamp', u'Price'])
-        self.assertEqual(
-            ing.result.columns['Sheet2'], [u'Title', u'Price', u'Timestamp'])
+        self.assertEqual(ing.result.columns, [])
 
         self.assertEqual(ing.detached[0].result.sheet_name, 'Sheet1')
         self.assertEqual(ing.detached[0].result.sheet_number, 0)
         self.assertEqual(ing.detached[0].result.order, 0)
-        self.assertEqual(dict(ing.detached[0].result.content), {
+        self.assertEqual(
+            ing.detached[0].result.columns,
+            [u'Name', u'Timestamp', u'Price']
+        )
+        self.assertEqual(ing.detached[0].result.content, [{
             u'Name': u'Mihai Viteazul',
             u'Timestamp': datetime(1871, 12, 29, 13, 48),
             u'Price': 11.99
-        })
+        }])
 
         self.assertEqual(ing.detached[1].result.sheet_name, 'Sheet2')
         self.assertEqual(ing.detached[1].result.sheet_number, 1)
         self.assertEqual(ing.detached[1].result.order, 1)
-        self.assertEqual(ing.detached[1].result.content, {
+        self.assertEqual(
+            ing.detached[1].result.columns,
+            [u'Title', u'Price', u'Timestamp']
+        )
+        self.assertEqual(ing.detached[1].result.content, [{
             u'Title': u'Vlad Țepeș',
             u'Timestamp': datetime(1953, 9, 13, 22, 1),
             u'Price': 111
-        })
+        }])
 
     @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
     def test_ingest_csv_fixture(self):
@@ -64,20 +69,19 @@ class TabularIngestorTest(TestCase):
             ing = TabularIngestor(fio, fixture_path)
             ing.run()
 
-        self.assertEqual(len(ing.detached), 4)
         self.assertEqual(
-            ing.result.columns['table'],
+            ing.result.columns,
             [u'BEGDOC', u'ENDDOC', u'FILENAME',
              u'MODDATE', u'AUTHOR', u'DOCTYPE']
         )
-        self.assertEqual(ing.detached[0].result.sheet_name, 'table')
-        self.assertEqual(ing.detached[0].result.sheet_number, 0)
-        self.assertEqual(ing.detached[0].result.order, 0)
-        self.assertEqual(dict(ing.detached[0].result.content), {
+        self.assertEqual(ing.result.sheet_name, 'table')
+        self.assertEqual(ing.result.sheet_number, 0)
+        self.assertEqual(ing.result.order, 0)
+        self.assertIn({
             u'AUTHOR': u'J. Smith',
             u'BEGDOC': 1,
             u'DOCTYPE': u'docx',
             u'ENDDOC': 4,
             u'FILENAME': u'Contract',
             u'MODDATE': datetime(2013, 1, 12, 0, 0)
-        })
+        }, ing.result.content)

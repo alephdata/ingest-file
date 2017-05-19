@@ -77,8 +77,8 @@ class OfficeSupport(object):
 
         return tableset.tables
 
-    def sheet_row_to_dicts(self, sheet, rowset):
-        """Converts a sheet rows into dictionary mappings.
+    def rowset_to_dicts(self, rowset):
+        """Converts a sheet rowset into dictionary mappings.
 
         Every dictionary represents a mapping the header keys to row values.
         """
