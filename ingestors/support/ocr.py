@@ -3,11 +3,8 @@ import logging
 import subprocess
 from distutils.spawn import find_executable
 
-try:
-    from PIL import Image
-    from tesserwrap import Tesseract, PageSegMode
-except ImportError as error:
-    logging.exception(error)
+from PIL import Image
+from tesserwrap import Tesseract, PageSegMode
 
 
 class OCRSupport(object):

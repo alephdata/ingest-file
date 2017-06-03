@@ -7,10 +7,7 @@ import inspect
 import hashlib
 from datetime import datetime
 
-try:
-    import magic
-except ImportError as error:
-    logging.exception(error)
+import magic
 
 
 class States:
