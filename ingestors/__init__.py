@@ -1,13 +1,16 @@
 """Provides a set of ingestors based on different file types."""
+import logging
 
-from .doc import DocumentIngestor  # noqa
-from .html import HTMLIngestor  # noqa
-from .image import ImageIngestor  # noqa
-from .pdf import PDFIngestor  # noqa
-from .tabular import TabularIngestor  # noqa
-from .text import TextIngestor  # noqa
+from ingestors.doc import DocumentIngestor  # noqa
+from ingestors.html import HTMLIngestor  # noqa
+from ingestors.image import ImageIngestor  # noqa
+from ingestors.pdf import PDFIngestor  # noqa
+from ingestors.tabular import TabularIngestor  # noqa
+from ingestors.text import TextIngestor  # noqa
 
 __version__ = '0.2.0'
+
+logging.getLogger('chardet').setLevel(logging.INFO)
 
 
 def ingest(fio, file_path):

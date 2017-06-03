@@ -2,8 +2,8 @@ import tempfile
 
 import unicodecsv as csv
 
-from .ingestor import Ingestor
-from .support.office import OfficeSupport
+from ingestors.ingestor import Ingestor
+from ingestors.support.office import OfficeSupport
 
 
 class TabularSheetIngestor(Ingestor, OfficeSupport):

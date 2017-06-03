@@ -1,7 +1,7 @@
 from normality import stringify
 
-from .ingestor import Ingestor
-from .support.xml import XMLSupport
+from ingestors.ingestor import Ingestor
+from ingestors.support.xml import XMLSupport
 
 
 class HTMLIngestor(Ingestor, XMLSupport):

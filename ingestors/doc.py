@@ -1,8 +1,8 @@
 import io
 import os
 
-from .pdf import PDFIngestor
-from .support.office import OfficeSupport
+from ingestors.pdf import PDFIngestor
+from ingestors.support.office import OfficeSupport
 
 
 class DocumentIngestor(PDFIngestor, OfficeSupport):

@@ -1,7 +1,7 @@
 import sys
 import logging
 
-from . import cli
+from ingestors.cli import cli
 
 
 if __name__ == '__main__':

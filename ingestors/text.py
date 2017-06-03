@@ -1,6 +1,6 @@
 from normality import stringify
 
-from .ingestor import Ingestor
+from ingestors.ingestor import Ingestor
 
 
 class TextIngestor(Ingestor):

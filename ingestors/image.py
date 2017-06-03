@@ -2,9 +2,9 @@ import os
 
 from PIL import Image
 
-from .ingestor import Ingestor
-from .support.ocr import OCRSupport
-from .support.fs import FSSupport
+from ingestors.ingestor import Ingestor
+from ingestors.support.ocr import OCRSupport
+from ingestors.support.fs import FSSupport
 
 
 class ImageIngestor(Ingestor, FSSupport, OCRSupport):

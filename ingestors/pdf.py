@@ -1,12 +1,12 @@
 import os
 import io
 
-from .ingestor import Ingestor
-from .image import ImageIngestor
-from .html import HTMLIngestor
-from .support.pdf import PDFSupport
-from .support.fs import FSSupport
-from .support.xml import XMLSupport
+from ingestors.ingestor import Ingestor
+from ingestors.image import ImageIngestor
+from ingestors.html import HTMLIngestor
+from ingestors.support.pdf import PDFSupport
+from ingestors.support.fs import FSSupport
+from ingestors.support.xml import XMLSupport
 
 
 class PDFIngestor(Ingestor, PDFSupport, FSSupport, XMLSupport):
