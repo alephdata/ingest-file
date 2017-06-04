@@ -46,5 +46,10 @@ setup(
         'Programming Language :: Python :: 2.7',
     ],
     test_suite='tests',
-    tests_require=[]
+    tests_require=[],
+    entry_points={
+        'ingestors': [
+            'html = ingestors.documents.html:HTMLIngestor'
+        ]
+    }
 )
