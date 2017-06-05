@@ -70,7 +70,7 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
                 is_ocr = True
 
         if is_ocr and self.manager.config.get('PDF_OCR_PAGES', True):
-            log.info("Using OCR for %r, p.%s", file_path, pagenum)
+            # log.info("Using OCR for %r, p.%s", file_path, pagenum)
             image_file = self.pdf_page_to_image(file_path, pagenum, temp_dir)
             with open(image_file, 'rb') as fh:
                 text = self.extract_text_from_image(fh.read())
@@ -78,8 +78,7 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
                     texts.append(text)
 
         text = '\n'.join(texts).strip()
-        log.debug("Extracted %d characters of text from %r, p.%s",
-                  len(text), file_path, pagenum)
+        log.debug("Extracted %d characters of text, p.%s", len(text), pagenum)
         self.result.emit_page(int(pagenum), text)
 
     def pdf_page_to_image(self, file_path, pagenum, temp_dir):

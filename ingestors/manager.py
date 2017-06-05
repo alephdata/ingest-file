@@ -6,8 +6,10 @@ import hashlib
 from normality import stringify
 from pkg_resources import iter_entry_points
 
-from ingestors.exc import ProcessingException
 from ingestors.result import Result
+from ingestors.directory import DirectoryIngestor
+from ingestors.exc import ProcessingException
+from ingestors.util import normalize_mime_type
 
 log = logging.getLogger(__name__)
 
@@ -41,8 +43,13 @@ class Manager(object):
         return self._ingestors
 
     def auction(self, file_path, result):
+        if os.path.isdir(file_path):
+            result.mime_type = DirectoryIngestor.MIME_TYPE
+            return DirectoryIngestor
+
         if result.mime_type is None:
-            result.mime_type = self.MAGIC.from_file(file_path)
+            mime_type = self.MAGIC.from_file(file_path)
+            result.mime_type = normalize_mime_type(mime_type)
 
         best_score, best_cls = 0, None
         for cls in self.ingestors:
@@ -64,12 +71,14 @@ class Manager(object):
         """Callback called after the processing starts."""
         pass
 
-    def handle_child(self, result, file_path):
-        # check if it's a directory, otherwise archive straight away
-        pass
+    def handle_child(self, file_path):
+        self.ingest(file_path)
 
     def checksum_file(self, result, file_path):
         "Generate a hash and file size for a given file name."
+        if os.path.isdir(file_path):
+            return
+
         if result.checksum is not None and result.size is not None:
             return
 
@@ -96,10 +105,9 @@ class Manager(object):
         try:
             if ingestor_class is None:
                 ingestor_class = self.auction(file_path, result)
-                log.debug("Ingestor [%s, %s]: %r", file_path, result.mime_type,
-                          ingestor_class)
-            ingestor = ingestor_class(self, result)
-            ingestor.ingest(file_path)
+                log.debug("Ingestor [%s, %s]: %r", result.label,
+                          result.mime_type, ingestor_class)
+            self.delegate(ingestor_class, result, file_path)
             result.status = Result.STATUS_SUCCESS
         except ProcessingException as pexc:
             result.error_message = six.text_type(pexc)
@@ -111,3 +119,7 @@ class Manager(object):
             self.after(result)
 
         return result
+
+    def delegate(self, ingestor_class, result, file_path):
+        ingestor = ingestor_class(self, result)
+        ingestor.ingest(file_path)

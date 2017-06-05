@@ -31,6 +31,10 @@ class Result(object):
         self.pages = []
         self.pdf_path = None
 
+    @property
+    def label(self):
+        return self.file_name
+
     def emit_page(self, index, text):
         self.pages.append({'text': text, 'index': index})
 

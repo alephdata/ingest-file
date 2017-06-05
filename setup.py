@@ -32,7 +32,8 @@ setup(
         'pillow==4.0.0',
         'tesserwrap==0.1.6',
         'python-magic==0.4.12',
-        'pycountry>=17.5'
+        'pycountry>=17.5',
+        'rarfile==3.0'
     ],
     license="MIT",
     zip_safe=False,
@@ -55,7 +56,13 @@ setup(
             'office = ingestors.documents.office:DocumentIngestor',
             'image = ingestors.documents.image:ImageIngestor',
             'djvu = ingestors.documents.djvu:DjVuIngestor',
-            'pdf = ingestors.documents.pdf:PDFIngestor'
+            'pdf = ingestors.documents.pdf:PDFIngestor',
+            'rar = ingestors.packages:RARIngestor',
+            'zip = ingestors.packages:ZipIngestor',
+            'tar = ingestors.packages:TarIngestor',
+            '7z = ingestors.packages:SevenZipIngestor',
+            'gz = ingestors.packages:GzipIngestor',
+            'bz2 = ingestors.packages:BZ2Ingestor'
         ]
     }
 )

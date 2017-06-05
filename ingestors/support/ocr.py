@@ -73,7 +73,7 @@ class OCRSupport(object):
         text = text.decode(encoding="UTF-8")
         extractor.clear()
 
-        log.debug('OCR done: %s, %s characters extracted',
-                  languages, len(text))
+        log.debug('[%s] OCR: %s, %s characters extracted',
+                  self.result.label, languages, len(text))
         # Cache.set_ocr(data, languages, text)
         return text

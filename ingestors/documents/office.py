@@ -38,6 +38,7 @@ class DocumentIngestor(Ingestor, LibreOfficeSupport):
         'application/CDFV2-unknown',
         'application/CDFV2-corrupt'
     ]
+    SCORE = 10
 
     def ingest(self, file_path):
         """Ingestor implementation."""
