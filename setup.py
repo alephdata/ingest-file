@@ -31,7 +31,8 @@ setup(
         'lxml==3.7.3',
         'pillow==4.0.0',
         'tesserwrap==0.1.6',
-        'python-magic==0.4.12'
+        'python-magic==0.4.12',
+        'pycountry>=17.5'
     ],
     license="MIT",
     zip_safe=False,
@@ -49,7 +50,12 @@ setup(
     tests_require=[],
     entry_points={
         'ingestors': [
-            'html = ingestors.documents.html:HTMLIngestor'
+            'html = ingestors.documents.html:HTMLIngestor',
+            'plain = ingestors.documents.plain:PlainTextIngestor',
+            'office = ingestors.documents.office:DocumentIngestor',
+            'image = ingestors.documents.image:ImageIngestor',
+            'djvu = ingestors.documents.djvu:DjVuIngestor',
+            'pdf = ingestors.documents.pdf:PDFIngestor'
         ]
     }
 )

@@ -3,7 +3,7 @@ import shutil
 import tempfile
 
 
-class FSSupport(object):
+class TempFileSupport(object):
     """Provides helpers for file system related tasks."""
 
     @contextlib.contextmanager

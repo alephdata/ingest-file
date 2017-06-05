@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-import io
-from unittest import skipUnless
-
-from ingestors.text import TextIngestor, Ingestor
+from ingestors import Result
+from normality.cleaning import decompose_nfkd
 
 from ..support import TestCase
 
@@ -11,40 +9,23 @@ class TextIngestorTest(TestCase):
 
     def test_match(self):
         fixture_path = self.fixture('utf.txt')
+        result = self.manager.ingest(fixture_path)
 
-        with io.open(fixture_path, mode='rb') as fio:
-            ingestor_class, mime_type = Ingestor.match(fio)
+        self.assertTrue(isinstance(result, Result))
+        self.assertEqual(result.mime_type, 'text/plain')
 
-        self.assertTrue(issubclass(ingestor_class, Ingestor))
-        self.assertIs(ingestor_class, TextIngestor)
-        self.assertEqual(mime_type, 'text/plain')
-
-    def test_ingest_on_unicode_file(self):
-        fixture_path = self.fixture('utf.txt')
-
-        with io.open(fixture_path, mode='rb') as fio:
-            ing = TextIngestor(fio, fixture_path)
-            ing.run()
-
-        self.assertEqual(ing.result.content, u'Îș unî©ođ€.')
-        self.assertEqual(ing.status, TextIngestor.STATUSES.SUCCESS)
-        self.assertEqual(ing.state, TextIngestor.STATES.FINISHED)
+        self.assertEqual(decompose_nfkd(result.pages[0]['text']),
+                         decompose_nfkd(u'Îș unî©ođ€.'))
+        self.assertEqual(result.status, Result.STATUS_SUCCESS)
 
     def test_ingest_binary_mode(self):
         fixture_path = self.fixture('non_utf.txt')
+        result = self.manager.ingest(fixture_path)
 
-        with io.open(fixture_path, mode='rb') as fio:
-            ing = TextIngestor(fio, fixture_path)
-            ing.run()
+        self.assertEqual(decompose_nfkd(result.pages[0]['text']),
+                         decompose_nfkd(u'În latin1.'))
 
-        self.assertEqual(ing.result.content, u'În latin1.')
-
-    @skipUnless(TestCase.EXTRA_FIXTURES, 'No extra fixtures.')
     def test_ingest_extra_fixture(self):
-        fixture_path = self.fixture('languages/udhr_ger.txt')
-
-        with io.open(fixture_path, mode='rb') as fio:
-            ing = TextIngestor(fio, fixture_path)
-            ing.run()
-
-        self.assertIsNotNone(ing.result.content)
+        fixture_path = self.fixture('udhr_ger.txt')
+        result = self.manager.ingest(fixture_path)
+        self.assertIsNotNone(result.pages[0]['text'])

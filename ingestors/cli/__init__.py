@@ -14,12 +14,8 @@ def json_default(obj):
         return float(obj)
 
 
-def cli(file_path, echo=True):
+def cli(file_path):
     """CLI main method."""
     result = ingest(file_path)
-
-    if not echo:
-        return result
-
     print(json.dumps(result.to_dict(), sort_keys=True, indent=2,
                      default=json_default))

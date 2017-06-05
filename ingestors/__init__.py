@@ -1,11 +1,13 @@
 """Provides a set of ingestors based on different file types."""
 import logging
 
-from ingestors.base import IngestorManager
+from ingestors.manager import Manager
+from ingestors.result import Result  # noqa
 
 __version__ = '0.3.0'
 
 logging.getLogger('chardet').setLevel(logging.INFO)
+logging.getLogger('PIL').setLevel(logging.INFO)
 
 
 def ingest(file_path):
@@ -16,16 +18,5 @@ def ingest(file_path):
     :return: Tuple, the ingestor object, its data and detached ingestors data.
     :rtype: tuple
     """
-    manager = IngestorManager({})
-    return manager.execute(file_path)
-
-    # ingestor_class, mime_type = TextIngestor.match(fio)
-    #
-    # if not ingestor_class:
-    #     return None, None, None
-    #
-    # ingestor = ingestor_class(fio, file_path, mime_type=mime_type)
-    # ingestor.run()
-    # detached_data = map(lambda c: c.result, getattr(ingestor, 'detached', []))
-    #
-    # return ingestor, ingestor.result, detached_data
+    manager = Manager({})
+    return manager.ingest(file_path)
