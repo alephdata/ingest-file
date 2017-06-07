@@ -23,7 +23,7 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
         """
         with self.create_temp_dir() as temp_dir:
             out_path = os.path.join(temp_dir, 'pdf.xml')
-            log.info("Converting PDF to XML: %r...", file_path)
+            log.debug("Converting PDF to XML...")
             self.exec_command('pdftohtml',
                               '-xml',
                               '-hidden',

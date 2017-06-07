@@ -33,7 +33,9 @@ setup(
         'tesserwrap==0.1.6',
         'python-magic==0.4.12',
         'pycountry>=17.5',
-        'rarfile==3.0'
+        'rarfile==3.0',
+        'flanker==0.4.38',
+        'imapclient==1.0.2'
     ],
     license="MIT",
     zip_safe=False,
@@ -62,7 +64,10 @@ setup(
             'tar = ingestors.packages:TarIngestor',
             '7z = ingestors.packages:SevenZipIngestor',
             'gz = ingestors.packages:GzipIngestor',
-            'bz2 = ingestors.packages:BZ2Ingestor'
+            'bz2 = ingestors.packages:BZ2Ingestor',
+            'pst = ingestors.email.outlookpst:OutlookPSTIngestor',
+            'olemsg = ingestors.email.outlookmsg:OutlookMsgIngestor',
+            'msg = ingestors.email.msg:RFC822Ingestor',
         ]
     }
 )

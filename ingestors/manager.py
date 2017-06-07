@@ -71,8 +71,9 @@ class Manager(object):
         """Callback called after the processing starts."""
         pass
 
-    def handle_child(self, file_path):
-        self.ingest(file_path)
+    def handle_child(self, parent, file_path, **kwargs):
+        result = self.RESULT_CLASS(file_path=file_path, **kwargs)
+        self.ingest(file_path, result=result)
 
     def checksum_file(self, result, file_path):
         "Generate a hash and file size for a given file name."
@@ -105,8 +106,8 @@ class Manager(object):
         try:
             if ingestor_class is None:
                 ingestor_class = self.auction(file_path, result)
-                log.debug("Ingestor [%s, %s]: %r", result.label,
-                          result.mime_type, ingestor_class)
+                log.debug("Ingestor [%s, %s]: %s", result.label,
+                          result.mime_type, ingestor_class.__name__)
             self.delegate(ingestor_class, result, file_path)
             result.status = Result.STATUS_SUCCESS
         except ProcessingException as pexc:

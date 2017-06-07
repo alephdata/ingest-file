@@ -13,18 +13,25 @@ class Result(object):
     #: Indicates a complete ingestor stop due to system issue.
     STATUS_STOPPED = u'stopped'
 
-    def __init__(self, title=None, file_path=None, file_name=None,
+    def __init__(self, id=None, title=None, file_path=None, file_name=None,
                  mime_type=None, checksum=None, size=None, encoding=None,
-                 summary=None, keywords=None, languages=[]):
+                 summary=None, keywords=None, languages=[], author=None,
+                 emails=None, people=None, timestamp=None, headers=None):
         self.status = None
+        self.id = None
         self.title = title
         self.summary = summary
+        self.timestamp = timestamp
+        self.author = author
         self.keywords = keywords or []
+        self.emails = emails or []
+        self.people = people or []
         self.file_path = file_path
         self.file_name = file_name or os.path.basename(file_path)
         self.mime_type = mime_type
         self.encoding = encoding
         self.languages = languages
+        self.headers = headers
         self.error_message = None
         self.checksum = checksum
         self.size = size

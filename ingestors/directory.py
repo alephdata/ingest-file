@@ -22,4 +22,4 @@ class DirectoryIngestor(Ingestor):
             if name in self.SKIP_ENTRIES:
                 continue
             sub_path = os.path.join(file_path, name)
-            self.manager.handle_child(sub_path)
+            self.manager.handle_child(self.result, sub_path)
