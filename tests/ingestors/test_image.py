@@ -12,7 +12,7 @@ class ImageIngestorTest(TestCase):
     def test_ingest_on_svg(self):
         fixture_path = self.fixture('image.svg')
         result = self.manager.ingest(fixture_path)
-        print result.to_dict()
+        # print result.to_dict()
 
         self.assertIn(u'Testing ingeslors', result.pages[0]['text'])
         self.assertIn(u'1..2..3..', result.pages[0]['text'])
