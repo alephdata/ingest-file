@@ -1,10 +1,10 @@
-import os
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
 
 from ingestors.base import Ingestor
 from ingestors.support.pdf import PDFSupport
 from ingestors.exc import ProcessingException
+from ingestors.util import join_path
 
 
 class ImageIngestor(Ingestor, PDFSupport):
@@ -46,7 +46,7 @@ class ImageIngestor(Ingestor, PDFSupport):
 
     def ingest(self, file_path):
         with self.create_temp_dir() as temp_dir:
-            pdf_path = os.path.join(temp_dir, 'image.pdf')
+            pdf_path = join_path(temp_dir, 'image.pdf')
             self.check_image_size(file_path)
             self.exec_command('convert',
                               file_path,

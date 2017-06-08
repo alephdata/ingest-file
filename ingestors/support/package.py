@@ -8,6 +8,7 @@ from chardet.universaldetector import UniversalDetector
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.encoding import EncodingSupport
 from ingestors.directory import DirectoryIngestor
+from ingestors.util import join_path
 
 log = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ class PackageSupport(TempFileSupport, EncodingSupport):
             if isinstance(name, six.binary_type):
                 file_name = name.decode(encoding, 'ignore')
 
-            out_path = os.path.join(temp_dir, file_name)
+            out_path = join_path(temp_dir, file_name)
             if os.path.exists(out_path) or not out_path.startswith(temp_dir):
                 continue
 

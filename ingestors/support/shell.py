@@ -1,13 +1,13 @@
 import os
 import six
 import logging
-if six.PY2:
-    import subprocess32 as subprocess
-else:
-    import subprocess
 from distutils.spawn import find_executable
-
 from ingestors.exc import SystemException, ProcessingException
+
+if six.PY2:
+    import subprocess32 as subprocess  # noqa
+else:
+    import subprocess  # noqa
 
 log = logging.getLogger(__name__)
 

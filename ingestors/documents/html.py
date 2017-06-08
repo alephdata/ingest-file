@@ -1,4 +1,3 @@
-import os
 from lxml import html
 from lxml.html.clean import Cleaner
 from normality import stringify, collapse_spaces
@@ -6,6 +5,7 @@ from normality import stringify, collapse_spaces
 from ingestors.base import Ingestor
 from ingestors.support.encoding import EncodingSupport
 from ingestors.support.pdf import PDFSupport
+from ingestors.util import join_path
 
 
 class HTMLIngestor(Ingestor, EncodingSupport, PDFSupport):
@@ -29,7 +29,7 @@ class HTMLIngestor(Ingestor, EncodingSupport, PDFSupport):
 
     def render_html_to_pdf(self, html_path, temp_dir):
         """OK, this is weirder. Converting HTML to PDF via WebKit."""
-        pdf_path = os.path.join(temp_dir, 'page.pdf')
+        pdf_path = join_path(temp_dir, 'page.pdf')
         self.exec_command('wkhtmltopdf',
                           '--disable-javascript',
                           '--no-outline',
@@ -84,7 +84,7 @@ class HTMLIngestor(Ingestor, EncodingSupport, PDFSupport):
         self.cleaner(doc)
 
         with self.create_temp_dir() as temp_dir:
-            html_path = os.path.join(temp_dir, 'page.html')
+            html_path = join_path(temp_dir, 'page.html')
             with open(html_path, 'w') as fh:
                 data = html.tostring(doc, pretty_print=True)
                 fh.write(data)

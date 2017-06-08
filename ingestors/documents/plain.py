@@ -1,8 +1,7 @@
-import os
-
 from ingestors.base import Ingestor
 from ingestors.support.encoding import EncodingSupport
 from ingestors.support.soffice import LibreOfficeSupport
+from ingestors.util import join_path
 
 
 class PlainTextIngestor(Ingestor, EncodingSupport, LibreOfficeSupport):
@@ -16,7 +15,7 @@ class PlainTextIngestor(Ingestor, EncodingSupport, LibreOfficeSupport):
         """Ingestor implementation."""
         text = self.read_file_decoded(file_path)
         with self.create_temp_dir() as temp_dir:
-            text_path = os.path.join(temp_dir, 'page.txt')
+            text_path = join_path(temp_dir, 'page.txt')
             with open(text_path, 'wb') as fh:
                 fh.write(text.encode('utf-8'))
 

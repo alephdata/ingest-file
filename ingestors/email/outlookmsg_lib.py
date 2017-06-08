@@ -6,10 +6,20 @@ ExtractMsg:
 
 https://github.com/mattgwwalker/msg-extractor
 """
+import os
+import sys
+import string
+from email.parser import Parser as EmailParser
+from imapclient.imapclient import decode_utf7
+import email.utils
+import olefile as OleFile
+
+RANDOM_NAME = string.ascii_uppercase + string.digits
 
 __author__ = "Matthew Walker"
 __date__ = "2013-11-19"
 __version__ = '0.2'
+
 
 # --- LICENSE -----------------------------------------------------------------
 #
@@ -27,17 +37,6 @@ __version__ = '0.2'
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-import os
-import sys
-import string
-from email.parser import Parser as EmailParser
-from imapclient.imapclient import decode_utf7
-import email.utils
-import olefile as OleFile
-
-RANDOM_NAME = string.ascii_uppercase + string.digits
-
 
 # This property information was sourced from
 # http://www.fileformat.info/format/outlookmsg/index.htm

@@ -1,8 +1,8 @@
-import os
 import logging
 
 from ingestors.base import Ingestor
 from ingestors.support.pdf import PDFSupport
+from ingestors.util import join_path
 
 log = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class DjVuIngestor(Ingestor, PDFSupport):
     def ingest(self, file_path):
         """Ingestor implementation."""
         with self.create_temp_dir() as temp_dir:
-            pdf_path = os.path.join(temp_dir, 'page.pdf')
+            pdf_path = join_path(temp_dir, 'page.pdf')
             self.exec_command('ddjvu',
                               '-format=pdf',
                               '-quality=85',

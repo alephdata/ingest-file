@@ -1,4 +1,3 @@
-import os
 import logging
 import shutil
 import gzip
@@ -10,6 +9,7 @@ import tarfile
 from ingestors.base import Ingestor
 from ingestors.support.shell import ShellSupport
 from ingestors.support.package import PackageSupport
+from ingestors.util import join_path
 
 log = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ class SingleFilePackageIngestor(PackageSupport, Ingestor):
             ext = '.' + ext
             if file_name.endswith(ext):
                 file_name = file_name[:len(file_name) - len(ext)]
-        temp_file = os.path.join(temp_dir, file_name)
+        temp_file = join_path(temp_dir, file_name)
         self.unpack_file(file_path, temp_file)
 
     @classmethod

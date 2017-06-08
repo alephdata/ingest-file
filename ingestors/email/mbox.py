@@ -1,9 +1,10 @@
-import os
+import six
 import logging
 import mailbox
 
 from ingestors.email.msg import RFC822Ingestor
 from ingestors.support.temp import TempFileSupport
+from ingestors.util import join_path, make_filename
 
 log = logging.getLogger(__name__)
 
@@ -15,9 +16,10 @@ class MboxFileIngestor(RFC822Ingestor, TempFileSupport):
 
     def ingest(self, file_path):
         mbox = mailbox.mbox(file_path)
-        for i, msg in enumerate(mbox):
-            with self.create_temp_dir() as temp_dir:
-                msg_path = os.path.join(temp_dir, '%s.rfc822' % i)
+        with self.create_temp_dir() as temp_dir:
+            for i, msg in enumerate(mbox):
+                msg_path = make_filename(six.text_type(i), extension='eml')
+                msg_path = join_path(temp_dir, msg_path)
                 with open(msg_path, 'wb') as fh:
                     fh.write(str(msg))
                 self.manager.handle_child(self.result, msg_path)

@@ -1,4 +1,3 @@
-import os
 import rfc822
 import logging
 from time import mktime
@@ -11,7 +10,7 @@ from ingestors.base import Ingestor
 from ingestors.documents.plain import PlainTextIngestor
 from ingestors.support.temp import TempFileSupport
 from ingestors.email.outlookmsg_lib import Message
-from ingestors.util import string_value
+from ingestors.util import string_value, join_path, make_filename
 
 
 log = logging.getLogger(__name__)
@@ -32,10 +31,11 @@ class OutlookMsgIngestor(Ingestor, TempFileSupport):
                 log.warning("Attachment is empty: %s", name)
                 return
 
-            file_path = os.path.join(temp_dir, name)
+            file_path = join_path(temp_dir, make_filename(name))
             with open(file_path, 'w') as fh:
                 fh.write(attachment.data)
-            self.manager.handle_child(self.result, file_path)
+            self.manager.handle_child(self.result, file_path, title=name,
+                                      mime_type=attachment.mimeType)
         except Exception as ex:
             log.exception(ex)
 
@@ -78,7 +78,7 @@ class OutlookMsgIngestor(Ingestor, TempFileSupport):
                 self.ingest_attachment(attachment, temp_dir)
 
             if message.body is not None:
-                body_path = os.path.join(temp_dir, 'body.txt')
+                body_path = join_path(temp_dir, 'body.txt')
                 with open(body_path, 'w') as fh:
                     fh.write(message.body.encode('utf-8'))
                 self.manager.delegate(PlainTextIngestor, self.result,
