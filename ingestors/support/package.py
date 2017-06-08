@@ -6,12 +6,13 @@ import shutil
 from chardet.universaldetector import UniversalDetector
 
 from ingestors.support.temp import TempFileSupport
+from ingestors.support.encoding import EncodingSupport
 from ingestors.directory import DirectoryIngestor
 
 log = logging.getLogger(__name__)
 
 
-class PackageSupport(TempFileSupport):
+class PackageSupport(TempFileSupport, EncodingSupport):
 
     def unpack_members(self, pack, temp_dir):
         # Some archives come with non-Unicode file names, this
@@ -26,8 +27,7 @@ class PackageSupport(TempFileSupport):
 
         detector.close()
         encoding = detector.result.get('encoding')
-        if encoding in ['ascii', None]:
-            encoding = 'utf-8'
+        encoding = self._normalize_encoding(encoding)
 
         log.debug('Detected filename encoding: %s', encoding)
 

@@ -36,6 +36,8 @@ class Result(object):
         self.checksum = checksum
         self.size = size
         self.pages = []
+        self.rows = []
+        self.children = []
         self.pdf_path = None
 
     @property
@@ -44,6 +46,10 @@ class Result(object):
 
     def emit_page(self, index, text):
         self.pages.append({'text': text, 'index': index})
+
+    def emit_rows(self, iterator):
+        for row in iterator:
+            self.rows.append(row)
 
     def emit_pdf_alternative(self, file_path):
         self.pdf_path = file_path
@@ -61,5 +67,10 @@ class Result(object):
             'checksum': self.checksum,
             'pdf_path': self.pdf_path,
             'size': self.size,
-            'pages': self.pages
+            'pages': self.pages,
+            'rows': self.rows,
+            'children': [c.to_dict() for c in self.children]
         }
+
+    def __repr__(self):
+        return '<Result(%s,%s,%s)>' % (self.id, self.label, self.mime_type)

@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 
 class RFC822Ingestor(Ingestor, TempFileSupport):
     MIME_TYPES = ['multipart/mixed']
-    EXTENSIONS = ['eml', 'rfc822', 'email']
+    EXTENSIONS = ['eml', 'rfc822', 'email', 'msg']
     SCORE = 6
 
     def write_temp(self, body, temp_dir, file_name):

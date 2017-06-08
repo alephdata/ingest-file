@@ -73,6 +73,7 @@ class Manager(object):
 
     def handle_child(self, parent, file_path, **kwargs):
         result = self.RESULT_CLASS(file_path=file_path, **kwargs)
+        parent.children.append(result)
         self.ingest(file_path, result=result)
 
     def checksum_file(self, result, file_path):

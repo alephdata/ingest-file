@@ -22,7 +22,7 @@ class ShellSupport(object):
 
     def find_command(self, name):
         config_name = '%s_bin' % name
-        config_name = config_name.upper()
+        config_name = config_name.replace('-', '_').upper()
         command_path = self.manager.get_env(config_name, find_executable(name))
         if command_path is None:
             raise SystemException('Cannot find binary: %s' % name)

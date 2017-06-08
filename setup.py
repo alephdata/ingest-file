@@ -35,7 +35,8 @@ setup(
         'pycountry>=17.5',
         'rarfile==3.0',
         'flanker==0.4.38',
-        'imapclient==1.0.2'
+        'imapclient==1.0.2',
+        'dbf==0.96.8'
     ],
     license="MIT",
     zip_safe=False,
@@ -68,6 +69,10 @@ setup(
             'pst = ingestors.email.outlookpst:OutlookPSTIngestor',
             'olemsg = ingestors.email.outlookmsg:OutlookMsgIngestor',
             'msg = ingestors.email.msg:RFC822Ingestor',
+            'csv = ingestors.tabular.csv:CSVIngestor',
+            'access = ingestors.tabular.access:AccessIngestor',
+            'mbox = ingestors.email.mbox:MboxFileIngestor',
+            'dbf = ingestors.tabular.dbf:DBFIngestor',
         ]
     }
 )
