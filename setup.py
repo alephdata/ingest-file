@@ -71,6 +71,7 @@ setup(
             'msg = ingestors.email.msg:RFC822Ingestor',
             'csv = ingestors.tabular.csv:CSVIngestor',
             'access = ingestors.tabular.access:AccessIngestor',
+            'messy = ingestors.tabular.messy:MessyTablesIngestor',
             'mbox = ingestors.email.mbox:MboxFileIngestor',
             'dbf = ingestors.tabular.dbf:DBFIngestor',
         ]

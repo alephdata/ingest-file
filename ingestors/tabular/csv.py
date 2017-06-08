@@ -12,8 +12,11 @@ class CSVIngestor(Ingestor, EncodingSupport):
 
     This expects a properly formatted CSV file with a header in the first row.
     """
-    MIME_TYPES = ['text/csv']
-    EXTENSIONS = ['csv']
+    MIME_TYPES = [
+        'text/csv',
+        'text/tab-separated-values'
+    ]
+    EXTENSIONS = ['csv', 'tsv']
     SCORE = 6
 
     def generate_rows(self, reader):

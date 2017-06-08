@@ -17,7 +17,7 @@ class HTMLIngestorTest(TestCase):
 
         self.assertEqual(
             result.pages[0]['text'],
-            u'Ingestors\tTitle\nIngestors\nTest\tweb\tpage.\tThe\tGitHub\tpage.'
+            u'Ingestors\tTitle\nIngestors\nTest\tweb\tpage.\tThe\tGitHub\tpage.'  # noqa
         )
         self.assertEqual(result.title, u'Ingestors Title')
         self.assertEqual(result.summary, u'Ingestors description')

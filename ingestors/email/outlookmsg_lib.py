@@ -30,7 +30,6 @@ __version__ = '0.2'
 
 import os
 import sys
-import json
 import string
 import random
 from email.parser import Parser as EmailParser
@@ -370,96 +369,6 @@ class Message(OleFile.OleFileIO):
                 self._attachments.append(Attachment(self, attachmentDir))
 
             return self._attachments
-
-    def save(self, raw=False):
-
-        if useFileName:
-            # strip out the extension
-            dirName = filename.split('/').pop().split('.')[0]
-        else:
-            # Create a directory based on the date and subject of the message
-            d = self.parsedDate
-            if d is not None:
-                dirName = '{0:02d}-{1:02d}-{2:02d}_{3:02d}{4:02d}'.format(*d)
-            else:
-                dirName = "UnknownDate"
-
-            if self.subject is None:
-                subject = "[No subject]"
-            else:
-                subject = "".join(i for i in self.subject if i not in r'\/:*?"<>|')
-
-            dirName = dirName + " " + subject
-
-        def addNumToDir(dirName):
-            # Attempt to create the directory with a '(n)' appended
-
-            for i in range(2, 100):
-                try:
-                    newDirName = dirName + " (" + str(i) + ")"
-                    os.makedirs(newDirName)
-                    return dirName
-                except Exception:
-                    pass
-            return None
-
-        try:
-            os.makedirs(dirName)
-        except Exception:
-            newDirName = addNumToDir(dirName)
-            if newDirName is not None:
-                dirName = newDirName
-            else:
-                raise Exception(
-                    "Failed to create directory '%s'. Does it already exist?" %
-                    dirName
-                )
-
-        oldDir = os.getcwd()
-        try:
-            os.chdir(dirName)
-
-            # Save the message body
-            fext = 'json' if toJson else 'text'
-            f = open("message." + fext, "w")
-            # From, to , cc, subject, date
-
-            def xstr(s):
-                return '' if s is None else str(s)
-
-            attachmentNames = []
-            # Save the attachments
-            for attachment in self.attachments:
-                attachmentNames.append(attachment.save())
-
-            if toJson:
-                emailObj = {'from': xstr(self.sender),
-                            'to': xstr(self.to),
-                            'cc': xstr(self.cc),
-                            'subject': xstr(self.subject),
-                            'date': xstr(self.date),
-                            'attachments': attachmentNames,
-                            'body': xstr(self.body)}
-
-                f.write(json.dumps(emailObj, ensure_ascii=True))
-            else:
-                f.write("From: " + xstr(self.sender) + "\n")
-                f.write("To: " + xstr(self.to) + "\n")
-                f.write("CC: " + xstr(self.cc) + "\n")
-                f.write("Subject: " + xstr(self.subject) + "\n")
-                f.write("Date: " + xstr(self.date) + "\n")
-                f.write("-----------------\n\n")
-                f.write(self.body)
-
-            f.close()
-
-        except Exception:
-            self.saveRaw()
-            raise
-
-        finally:
-            # Return to previous directory
-            os.chdir(oldDir)
 
     def saveRaw(self):
         # Create a 'raw' folder

@@ -1,3 +1,5 @@
+import six
+
 from normality import stringify
 from normality.cleaning import remove_control_chars
 
@@ -15,5 +17,8 @@ def normalize_mime_type(mime_type):
 
 def string_value(value, encoding=None):
     value = stringify(value, encoding=encoding, encoding_default='utf-8')
-    value = remove_control_chars(value)
+    if value is None:
+        return
+    if isinstance(value, six.text_type):
+        value = remove_control_chars(value)
     return value

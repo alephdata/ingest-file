@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from pprint import pprint  # noqa
 
-from ..support import TestCase
-
-
+# from ..support import TestCase
+#
 # class OutlookMsgTest(TestCase):
 #
 #     def test_match(self):
