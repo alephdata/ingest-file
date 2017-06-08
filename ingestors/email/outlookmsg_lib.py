@@ -31,7 +31,6 @@ __version__ = '0.2'
 import os
 import sys
 import string
-import random
 from email.parser import Parser as EmailParser
 from imapclient.imapclient import decode_utf7
 import email.utils
@@ -182,21 +181,6 @@ class Attachment:
 
         # Get attachment data
         self.data = msg._getStream(dir_ + ['__substg1.0_37010102'])
-
-    def save(self):
-        # Use long filename as first preference
-        filename = self.longFilename
-        # Otherwise use the short filename
-        if filename is None:
-            filename = self.shortFilename
-        # Otherwise just make something up!
-        if filename is None:
-            filename = ''.join(random.choice(RANDOM_NAME) for _ in range(5))
-            filename = 'UnknownFilename {}.bin'.format(filename)
-        f = open(filename, 'wb')
-        f.write(self.data)
-        f.close()
-        return {'name': filename, 'type': "".join(map(chr, self.mineType))}
 
 
 class Message(OleFile.OleFileIO):
@@ -405,17 +389,3 @@ class Message(OleFile.OleFileIO):
 
         finally:
             os.chdir(oldDir)
-
-    def dump(self):
-        # Prints out a summary of the message
-        print('Message')
-        print('Subject:', self.subject)
-        print('Date:', self.date)
-        print('Body:')
-        print(self.body)
-
-    def debug(self):
-        for dir_ in self.listdir():
-            if dir_[-1].endswith('001E'):  # FIXME: Check for unicode 001F too
-                print("Directory: " + str(dir))
-                print("Contents: " + self._getStream(dir))

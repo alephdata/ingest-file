@@ -16,12 +16,23 @@ addons:
       - imagemagick
       - poppler-utils
       - libreoffice
+      - djvulibre-bin
 
 before_install:
   - pip install -U pip setuptools
+  - sudo apt-get -qq update
+  - sudo apt-get install -y tesseract-ocr-eng readpst
+  - curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.4.0.deb && sudo dpkg -i --force-confnew elasticsearch-5.4.0.deb && sudo service elasticsearch start
+  - wget --quiet -O /tmp/wkhtmltox.tar.xv http://download.gna.org/wkhtmltopdf/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz
+  - tar -xf /tmp/wkhtmltox.tar.xv -C $TRAVIS_BUILD_DIR
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -r requirements_dev.txt
+install:
+  - pip install -e .
+  - pip install -r requirements_dev.txt
 
 # command to run tests, e.g. python setup.py test
-script: make lint test
+script: make lint coverage
+
+after_success:
+  - coveralls
