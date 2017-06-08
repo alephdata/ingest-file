@@ -20,4 +20,5 @@ class MessyTablesIngestorTest(TestCase):
         self.assertEqual(result.status, result.STATUS_SUCCESS)
         self.assertEqual(len(result.children), 3)
         child = result.children[0]
-        self.assertEqual(child.file_name, u'Лист1')
+        self.assertEqual(child.title, u'Лист1')
+        self.assertEqual(child.file_name, u'list1.csv')

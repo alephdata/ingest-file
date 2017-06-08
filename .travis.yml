@@ -13,6 +13,7 @@ addons:
     packages:
       - libtesseract-dev
       - tesseract-ocr-eng
+      - tesseract-ocr-osd
       - imagemagick
       - poppler-utils
       - libreoffice
