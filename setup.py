@@ -11,7 +11,7 @@ with open('HISTORY.rst') as history_file:
 
 setup(
     name='ingestors',
-    version='0.3.0',
+    version='0.3.1',
     description="""
     Ingestors extract useful information in a structured standard format.
     """.strip(),
