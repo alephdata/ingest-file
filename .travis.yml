@@ -23,7 +23,7 @@ before_install:
   - pip install -U pip setuptools
   - sudo apt-get -qq update
   - sudo apt-get install -y readpst mdbtools
-  - wget --quiet -O /tmp/wkhtmltox.tar.xv http://download.gna.org/wkhtmltopdf/0.12/0.12.3/wkhtmltox-0.12.3_linux-generic-amd64.tar.xz
+  - wget --quiet -O /tmp/wkhtmltox.tar.xv https://downloads.wkhtmltopdf.org/0.12/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
   - tar -xf /tmp/wkhtmltox.tar.xv -C $TRAVIS_BUILD_DIR
   - wget --quiet -O /tmp/unrar.deb http://ftp.debian.org/debian/pool/non-free/u/unrar-nonfree/unrar_5.2.7-0.1_amd64.deb
   - dpkg -i /tmp/unrar.deb

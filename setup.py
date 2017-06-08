@@ -23,7 +23,7 @@ setup(
     package_dir={'ingestors': 'ingestors'},
     include_package_data=True,
     install_requires=[
-        'normality>=0.4.0',
+        'normality>=0.4.2',
         'urllib3>=1.21',
         'subprocess32==3.2.7',
         'messytables==0.15.2',
