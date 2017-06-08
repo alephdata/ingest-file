@@ -28,15 +28,19 @@ before_install:
   - tar -xf /tmp/wkhtmltox.tar.xv -C $TRAVIS_BUILD_DIR
   - wget --quiet -O /tmp/unrar.deb http://ftp.debian.org/debian/pool/non-free/u/unrar-nonfree/unrar_5.2.7-0.1_amd64.deb
   - sudo dpkg -i /tmp/unrar.deb
+  - wget --quiet -O /tmp/pst.tgz http://www.five-ten-sg.com/libpst/packages/libpst-0.6.69.tar.gz && cd /tmp && tar xvfz pst.tgz && cd libpst-0.6.69 && ./configure && make && make install
+
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install:
   - pip install -e .
+  - pip install nose coveralls
   - pip install -r requirements_dev.txt
 
 # command to run tests, e.g. python setup.py test
 # script: make lint coverage
-script: make coverage
+script:
+  - nosetests --with-coverage --cover-package=ingestors
 
 after_success:
   - coveralls
