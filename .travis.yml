@@ -34,7 +34,8 @@ install:
   - pip install -r requirements_dev.txt
 
 # command to run tests, e.g. python setup.py test
-script: make lint coverage
+# script: make lint coverage
+script: make coverage
 
 after_success:
   - coveralls
