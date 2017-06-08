@@ -5,13 +5,6 @@ python: 2.7
 cache:
   - apt
   - pip
-  - directories:
-    - ~/ediscovery-files
-
-# These files are huge!
-before_cache:
-  - rm -rf ~/ediscovery-files/.git
-  - rm -rf ~/ediscovery-files/assets/scale/randomTextDataZip
 
 addons:
   apt:
@@ -26,11 +19,6 @@ addons:
 
 before_install:
   - pip install -U pip setuptools
-  - test -d ~/ediscovery-files/assets || git clone --depth=1 https://gitlab.com/dzmitry-lahoda/ediscovery-files.git ~/ediscovery-files
-
-env:
-  global:
-    - EXTRA_FIXTURES_PATH=~/ediscovery-files/assets
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: pip install -r requirements_dev.txt

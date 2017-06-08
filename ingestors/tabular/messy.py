@@ -30,11 +30,16 @@ class MessyTablesIngestor(Ingestor, TempFileSupport):
         row_set.register_processor(headers_processor(headers))
         row_set.register_processor(offset_processor(offset + 1))
         with open(out_path, 'w') as fh:
-            writer = DictWriter(fh, headers)
-            writer.writeheader()
+            writer = None
             for row in row_set:
-                data = {c.column: string_value(c.value) for c in row}
-                writer.writerow(data)
+                try:
+                    if writer is None:
+                        writer = DictWriter(fh, [c.column for c in row])
+                        writer.writeheader()
+                    data = {c.column: string_value(c.value) for c in row}
+                    writer.writerow(data)
+                except Exception as ex:
+                    log.exception(ex)
 
         self.manager.handle_child(self.result, out_path,
                                   file_name=row_set.name,

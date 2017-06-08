@@ -3,6 +3,7 @@ from unicodecsv import Sniffer, DictReader
 
 from ingestors.base import Ingestor
 from ingestors.support.encoding import EncodingSupport
+from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
@@ -39,6 +40,8 @@ class CSVIngestor(Ingestor, EncodingSupport):
 
             sniffer = Sniffer()
             sample = fh.read(4096 * 4).decode(encoding)
+            if len(sample) == 0:
+                raise ProcessingException("File is empty.")
             dialect = sniffer.sniff(sample.encode('utf-8'))
             fh.seek(0)
 

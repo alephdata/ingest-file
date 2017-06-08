@@ -38,7 +38,7 @@ class DocumentIngestorTest(TestCase):
         self.assertEqual(len(result.pages), 1)
         self.assertIn(u'Now', result.pages[0]['text'])
         self.assertIn(
-            today.strftime('%x %I:%M %p'),
+            today.strftime('%x %I'),
             result.pages[0]['text']
         )
 
@@ -51,7 +51,7 @@ class DocumentIngestorTest(TestCase):
     def test_ingest_noisy_doc(self):
         fixture_path = self.fixture('Plan.odt')
         result = self.manager.ingest(fixture_path)
-        print result.to_dict()
+        # print result.to_dict()
         self.assertEqual(len(result.pages), 1)
         self.assertIn(
             'We should paint graffiti on all corners',

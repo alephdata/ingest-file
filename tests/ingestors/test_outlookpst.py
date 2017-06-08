@@ -9,5 +9,5 @@ class OutlookPSTTest(TestCase):
     def test_match(self):
         fixture_path = self.fixture('testPST.pst')
         result = self.manager.ingest(fixture_path)
-        pprint(result.to_dict())
+        # pprint(result.to_dict())
         self.assertEqual(result.mime_type, 'application/vnd.ms-outlook')
