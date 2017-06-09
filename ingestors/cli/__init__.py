@@ -1,4 +1,3 @@
-import io
 import json
 import decimal
 import datetime
@@ -15,15 +14,8 @@ def json_default(obj):
         return float(obj)
 
 
-def cli(file_path, echo=True):
+def cli(file_path):
     """CLI main method."""
-    with io.open(file_path, 'rb') as fio:
-        ingestor, data, detached_data = ingest(fio, file_path)
-
-        if detached_data:
-            data['pages'] = detached_data
-
-        if not echo:
-            return data
-
-        print(json.dumps(data, sort_keys=True, indent=2, default=json_default))
+    result = ingest(file_path)
+    print(json.dumps(result.to_dict(), sort_keys=True, indent=2,
+                     default=json_default))
