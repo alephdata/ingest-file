@@ -71,8 +71,12 @@ class Manager(object):
         """Callback called after the processing starts."""
         pass
 
-    def handle_child(self, parent, file_path, **kwargs):
-        result = self.RESULT_CLASS(file_path=file_path, **kwargs)
+    def handle_child(self, parent, file_path, id=None, title=None,
+                     mime_type=None):
+        result = self.RESULT_CLASS(file_path=file_path,
+                                   id=id,
+                                   title=title,
+                                   mime_type=mime_type)
         parent.children.append(result)
         self.ingest(file_path, result=result)
 

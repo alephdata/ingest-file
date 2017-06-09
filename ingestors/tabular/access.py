@@ -38,6 +38,8 @@ class AccessIngestor(Ingestor, TempFileSupport, ShellSupport):
         with self.create_temp_dir() as temp_dir:
             for table_name in self.get_tables(file_path):
                 csv_path = self.dump_table(file_path, table_name, temp_dir)
+                child_id = join_path(self.result.id, table_name)
                 self.manager.handle_child(self.result, csv_path,
+                                          id=child_id,
                                           title=table_name,
                                           mime_type='text/csv')

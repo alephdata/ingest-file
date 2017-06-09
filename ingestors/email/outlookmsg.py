@@ -21,21 +21,23 @@ class OutlookMsgIngestor(Ingestor, TempFileSupport):
     EXTENSIONS = ['msg']
     SCORE = 10
 
-    def ingest_attachment(self, attachment, temp_dir):
+    def ingest_attachment(self, attached, temp_dir):
         try:
-            name = attachment.longFilename or attachment.shortFilename
+            name = attached.longFilename or attached.shortFilename
             if name is None:
                 name = 'attachment'
 
-            if attachment.data is None:
+            if attached.data is None:
                 log.warning("Attachment is empty: %s", name)
                 return
 
             file_path = join_path(temp_dir, make_filename(name))
             with open(file_path, 'w') as fh:
-                fh.write(attachment.data)
-            self.manager.handle_child(self.result, file_path, title=name,
-                                      mime_type=attachment.mimeType)
+                fh.write(attached.data)
+            self.manager.handle_child(self.result, file_path,
+                                      id=join_path(self.result.id, name),
+                                      title=name,
+                                      mime_type=attached.mimeType)
         except Exception as ex:
             log.exception(ex)
 

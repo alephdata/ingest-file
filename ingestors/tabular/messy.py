@@ -45,7 +45,9 @@ class MessyTablesIngestor(Ingestor, TempFileSupport):
                 except Exception as ex:
                     log.exception(ex)
 
+        child_id = join_path(self.result.id, row_set.name)
         self.manager.handle_child(self.result, out_path,
+                                  id=child_id,
                                   title=row_set.name,
                                   mime_type='text/csv')
 

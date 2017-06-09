@@ -1,6 +1,8 @@
 import os
 import logging
 
+from ingestors.util import decode_path
+
 log = logging.getLogger(__name__)
 
 
@@ -18,7 +20,10 @@ class Result(object):
                  summary=None, keywords=None, languages=[], author=None,
                  emails=None, people=None, timestamp=None, headers=None):
         self.status = None
-        self.id = None
+        self.file_path = decode_path(file_path)
+        file_name = file_name or os.path.basename(self.file_path)
+        self.file_name = decode_path(file_name)
+        self.id = id or self.file_path
         self.title = title
         self.summary = summary
         self.timestamp = timestamp
@@ -26,8 +31,6 @@ class Result(object):
         self.keywords = keywords or []
         self.emails = emails or []
         self.people = people or []
-        self.file_path = file_path
-        self.file_name = file_name or os.path.basename(file_path)
         self.mime_type = mime_type
         self.encoding = encoding
         self.languages = languages
@@ -56,6 +59,7 @@ class Result(object):
 
     def to_dict(self):
         return {
+            'id': self.id,
             'title': self.title,
             'summary': self.summary,
             'keywords': self.keywords,
