@@ -58,13 +58,10 @@ There's also a simple API you can use.
 
 .. code-block:: python
 
-    import io
-    import ingestors
+    from ingestors import Manager
 
-    with io.open('myfile.txt', 'rb') as fio:
-        ingestor, data, children_data = ingestors.ingest(fio, file_path)
-
-        print ingestor, data, children_data
+    result = Manager({}).ingest(file_path)
+    print result.to_dict()
 
 
 =============
