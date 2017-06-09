@@ -21,6 +21,9 @@ class MessyTablesIngestor(Ingestor, TempFileSupport):
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',  # noqa
         'application/vnd.oasis.opendocument.spreadsheet'
     ]
+    NON_MIME_TYPES = [
+        'application/zip'
+    ]
     EXTENSIONS = ['xls', 'xlsx', 'ods']
     SCORE = 4
 
@@ -50,8 +53,10 @@ class MessyTablesIngestor(Ingestor, TempFileSupport):
         with self.create_temp_dir() as temp_dir:
             with open(file_path, 'rb') as fh:
                 _, extension = os.path.splitext(file_path)
+                mime_type = self.result.mime_type
+                if mime_type in self.NON_MIME_TYPES:
+                    mime_type = None
                 table_set = any_tableset(fh, extension=extension,
-                                         mimetype=self.result.mime_type,
-                                         window=20000)
+                                         mimetype=mime_type, window=20000)
                 for sheet, row_set in enumerate(table_set.tables):
                     self.generate_csv(sheet, row_set, temp_dir)

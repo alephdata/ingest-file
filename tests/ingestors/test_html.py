@@ -16,8 +16,8 @@ class HTMLIngestorTest(TestCase):
         result = self.manager.ingest(fixture_path)
 
         self.assertEqual(
-            result.pages[0]['text'],
-            u'Ingestors\tTitle\nIngestors\nTest\tweb\tpage.\tThe\tGitHub\tpage.'  # noqa
+            collapse_spaces(result.pages[0]['text']),
+            collapse_spaces('Ingestors Title Ingestors Test web page. The')
         )
         self.assertEqual(result.title, u'Ingestors Title')
         self.assertEqual(result.summary, u'Ingestors description')
