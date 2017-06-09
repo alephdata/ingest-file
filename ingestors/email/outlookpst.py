@@ -20,7 +20,7 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport):
             self.exec_command('readpst',
                               '-D',
                               '-e',
-                              '-8',
+                              # '-8',
                               '-b',
                               '-o', temp_dir,
                               file_path)

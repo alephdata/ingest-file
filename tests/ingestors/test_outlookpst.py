@@ -11,3 +11,4 @@ class OutlookPSTTest(TestCase):
         result = self.manager.ingest(fixture_path)
         # pprint(result.to_dict())
         self.assertEqual(result.mime_type, 'application/vnd.ms-outlook')
+        self.assertEqual(len(result.children), 1)

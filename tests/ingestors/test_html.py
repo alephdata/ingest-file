@@ -17,7 +17,7 @@ class HTMLIngestorTest(TestCase):
 
         self.assertEqual(
             collapse_spaces(result.pages[0]['text']),
-            collapse_spaces('Ingestors Title Ingestors Test web page. The')
+            collapse_spaces('Ingestors Title Ingestors Test web page. The GitHub page.')  # noqa
         )
         self.assertEqual(result.title, u'Ingestors Title')
         self.assertEqual(result.summary, u'Ingestors description')
