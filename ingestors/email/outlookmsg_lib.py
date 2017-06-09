@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: latin-1 -*-
+# -*- coding: utf-8 -*-
 """
 ExtractMsg:
     Extracts emails and attachments saved in Microsoft Outlook's .msg files

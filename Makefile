@@ -1,4 +1,4 @@
-.PHONY: clean clean-test clean-pyc clean-build docs help
+.PHONY: clean clean-test clean-pyc clean-build
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
@@ -34,13 +34,6 @@ coverage: ## check code coverage quickly with the default Python
 	coverage report -m
 	coverage html
 	echo "The report in HTML is available in: htmlcov/index.html"
-
-docs: ## generate Sphinx HTML documentation
-	rm -rf docs/_build
-	sphinx-build -b html -d docs/_build/doctrees ./docs docs/_build/html
-
-docs-web:
-	python -m SimpleHTTPServer 8000
 
 release: clean ## package and upload a release
 	python setup.py sdist bdist_wheel

@@ -11,10 +11,8 @@ with open('HISTORY.rst') as history_file:
 
 setup(
     name='ingestors',
-    version='0.3.1',
-    description="""
-    Ingestors extract useful information in a structured standard format.
-    """.strip(),
+    version='0.3.2',
+    description="Ingestors extract useful information in a structured standard format.",  # noqa
     long_description=readme + '\n\n' + history,
     author="Stas Sușcov",
     author_email='info@occrp.org',

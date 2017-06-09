@@ -1,14 +1,8 @@
-Ingestors extract useful information in a structured standard format.
-
-Ingestors is free software under MIT license.
+``ingestors`` extract useful information in a structured standard format.
 
 .. image:: https://img.shields.io/travis/alephdata/ingestors.svg
    :target: https://travis-ci.org/alephdata/ingestors
    :alt: Build Status
-
-.. image:: https://readthedocs.org/projects/ingestors/badge/?version=latest
-   :target: https://ingestors.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
 
 Supported file types:
 
@@ -16,27 +10,30 @@ Supported file types:
 * Images
 * Web pages
 * PDF files
+* Emails (Outlook, plain text)
+* Archive files (ZIP, Rar, etc.)
 
 Other features:
 
 * Extendable and composable using classes and mixins.
 * Serializable results object with basic metadata support.
-* Throughly tested using local and external set of fixtures.
+* Throughly tested.
 * Lightweight worker-style support for logging, failures and callbacks.
 
 ============
 Installation
 ============
 
-To install Ingestors, use `pip` or add it to your project dependencies.
+To install ``ingestors``, use `pip` or add it to your project dependencies.
 
 .. code-block:: console
 
     $ pip install ingestors
 
-To install all system dependencies, use::
+If you don't have `pip` installed, this `Python installation guide`_ can guide
+you through the process.
 
-    $ pip install ingestors[full]
+.. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
 
 Once installed, this package provides a command line tool::
 
@@ -58,8 +55,6 @@ This tool will print the JSON formatted results.
     }
 
 There's also a simple API you can use.
-For more help, please see the `usage <specs.html>`_.
-
 
 .. code-block:: python
 
@@ -71,29 +66,91 @@ For more help, please see the `usage <specs.html>`_.
 
         print ingestor, data, children_data
 
-If you don't have `pip` installed, this `Python installation guide`_ can guide
-you through the process.
 
-.. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
-
-
+=============
 Documentation
--------------
+=============
 
-The documentation for Ingestors is available at
-`ingestors.readthedocs.io <http://ingestors.readthedocs.io/>`_.
+Ingestors operate on files and folders. And while some files represent a single
+document, some file types include multiple documents, some of which of
+different type.
 
-Feel free to edit the source files in the ``docs`` folder and send pull
-requests for improvements.
-
-To build the documentation, please install the dependencies first and run
-``make docs``::
-
-  $ pip install -r requirements_dev.txt
-  $ make docs
+A good example is an email file type. While the document is composed of a
+subject and a body with address fields, it can also have attachments.
 
 
-Now you can browse the documentation locally at
-``http://localhost:8000/docs/_build/html/``::
+Architecture
+------------
 
-  $ make docs-web
+Because of this, an the processing of documents is composed of three parts: one
+is the file type specific part to extract the information, the ingestor. It
+will be chosen based on the input file type. The second part, the result, is
+used by the ingestor to output the data it has extracted. Finally, a manager
+component takes care of spawning child ingestors, selecting the right ingestor
+for a given file type, as well as various other process-related tasks.
+
+
+Example
+-------
+
+Any newly spawned ingestor will keep a reference to its parent by being
+provided a file  value besides other context information.
+
+Running an ingestor on the `archive.zip` will generate an checksum of the file
+to be used as an identifier. Next it will extract the files and try to spawn a
+new ingestor with the reference to the `archive.zip` instance. And so on with
+every next file.
+
+The ingestor offers support for iterating on all the children it discovered.
+
+An example would be:
+
+.. code-block:: python
+    for child in result.children:
+        print child.checksum, child.file_name
+
+
+Statuses
+--------
+
+An ingestor can be in only one of the statuses:
+
+* *success*, indicates the ingestor finished processing the file successfully
+* *failure*, indicates the ingestor finished processing the file with an error
+* *stopped*, indicates the ingestor was stopped externally or internally
+  (system errors, OS limitations, etc.)
+
+Along with the statuses, an ingestor having spawned children, provides
+information the number of children and their status.
+
+
+Events
+------
+
+An ingestor provides callbacks in the form of:
+
+* `before()`, to be called before the file processing is started. This callback
+  is provided with the context of the file to be processed (checksum information,
+  filename, time it started, status etc.)
+* `after()`, to be called after the file processing is done. This callback is
+  provided with the context of the processed file and the results (spawned
+  children, time it ended, status, etc.)
+
+Any of these callbacks can be overwritten to store the context in a persistent
+way or be passed on towards additional processing.
+
+
+Results
+-------
+
+An ingestor does not provide a strict format of the processing results, still,
+its result interface provides access to the following extracted data:
+
+* mime type
+* file name
+* file size
+* checksum
+* document title (if any)
+* document authors (if any)
+* pages (for text documents)
+* rows (for tabular documents)
