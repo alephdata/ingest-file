@@ -1,3 +1,4 @@
+import os
 import logging
 from unicodecsv import DictWriter
 
@@ -48,8 +49,8 @@ class MessyTablesIngestor(Ingestor, TempFileSupport):
     def ingest(self, file_path):
         with self.create_temp_dir() as temp_dir:
             with open(file_path, 'rb') as fh:
-                table_set = any_tableset(fh,
-                                         # extension=self.result.extension,
+                _, extension = os.path.splitext(file_path)
+                table_set = any_tableset(fh, extension=extension,
                                          mimetype=self.result.mime_type,
                                          window=20000)
                 for sheet, row_set in enumerate(table_set.tables):

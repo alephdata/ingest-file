@@ -19,7 +19,9 @@ addons:
       - libreoffice
       - djvulibre-bin
       - unzip
-
+env:
+  global:
+    - WKHTMLTOPDF_BIN=$TRAVIS_BUILD_DIR/wkhtmltox/bin/wkhtmltopdf
 before_install:
   - pip install -U pip setuptools
   - sudo apt-get -qq update
