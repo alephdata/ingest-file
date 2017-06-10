@@ -1,4 +1,5 @@
 import logging
+from hashlib import sha1
 try:
     from cStringIO import StringIO
 except:
@@ -46,13 +47,19 @@ class OCRSupport(object):
         """Extract text from a binary string of data."""
         tessdata = self.manager.get_env('TESSDATA_PREFIX', '/usr/share/tesseract-ocr')  # noqa
 
-        languages = self.result.languages or \
-            self.manager.config.get('LANGUAGES', ['en'])
+        languages = self.result.languages or ['en']
+        whitelist = self.manager.config.get('LANGUAGES', [])
+        if len(whitelist):
+            languages = set(languages).intersection(whitelist)
         languages = self.convert_iso_languages(languages)
 
-        # text = Cache.get_ocr(data, languages)
-        # if text is not None:
-        #    return text
+        key = sha1(data)
+        key.update(languages)
+        key = key.hexdigest()
+        text = self.manager.get_cache(key)
+        if text is not None:
+            return text
+
         try:
             img = Image.open(StringIO(data))
         except DecompressionBombWarning as dce:
@@ -75,5 +82,5 @@ class OCRSupport(object):
 
         log.debug('[%s] OCR: %s, %s characters extracted',
                   self.result.label, languages, len(text))
-        # Cache.set_ocr(data, languages, text)
+        self.manager.set_cache(key, text)
         return text

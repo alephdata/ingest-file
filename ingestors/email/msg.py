@@ -39,6 +39,7 @@ class RFC822Ingestor(Ingestor, TempFileSupport):
         self.manager.handle_child(self.result, out_path,
                                   id=child_id,
                                   title=file_name,
+                                  file_name=file_name,
                                   mime_type=mime_type)
 
     def parse_headers(self, msg):

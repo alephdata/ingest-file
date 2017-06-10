@@ -23,5 +23,6 @@ class MboxFileIngestor(RFC822Ingestor, TempFileSupport):
                 with open(msg_path, 'wb') as fh:
                     fh.write(str(msg))
                 child_id = join_path(self.result.id, msg_name)
-                self.manager.handle_child(self.result, msg_path, id=child_id,
+                self.manager.handle_child(self.result, msg_path,
+                                          id=child_id,
                                           mime_type='multipart/mixed')

@@ -37,6 +37,7 @@ class OutlookMsgIngestor(Ingestor, TempFileSupport):
             self.manager.handle_child(self.result, file_path,
                                       id=join_path(self.result.id, name),
                                       title=name,
+                                      file_name=name,
                                       mime_type=attached.mimeType)
         except Exception as ex:
             log.exception(ex)

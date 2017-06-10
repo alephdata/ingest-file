@@ -39,7 +39,7 @@ def join_path(*args):
     return os.path.join(*args)
 
 
-def make_filename(file_name, sep='-', default=None, extension=None):
+def make_filename(file_name, sep='_', default=None, extension=None):
     if file_name is None:
         return default
 

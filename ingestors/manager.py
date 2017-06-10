@@ -60,7 +60,7 @@ class Manager(object):
 
         if best_cls is None:
             raise ProcessingException("Format not supported: %r (%s)" %
-                                      (file_path, result.mime_type))
+                                      (result.label, result.mime_type))
         return best_cls
 
     def before(self, result):
@@ -71,11 +71,20 @@ class Manager(object):
         """Callback called after the processing starts."""
         pass
 
+    def get_cache(self, key):
+        """Stub handler for results memoization."""
+        return None
+
+    def set_cache(self, key, value):
+        """Stub handler for results memoization."""
+        pass
+
     def handle_child(self, parent, file_path, id=None, title=None,
-                     mime_type=None):
+                     file_name=None, mime_type=None):
         result = self.RESULT_CLASS(file_path=file_path,
                                    id=id,
                                    title=title,
+                                   file_name=file_name,
                                    mime_type=mime_type)
         parent.children.append(result)
         self.ingest(file_path, result=result)

@@ -29,4 +29,6 @@ class DirectoryIngestor(Ingestor):
                 continue
             sub_path = join_path(file_path, name)
             child_id = join_path(self.result.id, name)
-            self.manager.handle_child(self.result, sub_path, id=child_id)
+            self.manager.handle_child(self.result, sub_path,
+                                      file_name=name,
+                                      id=child_id)

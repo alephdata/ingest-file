@@ -77,4 +77,4 @@ class Result(object):
         }
 
     def __repr__(self):
-        return '<Result(%s,%s,%s)>' % (self.id, self.label, self.mime_type)
+        return '<Result(%s,%s)>' % (self.label, self.mime_type)
