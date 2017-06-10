@@ -23,7 +23,7 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
         """
         with self.create_temp_dir() as temp_dir:
             out_path = os.path.join(temp_dir, 'pdf.xml')
-            log.debug("Converting PDF to XML...")
+            # log.debug("Converting PDF to XML...")
             self.exec_command('pdftohtml',
                               '-xml',
                               '-hidden',
@@ -78,7 +78,7 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
                     texts.append(text)
 
         text = '\n'.join(texts).strip()
-        log.debug("Extracted %d characters of text, p.%s", len(text), pagenum)
+        # log.debug("Extracted %d characters, p.%s", len(text), pagenum)
         self.result.emit_page(int(pagenum), text)
 
     def pdf_page_to_image(self, file_path, pagenum, temp_dir):

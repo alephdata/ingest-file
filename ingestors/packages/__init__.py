@@ -17,6 +17,7 @@ log = logging.getLogger(__name__)
 class RARIngestor(PackageSupport, Ingestor):
 
     def unpack(self, file_path, temp_dir):
+        # FIXME: need to figure out how to unpack multi-part files.
         with rarfile.RarFile(file_path) as rf:
             self.unpack_members(rf, temp_dir)
 

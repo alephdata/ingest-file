@@ -38,7 +38,9 @@ class PackageSupport(TempFileSupport, EncodingSupport):
                 file_name = name.decode(encoding, 'ignore')
 
             out_path = join_path(temp_dir, file_name)
-            if os.path.exists(out_path) or not out_path.startswith(temp_dir):
+            if os.path.exists(out_path):
+                continue
+            if not out_path.startswith(temp_dir):
                 continue
 
             out_dir = os.path.dirname(out_path)
@@ -58,10 +60,6 @@ class PackageSupport(TempFileSupport, EncodingSupport):
                 log.debug("Failed to unpack %s: %s", out_path, ex)
 
     def ingest(self, file_path):
-        # Work-around: try to unpack multi-part files by changing into
-        # the directory containing the file.
-        prev_cwd = os.getcwd()
-        os.chdir(os.path.dirname(file_path))
         with self.create_temp_dir() as temp_dir:
             try:
                 log.info("Descending into package: %r", self.result.label)
@@ -69,8 +67,6 @@ class PackageSupport(TempFileSupport, EncodingSupport):
                 self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
             except rarfile.NeedFirstVolume:
                 pass
-            finally:
-                os.chdir(prev_cwd)
 
     def unpack(self, file_path, temp_dir):
         pass

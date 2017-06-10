@@ -41,16 +41,17 @@ def join_path(*args):
 
 def make_filename(file_name, sep='_', default=None, extension=None):
     if file_name is None:
-        return default
+        return decode_path(default)
 
     file_name = decode_path(file_name)
     file_name = os.path.basename(file_name)
     file_name, _extension = os.path.splitext(file_name)
-    file_name = slugify(file_name, sep=sep)[:200]
+    file_name = slugify(file_name, sep=sep) or ''
+    file_name = file_name[:250]
     extension = slugify(extension or _extension, sep=sep)
-    if extension and len(extension.strip('.')):
+    if extension and len(extension.strip('.')) and len(file_name):
         file_name = '.'.join((file_name, extension))
 
     if not len(file_name.strip()):
-        return default
+        return decode_path(default)
     return decode_path(file_name)

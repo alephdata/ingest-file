@@ -19,6 +19,7 @@ class ImageIngestor(Ingestor, PDFSupport):
         'image/tiff',
         'image/x-tiff',
         'image/jpeg',
+        'image/pjpeg',
         'image/bmp',
         'image/x-windows-bmp',
         'image/x-portable-bitmap',

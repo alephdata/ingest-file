@@ -1,4 +1,3 @@
-import six
 import logging
 import mailbox
 
@@ -17,8 +16,9 @@ class MboxFileIngestor(RFC822Ingestor, TempFileSupport):
     def ingest(self, file_path):
         mbox = mailbox.mbox(file_path)
         with self.create_temp_dir() as temp_dir:
-            for i, msg in enumerate(mbox):
-                msg_name = make_filename(six.text_type(i), extension='eml')
+            for i, msg in enumerate(mbox, 1):
+                msg_name = 'message-%s' % i
+                msg_name = make_filename(msg_name, extension='eml')
                 msg_path = join_path(temp_dir, msg_name)
                 with open(msg_path, 'wb') as fh:
                     fh.write(str(msg))

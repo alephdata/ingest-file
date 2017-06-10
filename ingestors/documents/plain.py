@@ -1,6 +1,7 @@
 from ingestors.base import Ingestor
 from ingestors.support.encoding import EncodingSupport
 from ingestors.support.soffice import LibreOfficeSupport
+from ingestors.exc import ProcessingException
 from ingestors.util import join_path
 
 
@@ -14,6 +15,9 @@ class PlainTextIngestor(Ingestor, EncodingSupport, LibreOfficeSupport):
     def ingest(self, file_path):
         """Ingestor implementation."""
         text = self.read_file_decoded(file_path)
+        if text is None:
+            raise ProcessingException("Document is empty.")
+
         with self.create_temp_dir() as temp_dir:
             text_path = join_path(temp_dir, 'page.txt')
             with open(text_path, 'wb') as fh:
