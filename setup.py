@@ -23,7 +23,6 @@ setup(
     install_requires=[
         'normality>=0.4.2',
         'urllib3>=1.21',
-        'subprocess32==3.2.7',
         'messytables==0.15.2',
         'unicodecsv==0.14.1',
         'lxml==3.7.3',
@@ -36,6 +35,9 @@ setup(
         'imapclient==1.0.2',
         'dbf==0.96.8'
     ],
+    extras_require={
+        ':python_version<"3"': ['subprocess32']
+    },
     license="MIT",
     zip_safe=False,
     keywords='ingestors',
