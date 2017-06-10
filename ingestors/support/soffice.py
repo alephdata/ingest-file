@@ -19,7 +19,7 @@ class LibreOfficeSupport(PDFSupport):
             os.makedirs(out_dir)
         except:
             pass
-        log.info('Converting %r to PDF...', file_path)
+        log.info('Converting %s to PDF...', self.result.label)
         instance_dir = '-env:UserInstallation=file://{}'.format(instance_dir)
         self.exec_command('soffice',
                           instance_dir,
