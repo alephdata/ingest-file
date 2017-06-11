@@ -18,7 +18,7 @@ class Result(object):
     def __init__(self, id=None, title=None, file_path=None, file_name=None,
                  mime_type=None, checksum=None, size=None, encoding=None,
                  summary=None, keywords=None, languages=[], author=None,
-                 emails=None, people=None, timestamp=None, headers=None):
+                 emails=None, entities=None, timestamp=None, headers=None):
         self.status = None
         self.file_path = decode_path(file_path)
         file_name = file_name or os.path.basename(self.file_path)
@@ -30,7 +30,7 @@ class Result(object):
         self.author = author
         self.keywords = keywords or []
         self.emails = emails or []
-        self.people = people or []
+        self.entities = entities or []
         self.mime_type = mime_type
         self.encoding = encoding
         self.languages = languages
