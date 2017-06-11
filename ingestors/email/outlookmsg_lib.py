@@ -5,7 +5,6 @@ ExtractMsg:
 
 https://github.com/mattgwwalker/msg-extractor
 """
-import os
 import sys
 import string
 from email.parser import Parser as EmailParser
@@ -157,7 +156,7 @@ properties = {
     '5FF6': 'To (uncertain)'}
 
 
-def windowsUnicode(string):
+def windowsUnicode(string):  # pragma: no cover
     if string is None:
         return None
     if sys.version_info[0] >= 3:  # Python 3
@@ -166,7 +165,7 @@ def windowsUnicode(string):
         return unicode(string, 'utf_16_le')
 
 
-class Attachment:
+class Attachment:  # pragma: no cover
     def __init__(self, msg, dir_):
         # Get long filename
         self.longFilename = msg._getStringStream(dir_ + ['__substg1.0_3707'])
@@ -181,7 +180,7 @@ class Attachment:
         self.data = msg._getStream(dir_ + ['__substg1.0_37010102'])
 
 
-class Message(OleFile.OleFileIO):
+class Message(OleFile.OleFileIO):  # pragma: no cover
     def __init__(self, filename):
         OleFile.OleFileIO.__init__(self, filename)
 
@@ -351,39 +350,3 @@ class Message(OleFile.OleFileIO):
                 self._attachments.append(Attachment(self, attachmentDir))
 
             return self._attachments
-
-    def saveRaw(self):
-        # Create a 'raw' folder
-        oldDir = os.getcwd()
-        try:
-            rawDir = "raw"
-            os.makedirs(rawDir)
-            os.chdir(rawDir)
-            sysRawDir = os.getcwd()
-
-            # Loop through all the directories
-            for dir_ in self.listdir():
-                sysdir = "/".join(dir_)
-                code = dir_[-1][-8:-4]
-                global properties
-                if code in properties:
-                    sysdir = sysdir + " - " + properties[code]
-                os.makedirs(sysdir)
-                os.chdir(sysdir)
-
-                # Generate appropriate filename
-                if dir_[-1].endswith("001E"):
-                    filename = "contents.txt"
-                else:
-                    filename = "contents"
-
-                # Save contents of directory
-                f = open(filename, 'wb')
-                f.write(self._getStream(dir_))
-                f.close()
-
-                # Return to base directory
-                os.chdir(sysRawDir)
-
-        finally:
-            os.chdir(oldDir)
