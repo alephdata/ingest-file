@@ -15,6 +15,11 @@ log = logging.getLogger(__name__)
 
 
 class RARIngestor(PackageSupport, Ingestor):
+    MIME_TYPES = [
+        'application/x-rar'
+    ]
+    EXTENSIONS = ['rar']
+    SCORE = 4
 
     def unpack(self, file_path, temp_dir):
         # FIXME: need to figure out how to unpack multi-part files.
@@ -24,11 +29,16 @@ class RARIngestor(PackageSupport, Ingestor):
     @classmethod
     def match(cls, file_path, mime_type=None):
         if rarfile.is_rarfile(file_path):
-            return 4
-        return -1
+            return cls.SCORE
+        return super(RARIngestor, cls).match(file_path, mime_type=mime_type)
 
 
 class ZipIngestor(PackageSupport, Ingestor):
+    MIME_TYPES = [
+        'application/zip'
+    ]
+    EXTENSIONS = ['zip']
+    SCORE = 3
 
     def unpack(self, file_path, temp_dir):
         with zipfile.ZipFile(file_path) as zf:
@@ -37,11 +47,16 @@ class ZipIngestor(PackageSupport, Ingestor):
     @classmethod
     def match(cls, file_path, mime_type=None):
         if zipfile.is_zipfile(file_path):
-            return 3
-        return -1
+            return cls.SCORE
+        return super(ZipIngestor, cls).match(file_path, mime_type=mime_type)
 
 
 class TarIngestor(PackageSupport, Ingestor):
+    MIME_TYPES = [
+        'application/x-tar'
+    ]
+    EXTENSIONS = ['tar', 'tar.gz', 'tar.bz2']
+    SCORE = 4
 
     def unpack(self, file_path, temp_dir):
         with tarfile.open(name=file_path, mode='r:*') as tf:
@@ -50,8 +65,8 @@ class TarIngestor(PackageSupport, Ingestor):
     @classmethod
     def match(cls, file_path, mime_type=None):
         if tarfile.is_tarfile(file_path):
-            return 4
-        return -1
+            return cls.SCORE
+        return super(TarIngestor, cls).match(file_path, mime_type=mime_type)
 
 
 class SevenZipIngestor(PackageSupport, Ingestor, ShellSupport):
