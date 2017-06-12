@@ -118,10 +118,14 @@ class Manager(object):
         self.checksum_file(result, file_path)
         self.before(result)
         try:
+            if result.size is not None and result.size <= 0:
+                raise ProcessingException("Document is empty.")
+
             if ingestor_class is None:
                 ingestor_class = self.auction(file_path, result)
                 log.debug("Ingestor [%s, %s]: %s", result.label,
                           result.mime_type, ingestor_class.__name__)
+
             self.delegate(ingestor_class, result, file_path)
             result.status = Result.STATUS_SUCCESS
         except ProcessingException as pexc:
