@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 import six
 import logging
+from collections import OrderedDict
 
 from dbf import Table
 
@@ -16,7 +17,7 @@ class DBFIngestor(Ingestor):
 
     def generate_rows(self, table):
         for row in table:
-            data = {}
+            data = OrderedDict()
             for field, value in zip(table.field_names, row):
                 if value is not None:
                     value = six.text_type(value).strip()

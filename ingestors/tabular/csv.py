@@ -1,4 +1,5 @@
 import logging
+from collections import OrderedDict
 from unicodecsv import Sniffer, DictReader
 
 from ingestors.base import Ingestor
@@ -22,11 +23,13 @@ class CSVIngestor(Ingestor, EncodingSupport):
 
     def generate_rows(self, reader):
         for row in reader:
-            data = {}
-            for field, value in row.items():
-                value = value.strip()
-                if not len(value):
-                    value = None
+            data = OrderedDict()
+            for field in reader.fieldnames:
+                value = row.get(field)
+                if value is not None:
+                    value = value.strip()
+                    if not len(value):
+                        value = None
                 data[field] = value
             yield data
 
@@ -45,5 +48,6 @@ class CSVIngestor(Ingestor, EncodingSupport):
             dialect = sniffer.sniff(sample.encode('utf-8'))
             fh.seek(0)
 
-            reader = DictReader(fh, encoding=encoding, dialect=dialect)
+            reader = DictReader(fh, encoding=encoding, dialect=dialect,
+                                restkey='_')
             self.result.emit_rows(self.generate_rows(reader))
