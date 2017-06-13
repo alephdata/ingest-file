@@ -54,6 +54,8 @@ class Manager(object):
         best_score, best_cls = 0, None
         for cls in self.ingestors:
             score = cls.match(file_path, mime_type=result.mime_type)
+            log.debug("Auction %s (%s): %s -> %s", file_path, result.mime_type,
+                      cls.__name__, score)
             if score > best_score:
                 best_score = score
                 best_cls = cls

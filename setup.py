@@ -11,7 +11,7 @@ with open('HISTORY.rst') as history_file:
 
 setup(
     name='ingestors',
-    version='0.3.7',
+    version='0.3.8',
     description="Ingestors extract useful information in a structured standard format.",  # noqa
     long_description=readme + '\n\n' + history,
     author="Stas Sușcov",
