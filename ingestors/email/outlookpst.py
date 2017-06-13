@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport):
     MIME_TYPES = ['application/vnd.ms-outlook']
-    EXTENSIONS = ['pst']
+    EXTENSIONS = ['pst', 'ost']
     BASE_SCORE = 5
 
     def ingest(self, file_path):

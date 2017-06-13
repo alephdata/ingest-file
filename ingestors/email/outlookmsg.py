@@ -51,7 +51,7 @@ class OutlookMsgIngestor(Ingestor, TempFileSupport):
         if headers.get('From'):
             addr = address.parse(headers.get('From'))
             if addr is not None:
-                if addr.display_name:
+                if addr.display_name and addr.display_name != addr.address:
                     self.result.author = addr.display_name
                     self.result.entities.append(addr.display_name)
                 self.result.emails.append(addr.address)
@@ -59,7 +59,7 @@ class OutlookMsgIngestor(Ingestor, TempFileSupport):
         for hdr in ['To', 'CC', 'BCC']:
             if headers.get(hdr):
                 for addr in address.parse_list(headers.get(hdr)):
-                    if addr.display_name:
+                    if addr.display_name and addr.display_name != addr.address:
                         self.result.entities.append(addr.display_name)
                     self.result.emails.append(addr.address)
 

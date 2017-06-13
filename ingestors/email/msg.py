@@ -52,7 +52,7 @@ class RFC822Ingestor(Ingestor, TempFileSupport):
         if msg.headers.get('From'):
             addr = address.parse(msg.headers.get('From'))
             if addr is not None:
-                if addr.display_name:
+                if addr.display_name and addr.display_name != addr.address:
                     self.result.author = addr.display_name
                     self.result.entities.append(addr.display_name)
                 self.result.emails.append(addr.address)
@@ -60,7 +60,7 @@ class RFC822Ingestor(Ingestor, TempFileSupport):
         for hdr in ['To', 'CC', 'BCC']:
             if msg.headers.get(hdr):
                 for addr in address.parse_list(msg.headers.get(hdr)):
-                    if addr.display_name:
+                    if addr.display_name and addr.display_name != addr.address:
                         self.result.entities.append(addr.display_name)
                     self.result.emails.append(addr.address)
 
