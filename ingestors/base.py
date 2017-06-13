@@ -32,12 +32,14 @@ class Ingestor(object):
         if mime_type is not None:
             for match_type in cls.MIME_TYPES:
                 match_type = normalize_mime_type(match_type)
+                if normalize_mime_type is None:
+                    continue
                 if match_type.lower().strip() == mime_type.lower().strip():
                     return cls.SCORE
 
         path, ext = os.path.splitext(file_path)
         ext = ext.strip('.').strip().lower()
-        if ext in cls.EXTENSIONS:
+        if ext in [e.lower().strip() for e in cls.EXTENSIONS]:
             return cls.SCORE
 
         return -1
