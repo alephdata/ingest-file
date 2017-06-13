@@ -55,7 +55,7 @@ class TarIngestor(PackageSupport, Ingestor):
     MIME_TYPES = [
         'application/x-tar'
     ]
-    EXTENSIONS = ['tar', 'tar.gz', 'tar.bz2']
+    EXTENSIONS = ['tar']
     SCORE = 4
 
     def unpack(self, file_path, temp_dir):

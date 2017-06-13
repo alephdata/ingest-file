@@ -1,7 +1,6 @@
-import os
 import logging
 import mimetypes
-from ingestors.util import normalize_mime_type
+from ingestors.util import normalize_mime_type, normalize_extension
 
 log = logging.getLogger(__name__)
 
@@ -37,9 +36,9 @@ class Ingestor(object):
                 if match_type.lower().strip() == mime_type.lower().strip():
                     return cls.SCORE
 
-        path, ext = os.path.splitext(file_path)
-        ext = ext.strip('.').strip().lower()
-        if ext in [e.lower().strip() for e in cls.EXTENSIONS]:
+        extensions = [normalize_extension(e) for e in cls.EXTENSIONS]
+        extensions = [e for e in extensions if e is not None]
+        if normalize_extension(file_path) in extensions:
             return cls.SCORE
 
         return -1

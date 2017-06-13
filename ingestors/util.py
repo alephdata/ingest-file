@@ -17,6 +17,18 @@ def normalize_mime_type(mime_type):
     return mime_type
 
 
+def normalize_extension(extension):
+    extension = decode_path(extension)
+    if extension is not None:
+        if extension.startswith('.'):
+            extension = extension[1:]
+        if '.' in extension:
+            _, extension = os.path.splitext(extension)
+        extension = slugify(extension, sep='')
+        if extension is not None and len(extension):
+            return extension
+
+
 def string_value(value, encoding=None):
     value = stringify(value, encoding=encoding, encoding_default='utf-8')
     if value is None:
