@@ -25,7 +25,7 @@ setup(
         'urllib3>=1.21',
         'messytables==0.15.2',
         'unicodecsv==0.14.1',
-        'lxml==3.7.3',
+        'lxml==3.8.0',
         'pillow==4.0.0',
         'tesserwrap==0.1.6',
         'python-magic==0.4.12',
