@@ -96,7 +96,7 @@ class Manager(object):
         if os.path.isdir(file_path):
             return
 
-        if result.checksum is not None:
+        if result.checksum is None:
             checksum = hashlib.sha1()
             size = 0
             with open(file_path, 'rb') as fh:
