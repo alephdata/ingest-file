@@ -96,21 +96,22 @@ class Manager(object):
         if os.path.isdir(file_path):
             return
 
-        if result.checksum is not None and result.size is not None:
-            return
+        if result.checksum is not None:
+            checksum = hashlib.sha1()
+            size = 0
+            with open(file_path, 'rb') as fh:
+                while True:
+                    block = fh.read(8192)
+                    if not block:
+                        break
+                    size += len(block)
+                    checksum.update(block)
 
-        checksum = hashlib.sha1()
-        size = 0
-        with open(file_path, 'rb') as fh:
-            while True:
-                block = fh.read(8192)
-                if not block:
-                    break
-                size += len(block)
-                checksum.update(block)
+            result.checksum = checksum.hexdigest()
+            result.size = size
 
-        result.checksum = checksum.hexdigest()
-        result.size = size
+        if result.size is None:
+            result.size = os.path.getsize(file_path)
 
     def ingest(self, file_path, result=None, ingestor_class=None):
         """Main execution step of an ingestor."""
