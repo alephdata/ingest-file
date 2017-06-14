@@ -12,6 +12,7 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport):
     MIME_TYPES = ['application/vnd.ms-outlook']
     EXTENSIONS = ['pst', 'ost']
     BASE_SCORE = 5
+    COMMAND_TIMEOUT = 12 * 60 * 60
 
     def ingest(self, file_path):
         with self.create_temp_dir() as temp_dir:
