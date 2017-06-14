@@ -24,6 +24,8 @@ class PlainTextIngestor(Ingestor, EncodingSupport, LibreOfficeSupport):
         text = self.read_file_decoded(file_path)
         if text is None:
             raise ProcessingException("Document could not be decoded.")
+        if len(text.strip()) == 0:
+            raise ProcessingException("Document is empty.")
 
         with self.create_temp_dir() as temp_dir:
             text_path = join_path(temp_dir, 'page.txt')
