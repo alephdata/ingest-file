@@ -1,6 +1,7 @@
 import os
 import six
 import sys
+import shutil
 
 from normality import stringify, slugify
 from normality.cleaning import remove_control_chars
@@ -52,6 +53,7 @@ def join_path(*args):
 
 
 def make_filename(file_name, sep='_', default=None, extension=None):
+    """Create a secure filename for plain file system storage."""
     if file_name is None:
         return decode_path(default)
 
@@ -67,3 +69,19 @@ def make_filename(file_name, sep='_', default=None, extension=None):
     if not len(file_name.strip()):
         return decode_path(default)
     return decode_path(file_name)
+
+
+def make_directory(file_path):
+    """Create a directory, be quiet if it already exists."""
+    try:
+        os.makedirs(file_path)
+    except:
+        pass
+
+
+def remove_directory(file_path):
+    """Delete a directory, ignore errors."""
+    try:
+        shutil.rmtree(file_path, True)
+    except:
+        pass

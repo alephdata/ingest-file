@@ -3,7 +3,7 @@ import logging
 
 from ingestors.support.pdf import PDFSupport
 from ingestors.exc import ProcessingException
-from ingestors.util import join_path
+from ingestors.util import join_path, make_directory
 
 log = logging.getLogger(__name__)
 
@@ -15,10 +15,7 @@ class LibreOfficeSupport(PDFSupport):
         """Converts an office document to PDF."""
         instance_dir = join_path(temp_dir, 'soffice_instance')
         out_dir = join_path(temp_dir, 'soffice_output')
-        try:
-            os.makedirs(out_dir)
-        except:
-            pass
+        make_directory(out_dir)
         log.info('Converting %s to PDF...', self.result.label)
         instance_dir = '-env:UserInstallation=file://{}'.format(instance_dir)
         self.exec_command('soffice',

@@ -1,8 +1,7 @@
 import contextlib
-import shutil
 import tempfile
 
-from ingestors.util import decode_path
+from ingestors.util import decode_path, remove_directory
 
 
 class TempFileSupport(object):
@@ -15,4 +14,4 @@ class TempFileSupport(object):
         try:
             yield decode_path(temp_dir)
         finally:
-            shutil.rmtree(temp_dir)
+            remove_directory(temp_dir)

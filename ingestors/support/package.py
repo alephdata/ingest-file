@@ -8,7 +8,7 @@ from chardet.universaldetector import UniversalDetector
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.encoding import EncodingSupport
 from ingestors.directory import DirectoryIngestor
-from ingestors.util import join_path
+from ingestors.util import join_path, make_directory
 
 log = logging.getLogger(__name__)
 
@@ -44,8 +44,7 @@ class PackageSupport(TempFileSupport, EncodingSupport):
                 continue
 
             out_dir = os.path.dirname(out_path)
-            if not os.path.exists(out_dir):
-                os.makedirs(out_dir)
+            make_directory(out_dir)
 
             try:
                 in_fh = pack.open(name)
