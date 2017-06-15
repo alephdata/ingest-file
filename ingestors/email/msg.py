@@ -46,7 +46,7 @@ class RFC822Ingestor(Ingestor, TempFileSupport):
     def parse_headers(self, msg):
         self.result.title = msg.subject
 
-        if msg.message_id:
+        if msg.message_id and self.result.id is None:
             self.result.id = six.text_type(msg.message_id)
 
         if msg.headers.get('From'):

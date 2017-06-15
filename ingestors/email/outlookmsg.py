@@ -45,7 +45,7 @@ class OutlookMsgIngestor(Ingestor, TempFileSupport):
     def parse_headers(self, headers):
         self.result.title = headers.get('Subject')
 
-        if headers.get('Message-Id'):
+        if headers.get('Message-Id') and self.result.id is None:
             self.result.id = headers.get('Message-Id')
 
         if headers.get('From'):

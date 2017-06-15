@@ -1,6 +1,7 @@
 import os
 import logging
 from lxml import etree
+from normality import collapse_spaces
 
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.shell import ShellSupport
@@ -61,6 +62,7 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
         texts = []
         for text in page.findall('.//text'):
             content = text.xpath('string()').strip()
+            content = collapse_spaces(content)
             if len(content):
                 texts.append(content)
 
@@ -74,10 +76,11 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
             image_file = self.pdf_page_to_image(file_path, pagenum, temp_dir)
             with open(image_file, 'rb') as fh:
                 text = self.extract_text_from_image(fh.read())
+                text = collapse_spaces(text)
                 if text is not None:
                     texts.append(text)
 
-        text = '\n'.join(texts).strip()
+        text = ' \n'.join(texts).strip()
         # log.debug("Extracted %d characters, p.%s", len(text), pagenum)
         self.result.emit_page(int(pagenum), text)
 

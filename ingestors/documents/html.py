@@ -86,7 +86,7 @@ class HTMLIngestor(Ingestor, EncodingSupport, PDFSupport):
         with self.create_temp_dir() as temp_dir:
             html_path = join_path(temp_dir, 'page.html')
             with open(html_path, 'w') as fh:
-                data = html.tostring(doc, pretty_print=True)
+                data = html.tostring(doc)
                 fh.write(data)
             pdf_path = self.render_html_to_pdf(html_path, temp_dir)
             self.pdf_alternative_extract(pdf_path)

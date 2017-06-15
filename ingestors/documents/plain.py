@@ -14,6 +14,7 @@ class PlainTextIngestor(Ingestor, EncodingSupport, LibreOfficeSupport):
     """
     MIME_TYPES = ['text/plain']
     MAX_SIZE = 2 * 1024 * 1024
+    SCORE = 1
 
     def ingest(self, file_path):
         """Ingestor implementation."""
