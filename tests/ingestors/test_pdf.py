@@ -32,7 +32,7 @@ class PDFIngestorTest(TestCase):
         self.assertEqual(len(result.pages), 500)
         self.assertEqual(
             result.pages[0]['text'],
-            'Hello, World!\nHello, World!'
+            'Hello, World! \nHello, World!'
         )
 
     def test_ingest_complex_fixture(self):
@@ -41,7 +41,7 @@ class PDFIngestorTest(TestCase):
 
         self.assertEqual(len(result.pages), 588)
         self.assertIn(
-            'ALGEBRA\nABSTRACT\nAND\nCONCRETE\nE\nDITION\n2.6',
+            'ALGEBRA \nABSTRACT \nAND \nCONCRETE \nE \nDITION \n2.6',
             result.pages[0]['text']
         )
 
