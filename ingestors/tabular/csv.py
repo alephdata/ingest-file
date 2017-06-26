@@ -42,7 +42,7 @@ class CSVIngestor(Ingestor, EncodingSupport):
                       encoding)
 
             sniffer = Sniffer()
-            sample = fh.read(4096 * 4).decode(encoding)
+            sample = fh.read(4096 * 4).decode(encoding, 'ignore')
             if len(sample) == 0:
                 raise ProcessingException("File is empty.")
             dialect = sniffer.sniff(sample.encode('utf-8'))

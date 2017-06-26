@@ -45,6 +45,8 @@ class PackageSupport(TempFileSupport, EncodingSupport):
 
             out_dir = os.path.dirname(out_path)
             make_directory(out_dir)
+            if os.path.isdir(out_path):
+                continue
 
             try:
                 in_fh = pack.open(name)
