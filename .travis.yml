@@ -30,7 +30,7 @@ before_install:
   - sudo apt-get install -y readpst mdbtools libmagic1
   - wget --quiet -O /tmp/wkhtmltox.tar.xv https://downloads.wkhtmltopdf.org/0.12/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
   - tar -xf /tmp/wkhtmltox.tar.xv -C $TRAVIS_BUILD_DIR
-  - wget --quiet -O /tmp/unrar.deb http://ftp.debian.org/debian/pool/non-free/u/unrar-nonfree/unrar_5.5.8-1_amd64.deb
+  - wget --quiet -O /tmp/unrar.deb http://www.rarlab.com/rar/unrar_5.2.5-0.1_amd64.deb
   - sudo dpkg -i /tmp/unrar.deb
   # - sudo ln -s /usr/bin/python /usr/bin/python2.7.12
   # - wget --quiet -O /tmp/pst.tgz http://www.five-ten-sg.com/libpst/packages/libpst-0.6.70.tar.gz && cd /tmp && tar xvfz pst.tgz && cd libpst-0.6.70 && ./configure && make && make install
