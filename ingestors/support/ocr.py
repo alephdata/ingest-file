@@ -46,7 +46,6 @@ class OCRSupport(object):
     def extract_text_from_image(self, data):
         """Extract text from a binary string of data."""
         tessdata = self.manager.get_env('TESSDATA_PREFIX', '/usr/share/tesseract-ocr')  # noqa
-
         languages = self.result.languages or ['en']
         whitelist = self.manager.config.get('LANGUAGES', [])
         if len(whitelist):

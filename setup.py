@@ -21,6 +21,7 @@ setup(
     package_dir={'ingestors': 'ingestors'},
     include_package_data=True,
     install_requires=[
+        'banal>=0.1',
         'normality>=0.4.2',
         'urllib3>=1.21',
         'messytables==0.15.2',

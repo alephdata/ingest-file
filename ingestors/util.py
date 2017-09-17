@@ -3,6 +3,7 @@ import six
 import sys
 import shutil
 
+from banal import decode_path  # noqa
 from normality import stringify, slugify
 from normality.cleaning import remove_control_chars
 
@@ -37,14 +38,6 @@ def string_value(value, encoding=None):
     if isinstance(value, six.text_type):
         value = remove_control_chars(value)
     return value
-
-
-def decode_path(file_path):
-    if file_path is None:
-        return
-    if isinstance(file_path, six.binary_type):
-        file_path = file_path.decode(sys.getfilesystemencoding())
-    return file_path
 
 
 def join_path(*args):
