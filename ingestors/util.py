@@ -1,9 +1,8 @@
 import os
 import six
-import sys
 import shutil
 
-from banal import decode_path  # noqa
+from banal import decode_path
 from normality import stringify, slugify
 from normality.cleaning import remove_control_chars
 

@@ -6,16 +6,13 @@ from setuptools import setup, find_packages
 with open('README.rst') as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
-
 setup(
     name='ingestors',
-    version='0.3.8',
+    version='0.4.0',
     description="Ingestors extract useful information in a structured standard format.",  # noqa
-    long_description=readme + '\n\n' + history,
-    author="Stas Sușcov",
-    author_email='info@occrp.org',
+    long_description=readme,
+    author="Organized Crime and Corruption Reporting Project",
+    author_email='tech@occrp.org',
     url='https://github.com/alephdata/ingestors',
     packages=find_packages(exclude=['tests']),
     package_dir={'ingestors': 'ingestors'},
@@ -26,14 +23,14 @@ setup(
         'urllib3>=1.21',
         'messytables==0.15.2',
         'unicodecsv==0.14.1',
-        'lxml==3.8.0',
-        'pillow==4.0.0',
-        'tesserwrap==0.1.6',
-        'python-magic==0.4.12',
+        'lxml>=3.8.0',
+        'pillow>=4.0.0',
+        'tesserwrap>=0.1.6',
+        'python-magic>=0.4.12',
         'pycountry>=17.5',
-        'rarfile==3.0',
-        'flanker==0.4.38',
-        'imapclient==1.0.2',
+        'rarfile>=3.0',
+        'flanker>=0.4.38',
+        'imapclient>=1.0.2',
         'dbf==0.96.8'
     ],
     extras_require={
