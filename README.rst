@@ -151,3 +151,13 @@ its result interface provides access to the following extracted data:
 * document authors (if any)
 * pages (for text documents)
 * rows (for tabular documents)
+
+
+
+OS X notes:
+
+```bash
+brew install djvulibre
+export SOFFICE_BIN=/Applications/LibreOffice.app/Contents/MacOS/soffice
+export TESSDATA_PREFIX=/usr/local/share
+```

@@ -1,9 +1,10 @@
 import logging
 import mailbox
+from normality import safe_filename
 
 from ingestors.email.msg import RFC822Ingestor
 from ingestors.support.temp import TempFileSupport
-from ingestors.util import join_path, make_filename
+from ingestors.util import join_path
 
 log = logging.getLogger(__name__)
 
@@ -17,8 +18,8 @@ class MboxFileIngestor(RFC822Ingestor, TempFileSupport):
         mbox = mailbox.mbox(file_path)
         with self.create_temp_dir() as temp_dir:
             for i, msg in enumerate(mbox, 1):
-                msg_name = 'message%s' % i
-                msg_name = make_filename(msg_name, extension='eml')
+                msg_name = 'message_%s' % i
+                msg_name = safe_filename(msg_name, extension='eml')
                 msg_path = join_path(temp_dir, msg_name)
                 with open(msg_path, 'wb') as fh:
                     fh.write(str(msg))

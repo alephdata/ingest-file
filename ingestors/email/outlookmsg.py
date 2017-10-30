@@ -4,13 +4,14 @@ from time import mktime
 from datetime import datetime
 
 from olefile import isOleFile
+from normality import safe_filename
 from flanker.addresslib import address
 
 from ingestors.base import Ingestor
 from ingestors.documents.plain import PlainTextIngestor
 from ingestors.support.temp import TempFileSupport
 from ingestors.email.outlookmsg_lib import Message
-from ingestors.util import string_value, join_path, make_filename
+from ingestors.util import string_value, join_path
 
 
 log = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ class OutlookMsgIngestor(Ingestor, TempFileSupport):
                 log.warning("Attachment is empty: %s", name)
                 return
 
-            file_path = join_path(temp_dir, make_filename(name))
+            file_path = join_path(temp_dir, safe_filename(name))
             with open(file_path, 'w') as fh:
                 fh.write(attached.data)
             self.manager.handle_child(self.result, file_path,

@@ -1,13 +1,13 @@
 import os
 import logging
 from unicodecsv import DictWriter
-
+from normality import safe_filename
 from messytables import any_tableset, offset_processor
 from messytables import headers_guess, headers_processor
 
 from ingestors.base import Ingestor
 from ingestors.support.temp import TempFileSupport
-from ingestors.util import string_value, join_path, make_filename
+from ingestors.util import string_value, join_path
 
 log = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class MessyTablesIngestor(Ingestor, TempFileSupport):
     SCORE = 4
 
     def generate_csv(self, sheet, row_set, temp_dir):
-        out_path = make_filename(row_set.name, extension='csv')
+        out_path = safe_filename(row_set.name, extension='csv')
         out_path = join_path(temp_dir, out_path)
         offset, headers = headers_guess(row_set.sample)
         row_set.register_processor(headers_processor(headers))

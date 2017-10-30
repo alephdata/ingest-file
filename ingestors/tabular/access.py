@@ -1,9 +1,10 @@
 import logging
+from normality import safe_filename
 
 from ingestors.base import Ingestor
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.shell import ShellSupport
-from ingestors.util import make_filename, join_path
+from ingestors.util import join_path
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ class AccessIngestor(Ingestor, TempFileSupport, ShellSupport):
         return [t.strip() for t in output.split(' ') if len(t.strip())]
 
     def dump_table(self, file_path, table_name, temp_dir):
-        out_file = make_filename(table_name, extension='csv')
+        out_file = safe_filename(table_name, extension='csv')
         out_file = join_path(temp_dir, out_file)
         mdb_export = self.find_command('mdb-export')
         args = [mdb_export, '-b', 'strip', file_path, table_name]

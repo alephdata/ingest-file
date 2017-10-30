@@ -9,7 +9,6 @@ log = logging.getLogger(__name__)
 
 class DjVuIngestor(Ingestor, PDFSupport):
     """Read DejaVu E-Books."""
-
     MIME_TYPES = ['image/vnd.djvu', 'image/x.djvu']  # noqa
 
     def ingest(self, file_path):
@@ -18,7 +17,7 @@ class DjVuIngestor(Ingestor, PDFSupport):
             pdf_path = join_path(temp_dir, 'page.pdf')
             self.exec_command('ddjvu',
                               '-format=pdf',
-                              '-quality=85',
+                              '-quality=100',
                               '-skip',
                               file_path,
                               pdf_path)

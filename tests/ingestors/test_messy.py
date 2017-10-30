@@ -10,7 +10,7 @@ class MessyTablesIngestorTest(TestCase):
         self.assertEqual(result.status, result.STATUS_SUCCESS)
         self.assertEqual(len(result.children), 2)
         child = result.children[0]
-        self.assertEqual(child.file_name, 'sheet1.csv')
+        self.assertEqual(child.file_name, 'Sheet1.csv')
         self.assertEqual(child.title, 'Sheet1')
         # print child.rows[0]
         self.assertEqual(child.rows[0]['Name'], 'Mihai Viteazul')
@@ -22,4 +22,4 @@ class MessyTablesIngestorTest(TestCase):
         self.assertEqual(len(result.children), 3)
         child = result.children[0]
         self.assertEqual(child.title, u'Лист1')
-        self.assertEqual(child.file_name, u'list1.csv')
+        self.assertEqual(child.file_name, u'List1.csv')

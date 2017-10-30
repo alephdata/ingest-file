@@ -6,12 +6,13 @@ from datetime import datetime
 
 from flanker import mime
 from flanker.addresslib import address
+from normality import safe_filename
 
 from ingestors.base import Ingestor
 from ingestors.documents.plain import PlainTextIngestor
 from ingestors.documents.html import HTMLIngestor
 from ingestors.support.temp import TempFileSupport
-from ingestors.util import join_path, make_filename
+from ingestors.util import join_path
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ class RFC822Ingestor(Ingestor, TempFileSupport):
     SCORE = 6
 
     def write_temp(self, part, temp_dir, file_name):
-        file_name = make_filename(file_name, default='attachment')
+        file_name = safe_filename(file_name, default='attachment')
         out_path = join_path(temp_dir, file_name)
         with open(out_path, 'wb') as fh:
             if part.body is not None:
