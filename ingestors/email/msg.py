@@ -94,6 +94,8 @@ class RFC822Ingestor(Ingestor, TempFileSupport):
             if 'text/html' in bodies:
                 out_path = self.write_temp(bodies['text/html'], temp_dir, 'body.htm')  # noqa
                 self.manager.delegate(HTMLIngestor, self.result, out_path)
-            else:
-                out_path = self.write_temp(bodies['text/plain'], temp_dir, 'body.txt')  # noqa
+                return
+
+            for part in bodies.values():
+                out_path = self.write_temp(part, temp_dir, 'body.txt')
                 self.manager.delegate(PlainTextIngestor, self.result, out_path)

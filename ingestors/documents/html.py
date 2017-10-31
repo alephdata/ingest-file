@@ -31,10 +31,12 @@ class HTMLIngestor(Ingestor, EncodingSupport, PDFSupport):
         """OK, this is weirder. Converting HTML to PDF via WebKit."""
         pdf_path = join_path(temp_dir, 'page.pdf')
         self.exec_command('wkhtmltopdf',
+                          '--dpi', '300',
                           '--disable-javascript',
                           '--no-outline',
                           '--no-images',
-                          '--lowquality',
+                          '--no-background',
+                          '--print-media-type',
                           '--quiet',
                           '--disable-forms',
                           '--disable-local-file-access',
