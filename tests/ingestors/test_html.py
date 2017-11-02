@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from normality import collapse_spaces
 
 from ..support import TestCase
 
@@ -16,8 +15,8 @@ class HTMLIngestorTest(TestCase):
         result = self.manager.ingest(fixture_path)
 
         self.assertEqual(
-            collapse_spaces(result.pages[0]['text']),
-            collapse_spaces('Ingestors Title Ingestors Test web page. The GitHub page.')  # noqa
+            result.body_text,
+            'Ingestors Test web page. The GitHub page.'  # noqa
         )
         self.assertEqual(result.title, u'Ingestors Title')
         self.assertEqual(result.summary, u'Ingestors description')
@@ -30,7 +29,7 @@ class HTMLIngestorTest(TestCase):
 
         self.assertIn(
             'Creating Practical Resources to Improve E-Discovery',
-            collapse_spaces(result.pages[0]['text']),
+            result.body_text,
         )
         self.assertEqual(result.title, u'EDRM Micro Datasets \xab EDRM')
         self.assertIsNone(result.summary)
@@ -41,7 +40,7 @@ class HTMLIngestorTest(TestCase):
         fixture_path = self.fixture(u'empty_5_doc_pages.html')
         result = self.manager.ingest(fixture_path)
 
-        self.assertEqual(result.pages[0]['text'], '')
+        self.assertEqual(result.body_text, '')
         self.assertIsNone(result.title)
         self.assertEqual(result.keywords, [])
         self.assertEqual(result.status, result.STATUS_SUCCESS)

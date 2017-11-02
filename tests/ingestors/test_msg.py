@@ -12,7 +12,7 @@ class RFC822Test(TestCase):
         # pprint(result.to_dict())
         self.assertEqual(result.status, result.STATUS_SUCCESS)
         self.assertEqual(result.title, u'JUnit test message')
-        self.assertIn(u'Dear Vladimir', result.pages[0]['text'])
+        self.assertIn(u'Dear Vladimir', result.body_text)
 
     def test_naumann(self):
         fixture_path = self.fixture('fnf.msg')
@@ -20,7 +20,7 @@ class RFC822Test(TestCase):
         # pprint(result.to_dict())
         self.assertEqual(result.status, result.STATUS_SUCCESS)
         self.assertIn('Innovationskongress', result.title)
-        self.assertIn(u'freiheit.org', result.pages[0]['text'])
+        self.assertIn(u'freiheit.org', result.body_text)
 
     def test_mbox(self):
         fixture_path = self.fixture('plan.mbox')

@@ -8,7 +8,7 @@ with open('README.rst') as readme_file:
 
 setup(
     name='ingestors',
-    version='0.4.0',
+    version='0.5.0',
     description="Ingestors extract useful information in a structured standard format.",  # noqa
     long_description=readme,
     author="Organized Crime and Corruption Reporting Project",
@@ -23,6 +23,7 @@ setup(
         'urllib3 >= 1.21',
         'messytables == 0.15.2',
         'unicodecsv == 0.14.1',
+        'cchardet >= 2.1.1',
         'lxml >= 3.8.0',
         'pillow >= 4.0.0',
         'tesserwrap >= 0.1.6',

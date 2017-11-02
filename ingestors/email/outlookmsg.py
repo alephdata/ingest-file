@@ -8,8 +8,8 @@ from normality import safe_filename
 from flanker.addresslib import address
 
 from ingestors.base import Ingestor
-from ingestors.documents.plain import PlainTextIngestor
 from ingestors.support.temp import TempFileSupport
+from ingestors.support.plain import PlainTextSupport
 from ingestors.email.outlookmsg_lib import Message
 from ingestors.util import string_value, join_path
 
@@ -17,31 +17,23 @@ from ingestors.util import string_value, join_path
 log = logging.getLogger(__name__)
 
 
-class OutlookMsgIngestor(Ingestor, TempFileSupport):
+class OutlookMsgIngestor(Ingestor, TempFileSupport, PlainTextSupport):
     MIME_TYPES = []
     EXTENSIONS = ['msg']
     SCORE = 10
 
     def ingest_attachment(self, attached, temp_dir):
-        try:
-            name = attached.longFilename or attached.shortFilename
-            if name is None:
-                name = 'attachment'
-
-            if attached.data is None:
-                log.warning("Attachment is empty: %s", name)
-                return
-
-            file_path = join_path(temp_dir, safe_filename(name))
-            with open(file_path, 'w') as fh:
+        name = attached.longFilename or attached.shortFilename
+        file_path = safe_filename(name, default='attachment')
+        file_path = join_path(temp_dir, safe_filename(name))
+        with open(file_path, 'w') as fh:
+            if attached.data is not None:
                 fh.write(attached.data)
-            self.manager.handle_child(self.result, file_path,
-                                      id=join_path(self.result.id, name),
-                                      title=name,
-                                      file_name=name,
-                                      mime_type=attached.mimeType)
-        except Exception as ex:
-            log.exception(ex)
+        self.manager.handle_child(self.result, file_path,
+                                  id=join_path(self.result.id, name),
+                                  title=name,
+                                  file_name=name,
+                                  mime_type=attached.mimeType)
 
     def parse_headers(self, headers):
         self.result.title = headers.get('Subject')
@@ -78,15 +70,10 @@ class OutlookMsgIngestor(Ingestor, TempFileSupport):
             if message.header is not None:
                 self.parse_headers(message.header)
 
+            self.extract_plain_text_content(message.body)
+
             for attachment in message.attachments:
                 self.ingest_attachment(attachment, temp_dir)
-
-            if message.body is not None:
-                body_path = join_path(temp_dir, 'body.txt')
-                with open(body_path, 'w') as fh:
-                    fh.write(message.body.encode('utf-8'))
-                self.manager.delegate(PlainTextIngestor, self.result,
-                                      body_path)
 
     @classmethod
     def match(cls, file_path, mime_type=None):

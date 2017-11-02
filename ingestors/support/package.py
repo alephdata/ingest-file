@@ -1,9 +1,9 @@
 import os
 import six
+import shutil
 import logging
 import rarfile
-import shutil
-from chardet.universaldetector import UniversalDetector
+from normality import guess_encoding
 
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.encoding import EncodingSupport
@@ -19,17 +19,9 @@ class PackageSupport(TempFileSupport, EncodingSupport):
         # Some archives come with non-Unicode file names, this
         # attempts to avoid that issue by naming the destination
         # explicitly.
-        detector = UniversalDetector()
-        for name in pack.namelist():
-            if isinstance(name, six.binary_type):
-                detector.feed(name)
-            if detector.done:
-                break
-
-        detector.close()
-        encoding = detector.result.get('encoding')
-        encoding = self._normalize_encoding(encoding)
-
+        names = pack.namelist()
+        names = [n for n in names if isinstance(n, six.binary_type)]
+        encoding = guess_encoding('\n'.join(names))
         log.debug('Detected filename encoding: %s', encoding)
 
         for name in pack.namelist():
@@ -63,7 +55,7 @@ class PackageSupport(TempFileSupport, EncodingSupport):
     def ingest(self, file_path):
         with self.create_temp_dir() as temp_dir:
             try:
-                log.info("Descending into package: %r", self.result.label)
+                log.info("Descending: %s", self.result.label)
                 self.unpack(file_path, temp_dir)
                 self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
             except rarfile.NeedFirstVolume:

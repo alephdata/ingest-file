@@ -39,6 +39,8 @@ class Result(object):
         self.checksum = checksum
         self.size = size
         self.pages = []
+        self.body_text = None
+        self.body_html = None
         self.rows = []
         self.children = []
         self.pdf_path = None
@@ -46,6 +48,13 @@ class Result(object):
     @property
     def label(self):
         return self.file_name
+
+    def emit_html_body(self, html, text):
+        self.body_html = html
+        self.body_text = text
+
+    def emit_text_body(self, text):
+        self.body_text = text
 
     def emit_page(self, index, text):
         self.pages.append({'text': text, 'index': index})
@@ -73,6 +82,8 @@ class Result(object):
             'size': self.size,
             'pages': self.pages,
             'rows': self.rows,
+            'body_text': self.body_text,
+            'body_html': self.body_html,
             'children': [c.to_dict() for c in self.children]
         }
 

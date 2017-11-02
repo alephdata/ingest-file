@@ -9,15 +9,15 @@ from flanker.addresslib import address
 from normality import safe_filename
 
 from ingestors.base import Ingestor
-from ingestors.documents.plain import PlainTextIngestor
-from ingestors.documents.html import HTMLIngestor
 from ingestors.support.temp import TempFileSupport
+from ingestors.support.plain import PlainTextSupport
+from ingestors.support.html import HTMLSupport
 from ingestors.util import join_path
 
 log = logging.getLogger(__name__)
 
 
-class RFC822Ingestor(Ingestor, TempFileSupport):
+class RFC822Ingestor(Ingestor, TempFileSupport, HTMLSupport, PlainTextSupport):
     MIME_TYPES = ['multipart/mixed']
     EXTENSIONS = ['eml', 'rfc822', 'email', 'msg']
     SCORE = 6
@@ -32,17 +32,6 @@ class RFC822Ingestor(Ingestor, TempFileSupport):
                     body = body.encode('utf-8')
                 fh.write(body)
         return out_path
-
-    def ingest_attachment(self, part, temp_dir):
-        file_name = part.detected_file_name
-        mime_type = six.text_type(part.detected_content_type)
-        out_path = self.write_temp(part, temp_dir, file_name)
-        child_id = join_path(self.result.id, file_name)
-        self.manager.handle_child(self.result, out_path,
-                                  id=child_id,
-                                  title=file_name,
-                                  file_name=file_name,
-                                  mime_type=mime_type)
 
     def parse_headers(self, msg):
         self.result.title = msg.subject
@@ -74,28 +63,42 @@ class RFC822Ingestor(Ingestor, TempFileSupport):
                                     msg.headers.items()])
 
     def ingest(self, file_path):
-        with open(file_path, 'rb') as emlfh:
-            self.ingest_message_data(emlfh.read())
+        with open(file_path, 'rb') as fh:
+            msg = mime.from_string(fh.read())
+            self.parse_headers(msg)
+            with self.create_temp_dir() as temp_dir:
+                for part in msg.walk(with_self=True):
+                    self.ingest_part(part, temp_dir)
+
+    def ingest_part(self, part, temp_dir):
+        file_name = part.detected_file_name
+        mime_type = six.text_type(part.detected_content_type)
+        mime_type = mime_type.lower().strip()
+
+        if part.body is None:
+            return
+
+        if part.is_body():
+            if mime_type == 'text/plain':
+                self.extract_plain_text_content(part.body)
+            elif mime_type == 'text/html':
+                self.extract_html_content(part.body)
+            else:
+                log.warning("Unknwon body MIME type: %s", mime_type)
+        elif part.is_attachment() or not part.is_root():
+            return
+            out_path = self.write_temp(part, temp_dir, file_name)
+            child_id = join_path(self.result.id, file_name)
+            self.manager.handle_child(self.result, out_path,
+                                      id=child_id,
+                                      file_name=file_name,
+                                      mime_type=mime_type)
+        else:
+            log.warning("Unhandled MIME part: %s", mime_type)
 
     def ingest_message_data(self, data):
         msg = mime.from_string(data)
-        bodies = {'text/plain': msg}
         self.parse_headers(msg)
         with self.create_temp_dir() as temp_dir:
-            for part in msg.walk():
-                if part.body is None:
-                    continue
-                if part.is_body():
-                    content_type = unicode(part.content_type)
-                    bodies[content_type] = part
-                else:
-                    self.ingest_attachment(part, temp_dir)
-
-            if 'text/html' in bodies:
-                out_path = self.write_temp(bodies['text/html'], temp_dir, 'body.htm')  # noqa
-                self.manager.delegate(HTMLIngestor, self.result, out_path)
-                return
-
-            for part in bodies.values():
-                out_path = self.write_temp(part, temp_dir, 'body.txt')
-                self.manager.delegate(PlainTextIngestor, self.result, out_path)
+            for part in msg.walk(with_self=True, skip_enclosed=True):
+                self.ingest_part(part, temp_dir)
