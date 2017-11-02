@@ -63,9 +63,12 @@ class RFC822Ingestor(Ingestor, TempFileSupport, HTMLSupport, PlainTextSupport):
                                     msg.headers.items()])
 
     def ingest(self, file_path):
-        with open(file_path, 'rb') as fh:
-            msg = mime.from_string(fh.read())
+        with self.create_temp_dir() as temp_dir:
+            with open(file_path, 'rb') as fh:
+                self.ingest_message(fh.read(), temp_dir)
 
+    def ingest_message(self, data, temp_dir):
+        msg = mime.from_string(data)
         self.parse_headers(msg)
         self.extract_plain_text_content(msg.body)
 
@@ -79,14 +82,12 @@ class RFC822Ingestor(Ingestor, TempFileSupport, HTMLSupport, PlainTextSupport):
             mime_type = mime_type.lower().strip()
 
             if part.is_attachment():
-                continue
-                with self.create_temp_dir() as temp_dir:
-                    out_path = self.write_temp(part, temp_dir, file_name)
-                    child_id = join_path(self.result.id, file_name)
-                    self.manager.handle_child(self.result, out_path,
-                                              id=child_id,
-                                              file_name=file_name,
-                                              mime_type=mime_type)
+                out_path = self.write_temp(part, temp_dir, file_name)
+                child_id = join_path(self.result.id, file_name)
+                self.manager.handle_child(self.result, out_path,
+                                          id=child_id,
+                                          file_name=file_name,
+                                          mime_type=mime_type)
 
             if part.is_body():
                 bodies[mime_type].append(part.body)

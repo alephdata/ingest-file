@@ -71,7 +71,6 @@ class OutlookMsgIngestor(Ingestor, TempFileSupport, PlainTextSupport):
                 self.parse_headers(message.header)
 
             self.extract_plain_text_content(message.body)
-
             for attachment in message.attachments:
                 self.ingest_attachment(attachment, temp_dir)
 

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import re
 import logging
 from lxml import html
@@ -56,13 +58,12 @@ class HTMLSupport(object):
                 if keyword is not None:
                     self.result.keywords.append(keyword)
 
-    def pad_elements(self, el):
-        if el.text is None:
-            el.text = '\n'
-        if el.tail is None:
-            el.tail = '\n'
+    def extract_html_text(self, el):
+        yield el.text or ' '
         for child in el:
-            self.pad_elements(child)
+            for text in self.extract_html_text(child):
+                yield text
+        yield el.tail or ' '
 
     def extract_html_content(self, html_body, fix_html=True):
         """Ingestor implementation."""
@@ -81,8 +82,7 @@ class HTMLSupport(object):
 
         self.extract_html_header(doc)
         self.cleaner(doc)
-        self.pad_elements(doc)
-        text = doc.text_content()
+        text = ' '.join(self.extract_html_text(doc))
         text = remove_control_chars(text)
         text = collapse_spaces(text)
         if not len(text):
