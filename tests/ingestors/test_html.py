@@ -40,7 +40,7 @@ class HTMLIngestorTest(TestCase):
         fixture_path = self.fixture(u'empty_5_doc_pages.html')
         result = self.manager.ingest(fixture_path)
 
-        self.assertEqual(result.body_text, '')
+        self.assertEqual(result.body_text, None)
         self.assertIsNone(result.title)
         self.assertEqual(result.keywords, [])
         self.assertEqual(result.status, result.STATUS_SUCCESS)

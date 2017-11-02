@@ -22,7 +22,7 @@ class TextIngestorTest(TestCase):
         fixture_path = self.fixture('non_utf.txt')
         result = self.manager.ingest(fixture_path)
 
-        self.assertIn(u'gro\u0308\xdfter', result.body_text)
+        self.assertIn(u'größter', result.body_text)
 
     def test_ingest_extra_fixture(self):
         fixture_path = self.fixture('udhr_ger.txt')
