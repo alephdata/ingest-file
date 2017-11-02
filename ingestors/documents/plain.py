@@ -12,7 +12,7 @@ class PlainTextIngestor(Ingestor, EncodingSupport, PlainTextSupport):
     Extracts the text from the document and enforces unicode on it.
     """
     MIME_TYPES = ['text/plain']
-    MAX_SIZE = 2 * 1024 * 1024
+    MAX_SIZE = 4 * 1024 * 1024
     SCORE = 1
 
     def ingest(self, file_path):

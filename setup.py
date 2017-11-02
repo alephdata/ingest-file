@@ -19,7 +19,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'banal >= 0.1',
-        'normality >= 0.5.1',
+        'normality >= 0.5.2',
         'urllib3 >= 1.21',
         'messytables == 0.15.2',
         'unicodecsv == 0.14.1',

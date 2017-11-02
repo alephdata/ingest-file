@@ -4,6 +4,7 @@ from lxml import html
 from lxml.etree import ParseError, ParserError
 from lxml.html.clean import Cleaner
 from normality import stringify, collapse_spaces
+from normality.cleaning import remove_control_chars
 
 from ingestors.exc import ProcessingException
 
@@ -66,7 +67,7 @@ class HTMLSupport(object):
     def extract_html_content(self, html_body, fix_html=True):
         """Ingestor implementation."""
         if html_body is None:
-            self.result.emit_html_body(None, '')
+            return
         try:
             try:
                 doc = html.fromstring(html_body)
@@ -78,10 +79,12 @@ class HTMLSupport(object):
         except (ParserError, ParseError, ValueError):
             raise ProcessingException("HTML could not be parsed.")
 
-        print doc.findall('.//title')
         self.extract_html_header(doc)
         self.cleaner(doc)
         self.pad_elements(doc)
         text = doc.text_content()
+        text = remove_control_chars(text)
         text = collapse_spaces(text)
+        if not len(text):
+            text = None
         self.result.emit_html_body(html_body, text)

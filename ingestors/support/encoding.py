@@ -1,7 +1,5 @@
 import logging
-
 from normality import guess_file_encoding
-from normality.cleaning import remove_control_chars
 
 from ingestors.exc import ProcessingException
 
@@ -26,7 +24,6 @@ class EncodingSupport(object):
             log.info("Decoding %s as: %s", self.result.label, encoding)
         try:
             body = body.decode(encoding, 'replace')
-            body = remove_control_chars(body)
             if not self.result.encoding:
                 self.result.encoding = encoding
             return body

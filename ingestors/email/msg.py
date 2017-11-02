@@ -1,12 +1,12 @@
 import six
-import logging
 import rfc822
+import logging
 from time import mktime
 from datetime import datetime
-
+from collections import defaultdict
+from normality import safe_filename
 from flanker import mime
 from flanker.addresslib import address
-from normality import safe_filename
 
 from ingestors.base import Ingestor
 from ingestors.support.temp import TempFileSupport
@@ -65,40 +65,34 @@ class RFC822Ingestor(Ingestor, TempFileSupport, HTMLSupport, PlainTextSupport):
     def ingest(self, file_path):
         with open(file_path, 'rb') as fh:
             msg = mime.from_string(fh.read())
-            self.parse_headers(msg)
-            with self.create_temp_dir() as temp_dir:
-                for part in msg.walk(with_self=True):
-                    self.ingest_part(part, temp_dir)
 
-    def ingest_part(self, part, temp_dir):
-        file_name = part.detected_file_name
-        mime_type = six.text_type(part.detected_content_type)
-        mime_type = mime_type.lower().strip()
-
-        if part.body is None:
-            return
-
-        if part.is_body():
-            if mime_type == 'text/plain':
-                self.extract_plain_text_content(part.body)
-            elif mime_type == 'text/html':
-                self.extract_html_content(part.body)
-            else:
-                log.warning("Unknwon body MIME type: %s", mime_type)
-        elif part.is_attachment() or not part.is_root():
-            return
-            out_path = self.write_temp(part, temp_dir, file_name)
-            child_id = join_path(self.result.id, file_name)
-            self.manager.handle_child(self.result, out_path,
-                                      id=child_id,
-                                      file_name=file_name,
-                                      mime_type=mime_type)
-        else:
-            log.warning("Unhandled MIME part: %s", mime_type)
-
-    def ingest_message_data(self, data):
-        msg = mime.from_string(data)
         self.parse_headers(msg)
-        with self.create_temp_dir() as temp_dir:
-            for part in msg.walk(with_self=True, skip_enclosed=True):
-                self.ingest_part(part, temp_dir)
+        self.extract_plain_text_content(msg.body)
+
+        bodies = defaultdict(list)
+        for part in msg.walk(skip_enclosed=True):
+            if part.body is None:
+                continue
+
+            file_name = part.detected_file_name
+            mime_type = six.text_type(part.detected_content_type)
+            mime_type = mime_type.lower().strip()
+
+            if part.is_attachment():
+                continue
+                with self.create_temp_dir() as temp_dir:
+                    out_path = self.write_temp(part, temp_dir, file_name)
+                    child_id = join_path(self.result.id, file_name)
+                    self.manager.handle_child(self.result, out_path,
+                                              id=child_id,
+                                              file_name=file_name,
+                                              mime_type=mime_type)
+
+            if part.is_body():
+                bodies[mime_type].append(part.body)
+
+        if 'text/html' in bodies:
+            self.extract_html_content('\n\n'.join(bodies['text/html']))
+
+        if 'text/plain' in bodies:
+            self.extract_plain_text_content('\n\n'.join(bodies['text/plain']))
