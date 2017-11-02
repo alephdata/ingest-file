@@ -21,6 +21,7 @@ setup(
         'banal >= 0.1',
         'normality >= 0.5.2',
         'urllib3 >= 1.21',
+        'requests >= 2.18.4',
         'messytables == 0.15.2',
         'unicodecsv == 0.14.1',
         'cchardet >= 2.1.1',

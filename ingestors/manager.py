@@ -61,7 +61,7 @@ class Manager(object):
                 best_cls = cls
 
         if best_cls is None:
-            raise ProcessingException("Format not supported: %r (%s)" %
+            raise ProcessingException("Format not supported: %s (%s)" %
                                       (result.label, result.mime_type))
         return best_cls
 
@@ -132,8 +132,9 @@ class Manager(object):
             self.delegate(ingestor_class, result, file_path)
             result.status = Result.STATUS_SUCCESS
         except ProcessingException as pexc:
-            result.error_message = six.text_type(pexc)
+            result.error_message = stringify(pexc)
             result.status = Result.STATUS_FAILURE
+            log.warning("Failed [%s]: %s", result.label, result.error_message)
         except Exception as exception:
             log.exception(exception)
             result.status = Result.STATUS_STOPPED
