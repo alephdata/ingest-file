@@ -38,7 +38,7 @@ class DocumentIngestorTest(TestCase):
         self.assertEqual(len(result.pages), 1)
         self.assertIn(u'Now', result.pages[0]['text'])
         self.assertIn(
-            today.strftime('%x %I'),
+            today.strftime('%x'),
             result.pages[0]['text']
         )
 

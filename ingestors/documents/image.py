@@ -34,7 +34,7 @@ class ImageIngestor(Ingestor, PDFSupport):
 
     def check_image_size(self, local_path):
         if self.result.mime_type in ['image/svg+xml']:
-            return
+            return True
         try:
             with open(local_path, 'r') as fh:
                 img = Image.open(fh)

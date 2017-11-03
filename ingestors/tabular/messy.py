@@ -25,7 +25,7 @@ class MessyTablesIngestor(Ingestor, TempFileSupport):
         'application/zip'
     ]
     EXTENSIONS = ['xls', 'xlsx', 'ods']
-    SCORE = 4
+    SCORE = 6
 
     def generate_csv(self, sheet, row_set, temp_dir):
         out_path = safe_filename(row_set.name, extension='csv')
