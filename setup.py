@@ -58,6 +58,7 @@ setup(
     entry_points={
         'ingestors': [
             'html = ingestors.documents.html:HTMLIngestor',
+            'xml = ingestors.documents.xml:XMLIngestor',
             'plain = ingestors.documents.plain:PlainTextIngestor',
             'office = ingestors.documents.office:DocumentIngestor',
             'image = ingestors.documents.image:ImageIngestor',
