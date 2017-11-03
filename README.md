@@ -1,14 +1,16 @@
-``ingestors`` extract useful information in a structured standard format.
+# ingestors
 
-.. image:: https://img.shields.io/travis/alephdata/ingestors.svg
-   :target: https://travis-ci.org/alephdata/ingestors
-   :alt: Build Status
+[![Build Status](https://travis-ci.org/alephdata/ingestors.svg?branch=master)](https://travis-ci.org/alephdata/ingestors)
+
+``ingestors`` extract useful information from documents of different types in
+a structured standard format. It retains folder structures across directories,
+compressed archives and emails.
 
 Supported file types:
 
 * Plain text
 * Images
-* Web pages
+* Web pages, XML documents
 * PDF files
 * Emails (Outlook, plain text)
 * Archive files (ZIP, Rar, etc.)
@@ -17,56 +19,48 @@ Other features:
 
 * Extendable and composable using classes and mixins.
 * Serializable results object with basic metadata support.
-* Throughly tested.
 * Lightweight worker-style support for logging, failures and callbacks.
+* Throughly tested.
 
-============
-Installation
-============
+## Installation
 
 To install ``ingestors``, use `pip` or add it to your project dependencies.
 
-.. code-block:: console
-
-    $ pip install ingestors
-
-If you don't have `pip` installed, this `Python installation guide`_ can guide
-you through the process.
-
-.. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
+```shell
+$ pip install ingestors
+```
 
 Once installed, this package provides a command line tool::
 
-    $ python -m ingestors.cli <PATH TO YOUR FILE>
+```shell
+$ python -m ingestors.cli <PATH TO YOUR FILE>
+```
 
 This tool will print the JSON formatted results.
 
-.. code-block:: console
+```shell
+$ python -m ingestors.cli tests/fixtures/image.svg
+{
+    "authors": [],
+    "checksum": "a0233ebbf9d64a0adf1ddf13be248cd48c2ad69f",
+    "content": "Testing ingestors 1..2..3..",
+    "file_size": 15969,
+    "mime_type": "image/svg+xml",
+    "order": 0,
+    "title": "image.svg"
+}
+```
 
-    $ python -m ingestors.cli tests/fixtures/image.svg
-    {
-      "authors": [],
-      "checksum": "a0233ebbf9d64a0adf1ddf13be248cd48c2ad69f",
-      "content": "Testing ingestors 1..2..3..",
-      "file_size": 15969,
-      "mime_type": "image/svg+xml",
-      "order": 0,
-      "title": "image.svg"
-    }
+There's a simple API you can use.
 
-There's also a simple API you can use.
+```python
+from ingestors import Manager
 
-.. code-block:: python
+result = Manager({}).ingest(file_path)
+print result.to_dict()
+```
 
-    from ingestors import Manager
-
-    result = Manager({}).ingest(file_path)
-    print result.to_dict()
-
-
-=============
-Documentation
-=============
+## Documentation
 
 Ingestors operate on files and folders. And while some files represent a single
 document, some file types include multiple documents, some of which of
@@ -75,9 +69,7 @@ different type.
 A good example is an email file type. While the document is composed of a
 subject and a body with address fields, it can also have attachments.
 
-
-Architecture
-------------
+### Architecture
 
 Because of this, an the processing of documents is composed of three parts: one
 is the file type specific part to extract the information, the ingestor. It
@@ -86,9 +78,7 @@ used by the ingestor to output the data it has extracted. Finally, a manager
 component takes care of spawning child ingestors, selecting the right ingestor
 for a given file type, as well as various other process-related tasks.
 
-
-Example
--------
+### Example
 
 Any newly spawned ingestor will keep a reference to its parent by being
 provided a file  value besides other context information.
@@ -102,15 +92,14 @@ The ingestor offers support for iterating on all the children it discovered.
 
 An example would be:
 
-.. code-block:: python
-    for child in result.children:
-        print child.checksum, child.file_name
+```python
+for child in result.children:
+    print child.checksum, child.file_name
+```
 
+### Statuses
 
-Statuses
---------
-
-An ingestor can be in only one of the statuses:
+An ingestor can be in one of the statuses:
 
 * *success*, indicates the ingestor finished processing the file successfully
 * *failure*, indicates the ingestor finished processing the file with an error
@@ -120,9 +109,7 @@ An ingestor can be in only one of the statuses:
 Along with the statuses, an ingestor having spawned children, provides
 information the number of children and their status.
 
-
-Events
-------
+### Events
 
 An ingestor provides callbacks in the form of:
 
@@ -136,9 +123,7 @@ An ingestor provides callbacks in the form of:
 Any of these callbacks can be overwritten to store the context in a persistent
 way or be passed on towards additional processing.
 
-
-Results
--------
+### Results
 
 An ingestor does not provide a strict format of the processing results, still,
 its result interface provides access to the following extracted data:
@@ -151,13 +136,3 @@ its result interface provides access to the following extracted data:
 * document authors (if any)
 * pages (for text documents)
 * rows (for tabular documents)
-
-
-
-OS X notes:
-
-```bash
-brew install djvulibre
-export SOFFICE_BIN=/Applications/LibreOffice.app/Contents/MacOS/soffice
-export TESSDATA_PREFIX=/usr/local/share
-```

@@ -3,14 +3,10 @@
 
 from setuptools import setup, find_packages
 
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
-
 setup(
     name='ingestors',
     version='0.5.0',
     description="Ingestors extract useful information in a structured standard format.",  # noqa
-    long_description=readme,
     author="Organized Crime and Corruption Reporting Project",
     author_email='tech@occrp.org',
     url='https://github.com/alephdata/ingestors',

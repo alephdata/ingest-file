@@ -15,6 +15,7 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport):
             if self.result.mime_type is None:
                 self.result.mime_type = self.MIME_TYPES[0]
             self.exec_command('readpst',
+                              '-M',  # make subfolders, files per message
                               '-D',  # include deleted
                               '-r',  # recursive structure
                               '-8',  # utf-8 where possible
