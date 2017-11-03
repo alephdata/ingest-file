@@ -33,6 +33,7 @@ class MessyTablesIngestor(Ingestor, TempFileSupport):
         offset, headers = headers_guess(row_set.sample)
         row_set.register_processor(headers_processor(headers))
         row_set.register_processor(offset_processor(offset + 1))
+        generated_rows = 0
         with open(out_path, 'w') as fh:
             writer = None
             for row in row_set:
@@ -40,16 +41,19 @@ class MessyTablesIngestor(Ingestor, TempFileSupport):
                     if writer is None:
                         writer = DictWriter(fh, [c.column for c in row])
                         writer.writeheader()
+                        generated_rows += 1
                     data = {c.column: string_value(c.value) for c in row}
                     writer.writerow(data)
+                    generated_rows += 1
                 except Exception as ex:
                     log.exception(ex)
 
-        child_id = join_path(self.result.id, row_set.name)
-        self.manager.handle_child(self.result, out_path,
-                                  id=child_id,
-                                  title=row_set.name,
-                                  mime_type='text/csv')
+        if generated_rows > 0:
+            child_id = join_path(self.result.id, row_set.name)
+            self.manager.handle_child(self.result, out_path,
+                                      id=child_id,
+                                      title=row_set.name,
+                                      mime_type='text/csv')
 
     def ingest(self, file_path):
         with self.create_temp_dir() as temp_dir:
