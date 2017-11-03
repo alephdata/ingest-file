@@ -21,6 +21,7 @@ class DocumentIngestor(Ingestor, LibreOfficeSupport):
         'application/rtf',
         'application/x-rtf',
         'application/msword',
+        'application/vnd.ms-word',
         'application/wordperfect',
         'application/vnd.wordperfect',
         'application/vnd.oasis.opendocument.text',
@@ -30,6 +31,7 @@ class DocumentIngestor(Ingestor, LibreOfficeSupport):
         'application/vnd.ms-powerpoint',
         'application/vnd.sun.xml.impress',
         'application/vnd.ms-powerpoint.presentation',
+        'application/vnd.ms-powerpoint.presentation.12',
         'application/vnd.oasis.opendocument.presentation',
         'application/vnd.openxmlformats-officedocument.presentationml.slideshow',  # noqa
         'application/vnd.openxmlformats-officedocument.presentationml.presentation',  # noqa
