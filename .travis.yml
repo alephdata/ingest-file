@@ -27,9 +27,8 @@ before_install:
   - sudo apt-get install -y readpst mdbtools libmagic1
   - wget --quiet -O /tmp/unrar.deb http://www.rarlab.com/rar/unrar_5.2.5-0.1_amd64.deb
   - sudo dpkg -i /tmp/unrar.deb
-  # - sudo ln -s /usr/bin/python /usr/bin/python2.7.12
-  # - wget --quiet -O /tmp/pst.tgz http://www.five-ten-sg.com/libpst/packages/libpst-0.6.70.tar.gz && cd /tmp && tar xvfz pst.tgz && cd libpst-0.6.70 && ./configure && make && make install
-
+  - sudo ln -s /usr/bin/python /usr/bin/python2.7.12
+  - wget --quiet -O /tmp/pst.tgz http://www.five-ten-sg.com/libpst/packages/libpst-0.6.71.tar.gz && cd /tmp && tar xvfz pst.tgz && cd libpst-0.6.71 && ./configure && make && make install
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install:
