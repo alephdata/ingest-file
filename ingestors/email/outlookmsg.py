@@ -1,9 +1,7 @@
 import rfc822
-import logging
 from time import mktime
-from datetime import datetime
-
 from olefile import isOleFile
+from datetime import datetime
 from normality import safe_filename
 from flanker.addresslib import address
 
@@ -12,9 +10,6 @@ from ingestors.support.temp import TempFileSupport
 from ingestors.support.plain import PlainTextSupport
 from ingestors.email.outlookmsg_lib import Message
 from ingestors.util import string_value, join_path
-
-
-log = logging.getLogger(__name__)
 
 
 class OutlookMsgIngestor(Ingestor, TempFileSupport, PlainTextSupport):

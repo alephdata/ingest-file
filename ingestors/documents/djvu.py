@@ -1,10 +1,6 @@
-import logging
-
 from ingestors.base import Ingestor
 from ingestors.support.pdf import PDFSupport
 from ingestors.util import join_path
-
-log = logging.getLogger(__name__)
 
 
 class DjVuIngestor(Ingestor, PDFSupport):

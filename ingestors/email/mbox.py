@@ -1,11 +1,8 @@
-import logging
 import mailbox
 
 from ingestors.email.msg import RFC822Ingestor
 from ingestors.support.temp import TempFileSupport
 from ingestors.util import join_path
-
-log = logging.getLogger(__name__)
 
 
 class MboxFileIngestor(RFC822Ingestor, TempFileSupport):

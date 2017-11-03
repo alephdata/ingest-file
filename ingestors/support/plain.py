@@ -1,7 +1,4 @@
-import logging
 from normality import stringify
-
-log = logging.getLogger(__name__)
 
 
 class PlainTextSupport(object):

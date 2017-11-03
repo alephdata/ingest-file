@@ -1,13 +1,9 @@
 from __future__ import absolute_import
 import six
-import logging
+from dbf import Table
 from collections import OrderedDict
 
-from dbf import Table
-
 from ingestors.base import Ingestor
-
-log = logging.getLogger(__name__)
 
 
 class DBFIngestor(Ingestor):

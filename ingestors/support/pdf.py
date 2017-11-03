@@ -1,13 +1,10 @@
 import os
-import logging
 from lxml import etree
 from normality import collapse_spaces
 
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.shell import ShellSupport
 from ingestors.support.ocr import OCRSupport
-
-log = logging.getLogger(__name__)
 
 
 class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
@@ -24,7 +21,6 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
         """
         with self.create_temp_dir() as temp_dir:
             out_path = os.path.join(temp_dir, 'pdf.xml')
-            # log.debug("Converting PDF to XML...")
             self.exec_command('pdftohtml',
                               '-xml',
                               '-hidden',
@@ -72,7 +68,6 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
                 is_ocr = True
 
         if is_ocr and self.manager.config.get('PDF_OCR_PAGES', True):
-            # log.info("Using OCR for %r, p.%s", file_path, pagenum)
             image_file = self.pdf_page_to_image(file_path, pagenum, temp_dir)
             with open(image_file, 'rb') as fh:
                 text = self.extract_text_from_image(fh.read())
@@ -81,7 +76,6 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
                     texts.append(text)
 
         text = ' \n'.join(texts).strip()
-        # log.debug("Extracted %d characters, p.%s", len(text), pagenum)
         self.result.emit_page(int(pagenum), text)
 
     def pdf_page_to_image(self, file_path, pagenum, temp_dir):
@@ -104,5 +98,4 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
                           file_path,
                           out_path.replace('.pgm', ''))
         self.assert_outfile(out_path)
-        # log.debug('Extracted PDF page %r to image: %r', pagenum, out_path)
         return out_path

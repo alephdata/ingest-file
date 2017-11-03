@@ -38,8 +38,7 @@ class CSVIngestor(Ingestor, EncodingSupport):
             encoding = self.detect_stream_encoding(fh)
             fh.seek(0)
 
-            log.debug("Detected encoding [%s]: %s", self.result.label,
-                      encoding)
+            log.debug("Detected encoding [%s]: %s", self.result, encoding)
 
             sniffer = Sniffer()
             sample = fh.read(4096 * 4).decode(encoding, 'ignore')

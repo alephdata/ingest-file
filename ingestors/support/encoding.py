@@ -21,7 +21,7 @@ class EncodingSupport(object):
             body = fh.read()
 
         if encoding != self.DEFAULT_ENCODING:
-            log.info("Decoding %s as: %s", self.result.label, encoding)
+            log.info("Decoding [%s] as: %s", self.result, encoding)
         try:
             body = body.decode(encoding, 'replace')
             if not self.result.encoding:

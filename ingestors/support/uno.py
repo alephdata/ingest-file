@@ -32,7 +32,7 @@ class UnoconvSupport(object):
         if not self.is_unoconv_available():
             raise ConfigurationException("UNOSERVICE_URL is missing.")
 
-        log.info('Converting %s to PDF...', self.result.label)
+        log.info('Converting [%s] to PDF...', self.result)
         file_name = os.path.basename(file_path)
         out_path = join_path(temp_dir, '%s.pdf' % file_name)
         with open(file_path, 'rb') as fh:

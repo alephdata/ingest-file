@@ -1,6 +1,5 @@
 import six
 import rfc822
-import logging
 from time import mktime
 from datetime import datetime
 from collections import defaultdict
@@ -13,8 +12,6 @@ from ingestors.support.temp import TempFileSupport
 from ingestors.support.plain import PlainTextSupport
 from ingestors.support.html import HTMLSupport
 from ingestors.util import join_path
-
-log = logging.getLogger(__name__)
 
 
 class RFC822Ingestor(Ingestor, TempFileSupport, HTMLSupport, PlainTextSupport):

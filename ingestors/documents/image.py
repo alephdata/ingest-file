@@ -40,6 +40,8 @@ class ImageIngestor(Ingestor, PDFSupport):
                 if img.width < self.MIN_WIDTH or img.height < self.MIN_HEIGHT:
                     raise ProcessingException("Image too small: %s", img.size)
                 return True
+        except ProcessingException:
+            raise
         except DecompressionBombWarning as dce:
             raise ProcessingException("Image too large: %s", dce)
         except Exception as exc:

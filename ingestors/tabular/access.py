@@ -1,12 +1,9 @@
-import logging
 from normality import safe_filename
 
 from ingestors.base import Ingestor
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.shell import ShellSupport
 from ingestors.util import join_path
-
-log = logging.getLogger(__name__)
 
 
 class AccessIngestor(Ingestor, TempFileSupport, ShellSupport):

@@ -1,4 +1,3 @@
-import logging
 import shutil
 import gzip
 import bz2
@@ -10,8 +9,6 @@ from ingestors.base import Ingestor
 from ingestors.support.shell import ShellSupport
 from ingestors.support.package import PackageSupport
 from ingestors.util import join_path
-
-log = logging.getLogger(__name__)
 
 
 class RARIngestor(PackageSupport, Ingestor):

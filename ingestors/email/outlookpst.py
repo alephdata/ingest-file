@@ -1,11 +1,7 @@
-import logging
-
 from ingestors.base import Ingestor
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.shell import ShellSupport
 from ingestors.directory import DirectoryIngestor
-
-log = logging.getLogger(__name__)
 
 
 class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport):

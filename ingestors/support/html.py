@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import re
-import logging
 from lxml import html
 from lxml.etree import ParseError, ParserError
 from lxml.html.clean import Cleaner
@@ -9,8 +8,6 @@ from normality import stringify, collapse_spaces
 from normality.cleaning import remove_control_chars
 
 from ingestors.exc import ProcessingException
-
-log = logging.getLogger(__name__)
 
 
 class HTMLSupport(object):
@@ -58,10 +55,18 @@ class HTMLSupport(object):
                 if keyword is not None:
                     self.result.keywords.append(keyword)
 
-    def extract_html_text(self, el):
+    def extract_html_text(self, doc):
+        """Get all text from a DOM, also used by the XML parser."""
+        text = ' '.join(self.extract_html_elements(doc))
+        text = remove_control_chars(text)
+        text = collapse_spaces(text)
+        if len(text):
+            return text
+
+    def extract_html_elements(self, el):
         yield el.text or ' '
         for child in el:
-            for text in self.extract_html_text(child):
+            for text in self.extract_html_elements(child):
                 yield text
         yield el.tail or ' '
 
@@ -82,9 +87,5 @@ class HTMLSupport(object):
 
         self.extract_html_header(doc)
         self.cleaner(doc)
-        text = ' '.join(self.extract_html_text(doc))
-        text = remove_control_chars(text)
-        text = collapse_spaces(text)
-        if not len(text):
-            text = None
+        text = self.extract_html_text(doc)
         self.result.emit_html_body(html_body, text)

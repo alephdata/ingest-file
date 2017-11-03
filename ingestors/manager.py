@@ -1,5 +1,4 @@
 import os
-import six
 import magic
 import logging
 import hashlib
@@ -54,15 +53,13 @@ class Manager(object):
         best_score, best_cls = 0, None
         for cls in self.ingestors:
             score = cls.match(file_path, mime_type=result.mime_type)
-            # log.debug("Auction %s (%s): %s -> %s", file_path,
-            #           result.mime_type, cls.__name__, score)
             if score > best_score:
                 best_score = score
                 best_cls = cls
 
         if best_cls is None:
-            raise ProcessingException("Format not supported: %s (%s)" %
-                                      (result.label, result.mime_type))
+            raise ProcessingException("Format not supported: %s" %
+                                      result.mime_type)
         return best_cls
 
     def before(self, result):
@@ -126,7 +123,7 @@ class Manager(object):
 
             if ingestor_class is None:
                 ingestor_class = self.auction(file_path, result)
-                log.debug("Ingestor [%s, %s]: %s", result.label,
+                log.debug("Ingestor [%s, %s]: %s", result,
                           result.mime_type, ingestor_class.__name__)
 
             self.delegate(ingestor_class, result, file_path)
@@ -134,7 +131,7 @@ class Manager(object):
         except ProcessingException as pexc:
             result.error_message = stringify(pexc)
             result.status = Result.STATUS_FAILURE
-            log.warning("Failed [%s]: %s", result.label, result.error_message)
+            log.warning("Failed [%s]: %s", result, result.error_message)
         except Exception as exception:
             log.exception(exception)
             result.status = Result.STATUS_STOPPED

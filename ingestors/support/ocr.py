@@ -62,7 +62,7 @@ class OCRSupport(object):
         try:
             img = Image.open(StringIO(data))
         except DecompressionBombWarning as dce:
-            log.warning("Image too large: %", dce)
+            log.warning("Image too large: %r", dce)
             return None
         except IOError as ioe:
             log.warning("Unknown image format: %r", ioe)
@@ -80,6 +80,6 @@ class OCRSupport(object):
         extractor.clear()
 
         log.debug('[%s] OCR: %s, %s characters extracted',
-                  self.result.label, languages, len(text))
+                  self.result, languages, len(text))
         self.manager.set_cache(key, text)
         return text

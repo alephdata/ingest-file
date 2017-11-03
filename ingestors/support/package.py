@@ -43,19 +43,19 @@ class PackageSupport(TempFileSupport, EncodingSupport):
             try:
                 in_fh = pack.open(name)
                 try:
-                    log.debug("Unpack: %s -> %s", self.result.label, file_name)
+                    log.debug("Unpack: %s -> %s", self.result, file_name)
                     with open(out_path, 'w') as out_fh:
                         shutil.copyfileobj(in_fh, out_fh)
                 finally:
                     in_fh.close()
             except Exception as ex:
                 # TODO: should this be a fatal error?
-                log.debug("Failed to unpack %s: %s", out_path, ex)
+                log.debug("Failed to unpack [%s]: %s", file_name, ex)
 
     def ingest(self, file_path):
         with self.create_temp_dir() as temp_dir:
             try:
-                log.info("Descending: %s", self.result.label)
+                log.info("Descending: %s", self.result)
                 self.unpack(file_path, temp_dir)
                 self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
             except rarfile.NeedFirstVolume:

@@ -1,9 +1,7 @@
 import os
-import logging
+from normality import stringify
 
 from ingestors.util import decode_path
-
-log = logging.getLogger(__name__)
 
 
 class Result(object):
@@ -86,6 +84,9 @@ class Result(object):
             'body_html': self.body_html,
             'children': [c.to_dict() for c in self.children]
         }
+
+    def __unicode__(self):
+        return stringify(self.file_name)
 
     def __repr__(self):
         return '<Result(%s,%s)>' % (self.label, self.mime_type)
