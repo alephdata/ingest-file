@@ -57,6 +57,7 @@ setup(
     tests_require=[],
     entry_points={
         'ingestors': [
+            'ignore = ingestors.ignore:IgnoreIngestor',
             'html = ingestors.documents.html:HTMLIngestor',
             'xml = ingestors.documents.xml:XMLIngestor',
             'plain = ingestors.documents.plain:PlainTextIngestor',
