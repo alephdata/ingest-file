@@ -1,17 +1,23 @@
+from __future__ import unicode_literals
+
 import six
 import rfc822
+import logging
 from time import mktime
 from datetime import datetime
 from collections import defaultdict
 from normality import safe_filename
 from flanker import mime
 from flanker.addresslib import address
+from flanker.mime.message.errors import DecodingError
 
 from ingestors.base import Ingestor
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.plain import PlainTextSupport
 from ingestors.support.html import HTMLSupport
 from ingestors.util import join_path
+
+log = logging.getLogger(__name__)
 
 
 class RFC822Ingestor(Ingestor, TempFileSupport, HTMLSupport, PlainTextSupport):
@@ -67,11 +73,14 @@ class RFC822Ingestor(Ingestor, TempFileSupport, HTMLSupport, PlainTextSupport):
     def ingest_message(self, data, temp_dir):
         msg = mime.from_string(data)
         self.parse_headers(msg)
-        self.extract_plain_text_content(msg.body)
-
+        self.extract_plain_text_content(None)
         bodies = defaultdict(list)
-        for part in msg.walk(skip_enclosed=True):
-            if part.body is None:
+        for part in msg.walk(with_self=True):
+            try:
+                if part.body is None:
+                    continue
+            except DecodingError:
+                log.error("Cannot decode part: [%s]", self.result)
                 continue
 
             file_name = part.detected_file_name

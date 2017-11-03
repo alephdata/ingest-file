@@ -45,8 +45,11 @@ class CSVIngestor(Ingestor, EncodingSupport):
             if len(sample) == 0:
                 raise ProcessingException("File is empty.")
             dialect = sniffer.sniff(sample.encode('utf-8'))
+            dialect.delimiter = dialect.delimiter[0]
             fh.seek(0)
 
-            reader = DictReader(fh, encoding=encoding, dialect=dialect,
+            reader = DictReader(fh,
+                                encoding=encoding,
+                                dialect=dialect,
                                 restkey='_')
             self.result.emit_rows(self.generate_rows(reader))

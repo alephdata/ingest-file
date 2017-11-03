@@ -24,7 +24,8 @@ class Ingestor(object):
         raise NotImplemented()
 
     @classmethod
-    def match(cls, file_path, mime_type=None):
+    def match(cls, file_path, result=None):
+        mime_type = result.mime_type
         if mime_type is None:
             (mime_type, enc) = mimetypes.guess_type(file_path)
 

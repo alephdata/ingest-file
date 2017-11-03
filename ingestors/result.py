@@ -6,6 +6,7 @@ from ingestors.util import decode_path
 
 class Result(object):
 
+    STATUS_PENDING = u'pending'
     #: Indicates that during the processing no errors or failures occured.
     STATUS_SUCCESS = u'success'
     #: Indicates occurance of errors during the processing.

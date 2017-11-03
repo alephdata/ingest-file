@@ -24,10 +24,10 @@ class RARIngestor(PackageSupport, Ingestor):
             self.unpack_members(rf, temp_dir)
 
     @classmethod
-    def match(cls, file_path, mime_type=None):
+    def match(cls, file_path, result=None):
         if rarfile.is_rarfile(file_path):
             return cls.SCORE
-        return super(RARIngestor, cls).match(file_path, mime_type=mime_type)
+        return super(RARIngestor, cls).match(file_path, result=result)
 
 
 class ZipIngestor(PackageSupport, Ingestor):
@@ -42,10 +42,10 @@ class ZipIngestor(PackageSupport, Ingestor):
             self.unpack_members(zf, temp_dir)
 
     @classmethod
-    def match(cls, file_path, mime_type=None):
+    def match(cls, file_path, result=None):
         if zipfile.is_zipfile(file_path):
             return cls.SCORE
-        return super(ZipIngestor, cls).match(file_path, mime_type=mime_type)
+        return super(ZipIngestor, cls).match(file_path, result=result)
 
 
 class TarIngestor(PackageSupport, Ingestor):
@@ -60,10 +60,10 @@ class TarIngestor(PackageSupport, Ingestor):
             tf.extractall(temp_dir)
 
     @classmethod
-    def match(cls, file_path, mime_type=None):
+    def match(cls, file_path, result=None):
         if tarfile.is_tarfile(file_path):
             return cls.SCORE
-        return super(TarIngestor, cls).match(file_path, mime_type=mime_type)
+        return super(TarIngestor, cls).match(file_path, result=result)
 
 
 class SevenZipIngestor(PackageSupport, Ingestor, ShellSupport):
@@ -94,11 +94,11 @@ class SingleFilePackageIngestor(PackageSupport, Ingestor):
         self.unpack_file(file_path, temp_file)
 
     @classmethod
-    def match(cls, file_path, mime_type=None):
+    def match(cls, file_path, result=None):
         if tarfile.is_tarfile(file_path):
             return -1
         return super(SingleFilePackageIngestor, cls).match(file_path,
-                                                           mime_type=mime_type)
+                                                           result=result)
 
 
 class GzipIngestor(SingleFilePackageIngestor):

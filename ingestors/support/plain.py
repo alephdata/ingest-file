@@ -7,6 +7,4 @@ class PlainTextSupport(object):
     def extract_plain_text_content(self, text):
         """Ingestor implementation."""
         text = stringify(text)
-        if text is not None:
-            text = text.strip()
         self.result.emit_text_body(text)

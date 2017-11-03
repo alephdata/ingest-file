@@ -19,6 +19,7 @@ class ImageIngestor(Ingestor, PDFSupport):
         'image/tiff',
         'image/x-tiff',
         'image/jpeg',
+        'image/gif',
         'image/pjpeg',
         'image/bmp',
         'image/x-windows-bmp',
@@ -38,7 +39,7 @@ class ImageIngestor(Ingestor, PDFSupport):
             with open(local_path, 'r') as fh:
                 img = Image.open(fh)
                 if img.width < self.MIN_WIDTH or img.height < self.MIN_HEIGHT:
-                    raise ProcessingException("Image too small: %s", img.size)
+                    return False
                 return True
         except ProcessingException:
             raise
@@ -49,13 +50,13 @@ class ImageIngestor(Ingestor, PDFSupport):
 
     def ingest(self, file_path):
         with self.create_temp_dir() as temp_dir:
-            pdf_path = join_path(temp_dir, 'image.pdf')
-            self.check_image_size(file_path)
-            self.exec_command('convert',
-                              file_path,
-                              '-density', '450',
-                              '-define',
-                              'pdf:fit-page=A4',
-                              pdf_path)
-            self.assert_outfile(pdf_path)
-            self.pdf_alternative_extract(pdf_path)
+            if self.check_image_size(file_path):
+                pdf_path = join_path(temp_dir, 'image.pdf')
+                self.exec_command('convert',
+                                  file_path,
+                                  '-density', '300',
+                                  '-define',
+                                  'pdf:fit-page=A4',
+                                  pdf_path)
+                self.assert_outfile(pdf_path)
+                self.pdf_alternative_extract(pdf_path)

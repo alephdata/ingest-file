@@ -11,7 +11,10 @@ class PlainTextIngestor(Ingestor, EncodingSupport, PlainTextSupport):
 
     Extracts the text from the document and enforces unicode on it.
     """
-    MIME_TYPES = ['text/plain']
+    MIME_TYPES = [
+        'text/plain',
+        'text/x-algol68'
+    ]
     MAX_SIZE = 4 * 1024 * 1024
     SCORE = 1
 

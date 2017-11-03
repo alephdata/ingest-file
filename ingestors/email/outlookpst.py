@@ -15,10 +15,11 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport):
             if self.result.mime_type is None:
                 self.result.mime_type = self.MIME_TYPES[0]
             self.exec_command('readpst',
-                              '-D',
-                              '-e',
-                              # '-8',
+                              '-D',  # include deleted
+                              '-r',  # recursive structure
+                              '-8',  # utf-8 where possible
                               '-b',
+                              '-q',  # quiet
                               '-o', temp_dir,
                               file_path)
             self.manager.delegate(DirectoryIngestor, self.result, temp_dir)

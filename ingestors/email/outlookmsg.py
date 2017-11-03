@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import rfc822
 from time import mktime
 from olefile import isOleFile
@@ -70,8 +72,8 @@ class OutlookMsgIngestor(Ingestor, TempFileSupport, PlainTextSupport):
                 self.ingest_attachment(attachment, temp_dir)
 
     @classmethod
-    def match(cls, file_path, mime_type=None):
+    def match(cls, file_path, result=None):
         if isOleFile(file_path):
             return super(OutlookMsgIngestor, cls).match(file_path,
-                                                        mime_type=mime_type)
+                                                        result=result)
         return -1

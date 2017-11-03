@@ -12,9 +12,6 @@ class DirectoryIngestor(Ingestor):
     SKIP_ENTRIES = [
         '.git',
         '.hg',
-        '.DS_Store',
-        '.gitignore',
-        'Thumbs.db',
         '__MACOSX'
     ]
 

@@ -18,6 +18,7 @@ class DocumentIngestor(Ingestor, LibreOfficeSupport):
     MIME_TYPES = [
         # Text documents
         'text/richtext',
+        'text/rtf',
         'application/rtf',
         'application/x-rtf',
         'application/msword',
@@ -40,6 +41,7 @@ class DocumentIngestor(Ingestor, LibreOfficeSupport):
         'application/CDFV2-unknown',
         'application/CDFV2-corrupt'
     ]
+    EXTENSIONS = ['docx', 'doc', 'xls', 'xlsx']
     SCORE = 5
 
     def ingest(self, file_path):

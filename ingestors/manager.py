@@ -52,7 +52,7 @@ class Manager(object):
 
         best_score, best_cls = 0, None
         for cls in self.ingestors:
-            score = cls.match(file_path, mime_type=result.mime_type)
+            score = cls.match(file_path, result=result)
             if score > best_score:
                 best_score = score
                 best_cls = cls
@@ -117,6 +117,7 @@ class Manager(object):
 
         self.checksum_file(result, file_path)
         self.before(result)
+        result.status = Result.STATUS_PENDING
         try:
             if result.size is not None and result.size <= 0:
                 raise ProcessingException("Document is empty.")
@@ -132,10 +133,9 @@ class Manager(object):
             result.error_message = stringify(pexc)
             result.status = Result.STATUS_FAILURE
             log.warning("Failed [%s]: %s", result, result.error_message)
-        except Exception as exception:
-            log.exception(exception)
-            result.status = Result.STATUS_STOPPED
         finally:
+            if result.status == Result.STATUS_PENDING:
+                result.status = Result.STATUS_STOPPED
             self.after(result)
 
         return result

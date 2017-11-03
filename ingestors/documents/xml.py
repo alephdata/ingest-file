@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import os
 from lxml import etree, html
 from lxml.etree import ParseError, ParserError
@@ -14,7 +16,7 @@ class XMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
     MIME_TYPES = ['text/xml']
     SCORE = 1
     MAX_SIZE = 4 * 1024 * 1024
-    XSLT = etree.XML("""<?xml version="1.0" encoding="UTF-8"?>
+    XSLT = etree.XML(b"""<?xml version="1.0" encoding="UTF-8"?>
         <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
         <xsl:output omit-xml-declaration="yes" indent="yes"/>
         <xsl:strip-space elements="*"/>
@@ -55,7 +57,7 @@ class XMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
         """Ingestor implementation."""
         file_size = self.result.size or os.path.getsize(file_path)
         if file_size > self.MAX_SIZE:
-            raise ProcessingException("Text file is too large.")
+            raise ProcessingException("XML file is too large.")
 
         try:
             doc = etree.parse(file_path)
