@@ -6,12 +6,15 @@ from ingestors.util import join_path
 
 
 class MboxFileIngestor(RFC822Ingestor, TempFileSupport):
-    MIME_TYPES = ['application/mbox']
+    DEFAULT_MIME = 'application/mbox'
+    MIME_TYPES = [DEFAULT_MIME]
     EXTENSIONS = ['mbox']
+    MAGIC = 'From '
     SCORE = 6
 
     def ingest(self, file_path):
         mbox = mailbox.mbox(file_path)
+        self.result.mime_type = self.DEFAULT_MIME
         with self.create_temp_dir() as temp_dir:
             for i, msg in enumerate(mbox, 1):
                 msg_name = 'Message_%s.eml' % i
@@ -22,3 +25,16 @@ class MboxFileIngestor(RFC822Ingestor, TempFileSupport):
                 self.manager.handle_child(self.result, msg_path,
                                           id=child_id,
                                           mime_type='multipart/mixed')
+
+    @classmethod
+    def match(cls, file_path, result=None):
+        score = super(MboxFileIngestor, cls).match(file_path, result=result)
+        if score < 0:
+            # this was added because a lot of mbox files are just called
+            # 'inbox' or 'new', without a file suffix.
+            with open(file_path, 'r') as fh:
+                if fh.read(len(cls.MAGIC)) == cls.MAGIC:
+                    mbox = mailbox.mbox(file_path)
+                    for msg in mbox:
+                        return cls.SCORE
+        return score
