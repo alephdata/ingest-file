@@ -15,6 +15,7 @@ from ingestors.base import Ingestor
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.plain import PlainTextSupport
 from ingestors.support.html import HTMLSupport
+from ingestors.exc import ProcessingException
 from ingestors.util import join_path
 
 log = logging.getLogger(__name__)
@@ -71,7 +72,10 @@ class RFC822Ingestor(Ingestor, TempFileSupport, HTMLSupport, PlainTextSupport):
                 self.ingest_message(fh.read(), temp_dir)
 
     def ingest_message(self, data, temp_dir):
-        msg = mime.from_string(data)
+        try:
+            msg = mime.from_string(data)
+        except DecodingError as derr:
+            raise ProcessingException('Cannot parse email: %s' % derr)
         self.parse_headers(msg)
         self.extract_plain_text_content(None)
         bodies = defaultdict(list)
