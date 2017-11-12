@@ -119,7 +119,7 @@ class Manager(object):
         self.before(result)
         result.status = Result.STATUS_PENDING
         try:
-            if result.size is not None and result.size <= 0:
+            if result.size is not None and result.size == 0:
                 raise ProcessingException("Document is empty.")
 
             if ingestor_class is None:

@@ -8,11 +8,13 @@ import tarfile
 from ingestors.base import Ingestor
 from ingestors.support.shell import ShellSupport
 from ingestors.support.package import PackageSupport
+from ingestors.exc import ProcessingException
 from ingestors.util import join_path
 
 
 class RARIngestor(PackageSupport, Ingestor):
     MIME_TYPES = [
+        'application/rar'
         'application/x-rar'
     ]
     EXTENSIONS = ['rar']
@@ -20,8 +22,11 @@ class RARIngestor(PackageSupport, Ingestor):
 
     def unpack(self, file_path, temp_dir):
         # FIXME: need to figure out how to unpack multi-part files.
-        with rarfile.RarFile(file_path) as rf:
-            self.unpack_members(rf, temp_dir)
+        try:
+            with rarfile.RarFile(file_path) as rf:
+                self.unpack_members(rf, temp_dir)
+        except rarfile.Error as err:
+            raise ProcessingException('Invalid RAR file: %s' % err)
 
     @classmethod
     def match(cls, file_path, result=None):
@@ -32,14 +37,21 @@ class RARIngestor(PackageSupport, Ingestor):
 
 class ZipIngestor(PackageSupport, Ingestor):
     MIME_TYPES = [
-        'application/zip'
+        'application/zip',
+        'application/x-zip',
+        'multipart/x-zip',
+        'application/zip-compressed',
+        'application/x-zip-compressed',
     ]
     EXTENSIONS = ['zip']
     SCORE = 3
 
     def unpack(self, file_path, temp_dir):
-        with zipfile.ZipFile(file_path) as zf:
-            self.unpack_members(zf, temp_dir)
+        try:
+            with zipfile.ZipFile(file_path) as zf:
+                self.unpack_members(zf, temp_dir)
+        except zipfile.BadZipfile as bzfe:
+            raise ProcessingException('Invalid ZIP file: %s' % bzfe)
 
     @classmethod
     def match(cls, file_path, result=None):
@@ -50,14 +62,20 @@ class ZipIngestor(PackageSupport, Ingestor):
 
 class TarIngestor(PackageSupport, Ingestor):
     MIME_TYPES = [
-        'application/x-tar'
+        'application/tar',
+        'application/x-tar',
+        'application/x-tgz',
+        'application/x-gtar'
     ]
     EXTENSIONS = ['tar']
     SCORE = 4
 
     def unpack(self, file_path, temp_dir):
-        with tarfile.open(name=file_path, mode='r:*') as tf:
-            tf.extractall(temp_dir)
+        try:
+            with tarfile.open(name=file_path, mode='r:*') as tf:
+                tf.extractall(temp_dir)
+        except tarfile.TarError as err:
+            raise ProcessingException('Invalid Tar file: %s' % err)
 
     @classmethod
     def match(cls, file_path, result=None):
@@ -67,7 +85,10 @@ class TarIngestor(PackageSupport, Ingestor):
 
 
 class SevenZipIngestor(PackageSupport, Ingestor, ShellSupport):
-    MIME_TYPES = ['application/x-7z-compressed']
+    MIME_TYPES = [
+        'application/x-7z-compressed',
+        'application/7z-compressed'
+    ]
     EXTENSIONS = ['7z', '7zip']
     SCORE = 4
 
@@ -102,7 +123,11 @@ class SingleFilePackageIngestor(PackageSupport, Ingestor):
 
 
 class GzipIngestor(SingleFilePackageIngestor):
-    MIME_TYPES = ['application/x-gzip', 'multipart/x-gzip']
+    MIME_TYPES = [
+        'application/gzip',
+        'application/x-gzip',
+        'multipart/x-gzip'
+    ]
     EXTENSIONS = ['gz', 'tgz']
 
     def unpack_file(self, file_path, temp_file):
@@ -112,8 +137,12 @@ class GzipIngestor(SingleFilePackageIngestor):
 
 
 class BZ2Ingestor(SingleFilePackageIngestor):
-    MIME_TYPES = ['application/x-bzip', 'application/x-bzip2',
-                  'multipart/x-bzip', 'multipart/x-bzip2']
+    MIME_TYPES = [
+        'application/x-bzip',
+        'application/x-bzip2',
+        'multipart/x-bzip',
+        'multipart/x-bzip2'
+    ]
     EXTENSIONS = ['bz', 'tbz', 'bz2', 'tbz2']
 
     def unpack_file(self, file_path, temp_file):

@@ -1,13 +1,18 @@
 from __future__ import absolute_import
-import six
 from dbf import Table
+from normality import stringify
 from collections import OrderedDict
 
 from ingestors.base import Ingestor
 
 
 class DBFIngestor(Ingestor):
-    MIME_TYPES = ['application/x-dbf']
+    MIME_TYPES = [
+        'application/dbase',
+        'application/x-dbase',
+        'application/dbf',
+        'application/x-dbf'
+    ]
     EXTENSIONS = ['dbf']
     BASE_SCORE = 7
 
@@ -15,11 +20,7 @@ class DBFIngestor(Ingestor):
         for row in table:
             data = OrderedDict()
             for field, value in zip(table.field_names, row):
-                if value is not None:
-                    value = six.text_type(value).strip()
-                    if not len(value):
-                        value = None
-                data[field] = value
+                data[field] = stringify(value)
             yield data
 
     def ingest(self, file_path):

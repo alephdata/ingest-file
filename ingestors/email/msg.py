@@ -22,7 +22,10 @@ log = logging.getLogger(__name__)
 
 
 class RFC822Ingestor(Ingestor, TempFileSupport, HTMLSupport, PlainTextSupport):
-    MIME_TYPES = ['multipart/mixed']
+    MIME_TYPES = [
+        'multipart/mixed',
+        'message/rfc822'
+    ]
     EXTENSIONS = ['eml', 'rfc822', 'email', 'msg']
     SCORE = 6
 
@@ -38,7 +41,7 @@ class RFC822Ingestor(Ingestor, TempFileSupport, HTMLSupport, PlainTextSupport):
         return out_path
 
     def parse_headers(self, msg):
-        self.result.title = msg.subject
+        self.result.title = msg.clean_subject
 
         if msg.message_id and self.result.id is None:
             self.result.id = six.text_type(msg.message_id)
