@@ -1,10 +1,13 @@
+from __future__ import unicode_literals
+
+import io
 import logging
+from backports import csv
+from normality import stringify
 from collections import OrderedDict
-from unicodecsv import Sniffer, DictReader
 
 from ingestors.base import Ingestor
 from ingestors.support.encoding import EncodingSupport
-from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
@@ -16,40 +19,36 @@ class CSVIngestor(Ingestor, EncodingSupport):
     """
     MIME_TYPES = [
         'text/csv',
+        'text/tsv',
         'text/tab-separated-values'
     ]
     EXTENSIONS = ['csv', 'tsv']
     SCORE = 6
 
-    def generate_rows(self, reader):
+    def generate_rows(self, reader, has_header=False):
+        headers = next(reader) if has_header else []
         for row in reader:
+            while len(headers) < len(row):
+                next_col = len(headers) + 1
+                headers.append('Column %s' % next_col)
             data = OrderedDict()
-            for field in reader.fieldnames:
-                value = row.get(field)
-                if value is not None:
-                    value = value.strip()
-                    if not len(value):
-                        value = None
-                data[field] = value
+            for header, value in zip(headers, row):
+                data[header] = stringify(value)
             yield data
 
     def ingest(self, file_path):
-        with open(file_path, 'rb') as fh:
+        with io.open(file_path, 'rb') as fh:
             encoding = self.detect_stream_encoding(fh)
-            fh.seek(0)
-
             log.debug("Detected encoding [%s]: %s", self.result, encoding)
 
-            sniffer = Sniffer()
-            sample = fh.read(4096 * 4).decode(encoding, 'ignore')
-            if len(sample) == 0:
-                raise ProcessingException("File is empty.")
-            dialect = sniffer.sniff(sample.encode('utf-8'))
-            dialect.delimiter = dialect.delimiter[0]
+        with io.open(file_path, 'r', newline='', encoding=encoding) as fh:
+            sample = fh.read(4096 * 10)
             fh.seek(0)
 
-            reader = DictReader(fh,
-                                encoding=encoding,
-                                dialect=dialect,
-                                restkey='_')
-            self.result.emit_rows(self.generate_rows(reader))
+            dialect = csv.Sniffer().sniff(sample)
+            # dialect.delimiter = dialect.delimiter[0]
+            has_header = csv.Sniffer().has_header(sample)
+
+            reader = csv.reader(fh, dialect=dialect)
+            rows = self.generate_rows(reader, has_header=has_header)
+            self.result.emit_rows(rows)
