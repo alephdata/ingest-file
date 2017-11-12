@@ -23,3 +23,12 @@ class MessyTablesIngestorTest(TestCase):
         child = result.children[0]
         self.assertEqual(child.title, u'Лист1')
         self.assertEqual(child.file_name, u'List1.csv')
+
+    def test_unicode_ods(self):
+        fixture_path = self.fixture('rom.ods')
+        result = self.manager.ingest(fixture_path)
+        self.assertEqual(result.status, result.STATUS_SUCCESS)
+        self.assertEqual(len(result.children), 3)
+        child = result.children[0]
+        self.assertEqual(child.title, u'Лист1')
+        self.assertEqual(child.file_name, u'List1.csv')
