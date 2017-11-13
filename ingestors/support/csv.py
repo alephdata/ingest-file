@@ -14,11 +14,16 @@ class CSVEmitterSupport(TempFileSupport):
 
     def csv_child_iter(self, iter, name):
         with self.create_temp_dir() as temp_dir:
-            out_path = safe_filename(name, extension='csv')
-            out_path = join_path(temp_dir, out_path)
+            out_name = safe_filename(name, extension='csv')
+            out_path = join_path(temp_dir, out_name)
+            row_count = 0
             with io.open(out_path, 'w', newline='', encoding='utf-8') as fh:
                 writer = csv.writer(fh, quoting=csv.QUOTE_ALL)
-                writer.writerows(iter)
+                for row in iter:
+                    writer.writerow(row)
+                    row_count += 1
+
+            log.info("Generated [%s]: %s, %s rows", name, out_name, row_count)
 
             child_id = join_path(self.result.id, name)
             self.manager.handle_child(self.result, out_path,
