@@ -38,7 +38,7 @@ class UnoconvSupport(object):
         log.info('Converting [%s] to PDF...', self.result)
         file_name = os.path.basename(file_path)
         out_path = join_path(temp_dir, '%s.pdf' % file_name)
-        for try_num in range(5):
+        for try_num in range(3):
             try:
                 with open(file_path, 'rb') as fh:
                     data = {'format': 'pdf', 'doctype': 'document'}
@@ -47,6 +47,7 @@ class UnoconvSupport(object):
                     res = self.unoconv_client.post(self.get_unoconv_url(),
                                                    data=data,
                                                    files=files,
+                                                   timeout=300.0,
                                                    stream=True)
                 length = 0
                 with open(out_path, 'w') as fh:
