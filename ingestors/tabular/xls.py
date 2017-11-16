@@ -47,7 +47,7 @@ class ExcelIngestor(Ingestor, CSVEmitterSupport):
     def ingest(self, file_path):
         try:
             book = xlrd.open_workbook(file_path, formatting_info=False)
-        except XLRDError as err:
+        except Exception as err:
             raise ProcessingException('Invalid Excel file: %s' % err)
 
         try:
