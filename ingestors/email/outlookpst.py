@@ -1,16 +1,20 @@
 from ingestors.base import Ingestor
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.shell import ShellSupport
+from ingestors.support.ole import OLESupport
 from ingestors.directory import DirectoryIngestor
 
 
-class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport):
-    MIME_TYPES = ['application/vnd.ms-outlook']
-    EXTENSIONS = ['pst', 'ost']
+class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport, OLESupport):
+    MIME_TYPES = [
+        'application/vnd.ms-outlook'
+    ]
+    EXTENSIONS = ['pst', 'ost', 'pab']
     BASE_SCORE = 5
     COMMAND_TIMEOUT = 12 * 60 * 60
 
     def ingest(self, file_path):
+        self.ole_extract_metadata(file_path)
         with self.create_temp_dir() as temp_dir:
             if self.result.mime_type is None:
                 self.result.mime_type = self.MIME_TYPES[0]

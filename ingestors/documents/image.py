@@ -1,4 +1,5 @@
-from PIL import Image
+from datetime import datetime
+from PIL import Image, ExifTags
 from PIL.Image import DecompressionBombWarning
 
 from ingestors.base import Ingestor
@@ -26,31 +27,57 @@ class ImageIngestor(Ingestor, PDFSupport):
         'image/x-portable-bitmap',
         'application/postscript',
         'image/vnd.dxf',
-        'image/svg+xml'
     ]
+    EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'bmp']
+    SCORE = 5
 
     MIN_WIDTH = 100
     MIN_HEIGHT = 100
 
-    def check_image_size(self, local_path):
-        if self.result.mime_type in ['image/svg+xml']:
-            return True
+    def parse_exif_date(self, date):
         try:
-            with open(local_path, 'r') as fh:
-                img = Image.open(fh)
-                if img.width < self.MIN_WIDTH or img.height < self.MIN_HEIGHT:
-                    return False
-                return True
-        except ProcessingException:
-            raise
-        except DecompressionBombWarning as dce:
-            raise ProcessingException("Image too large: %s", dce)
-        except Exception as exc:
-            raise ProcessingException("Cannot open image: %s", exc)
+            return datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
+        except ValueError:
+            return None
+
+    def extract_exif(self, img):
+        if not hasattr(img, '_getexif'):
+            return
+
+        exif = img._getexif()
+        if exif is None:
+            return            
+
+        make, model = '', ''
+        for num, value in exif.items():
+            tag = ExifTags.TAGS[num]
+            if tag == 'DateTimeOriginal':
+                if not self.result.created_at:
+                    self.result.created_at = self.parse_exif_date(value)
+            if tag == 'DateTime':
+                if not self.result.date:
+                    self.result.date = self.parse_exif_date(value)
+            if tag == 'Make':
+                make = value
+            if tag == 'Model':
+                model = value
+
+        generator = ' '.join((make, model))
+        self.result.generator = generator.strip()
 
     def ingest(self, file_path):
-        with self.create_temp_dir() as temp_dir:
-            if self.check_image_size(file_path):
+        with open(file_path, 'r') as fh:
+            try:
+                img = Image.open(fh)
+            except DecompressionBombWarning as dce:
+                raise ProcessingException("Image too large: %s", dce)
+            except IOError as ioe:
+                raise ProcessingException("Cannot open image: %s", ioe)
+
+        self.extract_exif(img)
+
+        if img.width >= self.MIN_WIDTH and img.height >= self.MIN_HEIGHT:
+            with self.create_temp_dir() as temp_dir:
                 pdf_path = join_path(temp_dir, 'image.pdf')
                 self.exec_command('convert',
                                   file_path,
@@ -60,3 +87,23 @@ class ImageIngestor(Ingestor, PDFSupport):
                                   pdf_path)
                 self.assert_outfile(pdf_path)
                 self.pdf_alternative_extract(pdf_path)
+
+
+class SVGIngestor(Ingestor, PDFSupport):
+    MIME_TYPES = [
+        'image/svg+xml'
+    ]
+    EXTENSIONS = ['svg']
+    SCORE = 20
+
+    def ingest(self, file_path):
+        with self.create_temp_dir() as temp_dir:
+            pdf_path = join_path(temp_dir, 'image.pdf')
+            self.exec_command('convert',
+                              file_path,
+                              '-density', '300',
+                              '-define',
+                              'pdf:fit-page=A4',
+                              pdf_path)
+            self.assert_outfile(pdf_path)
+            self.pdf_alternative_extract(pdf_path)

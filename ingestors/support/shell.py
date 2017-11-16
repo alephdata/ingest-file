@@ -28,8 +28,13 @@ class ShellSupport(object):
     def exec_command(self, command, *args):
         cmd = [self.find_command(command)]
         cmd.extend(args)
-        retcode = subprocess.call(cmd, timeout=self.COMMAND_TIMEOUT,
-                                  stdout=open(os.devnull, 'wb'))
+
+        try:
+            retcode = subprocess.call(cmd, timeout=self.COMMAND_TIMEOUT,
+                                      stdout=open(os.devnull, 'wb'))
+        except subprocess.TimeoutExpired:
+            raise ProcessingException('Processing timed out.')
+
         if retcode != 0:
             raise ProcessingException('Failed: %s' % ' '.join(cmd))
 

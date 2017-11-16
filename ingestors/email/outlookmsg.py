@@ -10,11 +10,13 @@ from flanker.addresslib import address
 from ingestors.base import Ingestor
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.plain import PlainTextSupport
+from ingestors.support.ole import OLESupport
 from ingestors.email.outlookmsg_lib import Message
 from ingestors.util import string_value, join_path
 
 
-class OutlookMsgIngestor(Ingestor, TempFileSupport, PlainTextSupport):
+class OutlookMsgIngestor(Ingestor, TempFileSupport, OLESupport,
+                         PlainTextSupport):
     MIME_TYPES = []
     EXTENSIONS = ['msg']
     SCORE = 10
@@ -56,7 +58,7 @@ class OutlookMsgIngestor(Ingestor, TempFileSupport, PlainTextSupport):
         date = headers.get('Date')
         date = rfc822.parsedate(date)
         if date is not None:
-            self.result.timestamp = datetime.fromtimestamp(mktime(date))
+            self.result.created_at = datetime.fromtimestamp(mktime(date))
 
         self.result.headers = dict([(k, string_value(v)) for k, v in
                                     headers.items()])
@@ -66,6 +68,8 @@ class OutlookMsgIngestor(Ingestor, TempFileSupport, PlainTextSupport):
             message = Message(file_path)
             if message.header is not None:
                 self.parse_headers(message.header)
+
+            self.olefileio_extract_metadata(message)
 
             self.extract_plain_text_content(message.body)
             for attachment in message.attachments:

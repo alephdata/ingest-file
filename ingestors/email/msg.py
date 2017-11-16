@@ -64,7 +64,7 @@ class RFC822Ingestor(Ingestor, TempFileSupport, HTMLSupport, PlainTextSupport):
         date = msg.headers.get('Date')
         date = rfc822.parsedate(date)
         if date is not None:
-            self.result.timestamp = datetime.fromtimestamp(mktime(date))
+            self.result.created_at = datetime.fromtimestamp(mktime(date))
 
         self.result.headers = dict([(k, unicode(v)) for k, v in
                                     msg.headers.items()])

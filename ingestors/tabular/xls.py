@@ -7,12 +7,13 @@ from normality import stringify
 
 from ingestors.base import Ingestor
 from ingestors.support.csv import CSVEmitterSupport
+from ingestors.support.ole import OLESupport
 from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
 
-class ExcelIngestor(Ingestor, CSVEmitterSupport):
+class ExcelIngestor(Ingestor, CSVEmitterSupport, OLESupport):
     MIME_TYPES = [
         'application/excel',
         'application/x-excel',
@@ -45,8 +46,11 @@ class ExcelIngestor(Ingestor, CSVEmitterSupport):
             yield [self.convert_cell(c, sheet) for c in sheet.row(row_index)]
 
     def ingest(self, file_path):
+        self.ole_extract_metadata(file_path)
         try:
             book = xlrd.open_workbook(file_path, formatting_info=False)
+            # if self.result.author is None:
+            #     self.result.author = book.user_name
         except Exception as err:
             raise ProcessingException('Invalid Excel file: %s' % err)
 

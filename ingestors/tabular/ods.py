@@ -3,16 +3,17 @@ from odf.teletype import extractText
 from odf.table import TableRow, TableCell, Table
 from odf.text import P
 from odf.namespaces import OFFICENS
-from odf.opendocument import load
 from normality import stringify
 
 from ingestors.base import Ingestor
 from ingestors.support.csv import CSVEmitterSupport
+from ingestors.support.opendoc import OpenDocumentSupport
 
 log = logging.getLogger(__name__)
 
 
-class OpenOfficeSpreadsheetIngestor(Ingestor, CSVEmitterSupport):
+class OpenOfficeSpreadsheetIngestor(Ingestor, CSVEmitterSupport,
+                                    OpenDocumentSupport):
     MIME_TYPES = [
         'application/vnd.oasis.opendocument.spreadsheet',
         'application/vnd.oasis.opendocument.spreadsheet-template'
@@ -58,8 +59,8 @@ class OpenOfficeSpreadsheetIngestor(Ingestor, CSVEmitterSupport):
             yield values
 
     def ingest(self, file_path):
-        book = load(file_path)
-        for table in book.spreadsheet.getElementsByType(Table):
+        doc = self.parse_opendocument(file_path)
+        for table in doc.spreadsheet.getElementsByType(Table):
             name = table.getAttribute('name')
             rows = self.generate_csv(table)
             self.csv_child_iter(rows, name)

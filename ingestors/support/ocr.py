@@ -76,7 +76,7 @@ class OCRSupport(object):
         extractor.set_image(img)
         extractor.set_page_seg_mode(PageSegMode.PSM_AUTO_OSD)
         text = extractor.get_text().strip()
-        text = text.decode(encoding="UTF-8")
+        text = text.decode(encoding="utf-8")
         extractor.clear()
 
         log.debug('[%s] OCR: %s, %s characters extracted',

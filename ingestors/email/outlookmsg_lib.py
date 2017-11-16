@@ -166,6 +166,7 @@ def windowsUnicode(string):  # pragma: no cover
 
 
 class Attachment:  # pragma: no cover
+
     def __init__(self, msg, dir_):
         # Get long filename
         self.longFilename = msg._getStringStream(dir_ + ['__substg1.0_3707'])
@@ -181,6 +182,7 @@ class Attachment:  # pragma: no cover
 
 
 class Message(OleFile.OleFileIO):  # pragma: no cover
+
     def __init__(self, filename):
         OleFile.OleFileIO.__init__(self, filename)
 

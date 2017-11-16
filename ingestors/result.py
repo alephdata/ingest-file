@@ -14,29 +14,30 @@ class Result(object):
     #: Indicates a complete ingestor stop due to system issue.
     STATUS_STOPPED = u'stopped'
 
-    def __init__(self, id=None, title=None, file_path=None, file_name=None,
-                 mime_type=None, checksum=None, size=None, encoding=None,
-                 summary=None, keywords=None, languages=[], author=None,
-                 emails=None, entities=None, timestamp=None, headers=None):
+    def __init__(self, **kwargs):
         self.status = None
-        self.file_path = decode_path(file_path)
-        file_name = file_name or os.path.basename(self.file_path)
+        self.file_path = decode_path(kwargs.get('file_path'))
+        file_name = kwargs.get('file_name') or os.path.basename(self.file_path)
         self.file_name = decode_path(file_name)
-        self.id = id or self.file_path
-        self.title = title
-        self.summary = summary
-        self.timestamp = timestamp
-        self.author = author
-        self.keywords = keywords or []
-        self.emails = emails or []
-        self.entities = entities or []
-        self.mime_type = mime_type
-        self.encoding = encoding
-        self.languages = languages
-        self.headers = headers
+        self.id = kwargs.get('id') or self.file_path
+        self.title = kwargs.get('title')
+        self.summary = kwargs.get('summary')
+        self.date = kwargs.get('date')
+        self.created_at = kwargs.get('created_at')
+        self.modified_at = kwargs.get('modified_at')
+        self.published_at = kwargs.get('published_at')
+        self.author = kwargs.get('author')
+        self.generator = kwargs.get('generator')
+        self.keywords = kwargs.get('keywords') or []
+        self.emails = kwargs.get('emails') or []
+        self.entities = kwargs.get('entities') or []
+        self.mime_type = kwargs.get('mime_type')
+        self.encoding = kwargs.get('encoding')
+        self.languages = kwargs.get('languages')
+        self.headers = kwargs.get('headers')
         self.error_message = None
-        self.checksum = checksum
-        self.size = size
+        self.checksum = kwargs.get('checksum')
+        self.size = kwargs.get('size')
         self.pages = []
         self.body_text = None
         self.body_html = None
@@ -75,6 +76,12 @@ class Result(object):
             'file_path': self.file_path,
             'file_name': self.file_name,
             'mime_type': self.mime_type,
+            'author': self.author,
+            'generator': self.generator,
+            'date': self.date,
+            'created_at': self.created_at,
+            'modified_at': self.modified_at,
+            'published_at': self.published_at,
             'error_message': self.error_message,
             'checksum': self.checksum,
             'pdf_path': self.pdf_path,
