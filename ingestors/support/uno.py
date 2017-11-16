@@ -3,10 +3,9 @@ import time
 import logging
 import requests
 import threading
-from requests.exceptions import RequestsException
+from requests.exceptions import RequestException
 
 from ingestors.exc import ConfigurationException, ProcessingException
-from ingestors.exc import SystemException
 from ingestors.util import join_path
 
 log = logging.getLogger(__name__)
@@ -58,7 +57,7 @@ class UnoconvSupport(object):
                 if length == 0:
                     raise ProcessingException("Could not convert to PDF.")
                 return out_path
-            except RequestsException as re:
+            except RequestException as re:
                 log.exception(re)
                 time.sleep(3 ** try_num)
         raise ProcessingException("Could not convert to PDF.")
