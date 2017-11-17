@@ -32,6 +32,8 @@ class ShellSupport(object):
         try:
             retcode = subprocess.call(cmd, timeout=self.COMMAND_TIMEOUT,
                                       stdout=open(os.devnull, 'wb'))
+        except (IOError, OSError) as ose:
+            raise ProcessingException('Error: %s' % ose)
         except subprocess.TimeoutExpired:
             raise ProcessingException('Processing timed out.')
 
