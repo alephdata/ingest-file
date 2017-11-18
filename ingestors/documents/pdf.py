@@ -38,8 +38,8 @@ class PDFIngestor(Ingestor, PDFSupport):
                 self.update('modified_at', xmp.xmp_modifyDate)
                 self.result.languages.extend(xmp.dc_language)
 
-        from pprint import pprint
-        pprint(self.result.to_dict())
+        # from pprint import pprint
+        # pprint(self.result.to_dict())
 
     def ingest(self, file_path):
         """Ingestor implementation."""

@@ -4,8 +4,7 @@ import re
 from lxml import html
 from lxml.etree import ParseError, ParserError
 from lxml.html.clean import Cleaner
-from normality import stringify, collapse_spaces
-from normality.cleaning import remove_control_chars
+from normality import collapse_spaces
 
 from ingestors.exc import ProcessingException
 
@@ -29,28 +28,32 @@ class HTMLSupport(object):
         kill_tags=['head']
     )
 
+    def get_meta(self, doc, field):
+        for field_attr in ('property', 'name'):
+            for el in doc.findall('.//meta[@%s="%s"]' % (field_attr, field)):
+                content = collapse_spaces(el.get('content'))
+                if content is not None and len(content):
+                    return content
+
     def extract_html_header(self, doc):
         """Get metadata from the HTML head element."""
+        self.update('summary', self.get_meta(doc, 'og:title'))
         self.update('title', doc.findtext('.//title'))
-        self.update('summary', doc.find('.//meta[@name="description"]'))
+        self.update('summary', self.get_meta(doc, 'og:description'))
+        self.update('summary', self.get_meta(doc, 'description'))
+        self.update('author', self.get_meta(doc, 'author'))
+        self.update('author', self.get_meta(doc, 'og:site_name'))
+        self.update('published_at', self.get_meta(doc, 'artcile:published_time'))  # noqa
+        self.update('modified_at', self.get_meta(doc, 'artcile:modified_time'))
 
         for field in ['keywords', 'news_keywords']:
-            value = doc.find('.//meta[@name="%s"]' % field)
-            if value is None:
-                continue
-            value = stringify(value.get('content'))
-            if value is None:
-                continue
-
-            for keyword in value.split(','):
-                keyword = stringify(keyword)
-                if keyword is not None:
-                    self.result.keywords.append(keyword)
+            content = self.get_meta(doc, field)
+            if content is not None:
+                self.result.keywords.extend(content.split(','))
 
     def extract_html_text(self, doc):
         """Get all text from a DOM, also used by the XML parser."""
         text = ' '.join(self.extract_html_elements(doc))
-        text = remove_control_chars(text)
         text = collapse_spaces(text)
         if len(text):
             return text
