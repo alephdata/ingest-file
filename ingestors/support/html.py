@@ -31,16 +31,8 @@ class HTMLSupport(object):
 
     def extract_html_header(self, doc):
         """Get metadata from the HTML head element."""
-        if not self.result.title:
-            self.result.title = stringify(doc.findtext('.//title'))
-            if self.result.title:
-                self.result.title = collapse_spaces(self.result.title)
-
-        if not self.result.summary:
-            description = doc.find('.//meta[@name="description"]')
-            if description is not None:
-                description = collapse_spaces(description.get('content'))
-                self.result.summary = stringify(description)
+        self.update('title', doc.findtext('.//title'))
+        self.update('summary', doc.find('.//meta[@name="description"]'))
 
         for field in ['keywords', 'news_keywords']:
             value = doc.find('.//meta[@name="%s"]' % field)

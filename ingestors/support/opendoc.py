@@ -25,20 +25,18 @@ class OpenDocumentSupport(object):
 
         for child in doc.meta.childNodes:
             value = six.text_type(child)
-            if child.tagName == 'dc:title' and not self.result.title:
-                self.result.title = value
-            if child.tagName == 'dc:description' and not self.result.summary:
-                self.result.summary = value
-            if child.tagName == 'dc:creator' and not self.result.author:
-                self.result.author = value
+            if child.tagName == 'dc:title':
+                self.update('title', value)
+            if child.tagName == 'dc:description':
+                self.update('summary', value)
+            if child.tagName == 'dc:creator':
+                self.update('author', value)
             if child.tagName == 'dc:date':
-                if not self.result.date:
-                    self.result.date = self.parse_odf_date(value)
+                self.update('date', self.parse_odf_date(value))
             if child.tagName == 'meta:creation-date':
-                if not self.result.created_at:
-                    self.result.created_at = self.parse_odf_date(value)
+                self.update('created_at', self.parse_odf_date(value))
             if child.tagName == 'meta:generator':
-                self.result.generator = value
+                self.update('generator', value)
 
         # from pprint import pprint
         # pprint(self.result.to_dict())

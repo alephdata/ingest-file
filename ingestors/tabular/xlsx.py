@@ -4,12 +4,13 @@ from normality import stringify
 
 from ingestors.base import Ingestor
 from ingestors.support.csv import CSVEmitterSupport
+from ingestors.support.ooxml import OOXMLSupport
 from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
 
-class ExcelXMLIngestor(Ingestor, CSVEmitterSupport):
+class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
     MIME_TYPES = [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',  # noqa
         'application/vnd.openxmlformats-officedocument.spreadsheetml.template',  # noqa
@@ -22,6 +23,7 @@ class ExcelXMLIngestor(Ingestor, CSVEmitterSupport):
             yield [stringify(c.value) for c in row]
 
     def ingest(self, file_path):
+        self.ooxml_extract_metadata(file_path)
         try:
             book = load_workbook(file_path, read_only=True)
         except Exception as err:

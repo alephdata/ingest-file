@@ -1,5 +1,7 @@
 import logging
 import mimetypes
+from normality import stringify
+from datetime import date, datetime
 from ingestors.util import normalize_mime_type, normalize_extension
 
 log = logging.getLogger(__name__)
@@ -22,6 +24,17 @@ class Ingestor(object):
         Use the ``result`` attribute to store any resulted data.
         """
         raise NotImplemented()
+
+    def update(self, name, value):
+        """Set a metadata value if it is not already set with a value."""
+        existing = getattr(self.result, name)
+        if existing:
+            return
+        if not isinstance(value, (date, datetime)):
+            value = stringify(value)
+        if value is None:
+            return
+        setattr(self.result, name, value)
 
     @classmethod
     def match(cls, file_path, result=None):

@@ -62,6 +62,7 @@ setup(
             'plain = ingestors.documents.plain:PlainTextIngestor',
             'office = ingestors.documents.office:DocumentIngestor',
             'opendoc = ingestors.documents.opendoc:OpenDocumentIngestor',
+            'ooxml = ingestors.documents.ooxml:OfficeOpenXMLIngestor',
             'image = ingestors.documents.image:ImageIngestor',
             'svg = ingestors.documents.image:SVGIngestor',
             'djvu = ingestors.documents.djvu:DjVuIngestor',

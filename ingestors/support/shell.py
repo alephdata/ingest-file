@@ -1,5 +1,6 @@
 import os
 import six
+import logging
 from distutils.spawn import find_executable
 from ingestors.exc import SystemException, ProcessingException
 
@@ -7,6 +8,8 @@ if six.PY2:
     import subprocess32 as subprocess  # noqa
 else:
     import subprocess  # noqa
+
+log = logging.getLogger(__name__)
 
 
 class ShellSupport(object):
@@ -33,6 +36,7 @@ class ShellSupport(object):
             retcode = subprocess.call(cmd, timeout=self.COMMAND_TIMEOUT,
                                       stdout=open(os.devnull, 'wb'))
         except (IOError, OSError) as ose:
+            log.exception(ose)
             raise ProcessingException('Error: %s' % ose)
         except subprocess.TimeoutExpired:
             raise ProcessingException('Processing timed out.')

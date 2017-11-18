@@ -16,28 +16,18 @@ class OLESupport(object):
             self.olefileio_extract_metadata(ole)
 
     def olefileio_extract_metadata(self, ole):
-        if not self.result.created_at:
-            self.result.created_at = ole.root.getctime()
-        if not self.result.modified_at:
-            self.result.modified_at = ole.root.getmtime()
+        self.update('created_at', ole.root.getctime())
+        self.update('modified_at', ole.root.getmtime())
 
         meta = ole.get_metadata()
-
-        if not self.result.title:
-            self.result.title = meta.title
-        if not self.result.title:
-            self.result.title = meta.subject
-
-        if not self.result.author:
-            self.result.author = meta.author
-        if not self.result.author:
-            self.result.author = meta.last_saved_by
-
-        if not self.result.summary:
-            self.result.summary = meta.notes
-
-        if not self.result.generator:
-            self.result.generator = meta.creating_application
+        self.update('title', meta.title)
+        self.update('title', meta.subject)
+        self.update('author', meta.author)
+        self.update('author', meta.last_saved_by)
+        self.update('summary', meta.notes)
+        self.update('generator', meta.creating_application)
+        self.update('created_at', meta.create_time)
+        self.update('modified_at', meta.last_saved_time)
 
         if meta.company:
             self.result.entities.append(meta.company)
@@ -47,12 +37,6 @@ class OLESupport(object):
 
         if meta.keywords:
             self.result.keywords.append(meta.keywords)
-
-        if not self.result.created_at:
-            self.result.created_at = meta.create_time
-
-        if not self.result.modified_at:
-            self.result.modified_at = meta.last_saved_time
 
         # from pprint import pprint
         # pprint(self.result.to_dict())

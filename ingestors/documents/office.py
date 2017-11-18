@@ -13,7 +13,6 @@ class DocumentIngestor(Ingestor, LibreOfficeSupport, OLESupport):
 
     - Open/Libre Office with dependencies
     - image ingestor dependencies to cover any embeded images OCR
-
     """
 
     MIME_TYPES = [
@@ -26,21 +25,18 @@ class DocumentIngestor(Ingestor, LibreOfficeSupport, OLESupport):
         'application/vnd.ms-word',
         'application/wordperfect',
         'application/vnd.wordperfect',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',  # noqa
 
         # Presentations
         'application/vnd.ms-powerpoint',
         'application/vnd.sun.xml.impress',
         'application/vnd.ms-powerpoint.presentation',
         'application/vnd.ms-powerpoint.presentation.12',
-        'application/vnd.openxmlformats-officedocument.presentationml.slideshow',  # noqa
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',  # noqa
 
         # MS Office files with short stream missing
         'application/CDFV2-unknown',
         'application/CDFV2-corrupt'
     ]
-    EXTENSIONS = ['docx', 'doc', 'ppt', 'pptx']
+    EXTENSIONS = ['doc', 'ppt', 'rtf']
     SCORE = 5
 
     def ingest(self, file_path):
