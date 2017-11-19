@@ -28,7 +28,6 @@ setup(
         'olefile >= 0.44',
         'tesserwrap >= 0.1.6',
         'python-magic >= 0.4.12',
-        'pycountry >= 17.5',
         'pypdf2 >= 1.26.0',
         'rarfile >= 3.0',
         'flanker >= 0.4.38',

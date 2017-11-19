@@ -1,13 +1,15 @@
 import logging
 from hashlib import sha1
+from banal import ensure_list
 try:
     from cStringIO import StringIO
 except:
     from StringIO import StringIO
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
-from pycountry import languages
 from tesserwrap import Tesseract, PageSegMode
+
+from ingestors.support.ocr_languages import LANGUAGES
 
 log = logging.getLogger(__name__)
 
@@ -19,38 +21,34 @@ class OCRSupport(object):
     MIN_OCR_WIDTH = 100
     MIN_OCR_HEIGHT = 100
 
-    def convert_iso_languages(self, codes):
-        """Turn (pre-set) ISO2 language codes into ISO3 codes."""
-        supported = []
-        if not isinstance(codes, (list, set, tuple)):
-            codes = [codes]
-        for lang in codes:
-            if lang is None:
-                continue
-            lang = lang.lower().strip()
-            if lang is None or len(lang) not in [2, 3]:
-                continue
-            if len(lang) == 2:
-                try:
-                    c = languages.get(alpha_2=lang)
-                    lang = c.alpha_3.lower()
-                except KeyError:
-                    log.warning("Invalid language code: %s", lang)
-                    continue
-            supported.append(lang)
+    def normalize_language(self, language):
+        if language is None:
+            return
+        lang = language.lower().strip()
+        matches = set()
+        for (code, aliases) in LANGUAGES.items():
+            if lang == code or lang in aliases:
+                matches.add(code)
+        return matches
 
-        # if not len(supported):
-        supported.append('eng')
-        return '+'.join(sorted(set(supported)))
+    def get_languages(self, codes):
+        """Turn (pre-set) ISO2 language codes into ISO3 codes."""
+        languages = set([])
+        for lang in ensure_list(codes):
+            languages.update(self.normalize_language(lang))
+
+        if not len(languages):
+            for lang in self.manager.config.get('OCR_DEFAULTS', []):
+                languages.update(self.normalize_language(lang))
+
+        languages.add('eng')
+        return '+'.join(sorted(set(languages)))
 
     def extract_text_from_image(self, data):
         """Extract text from a binary string of data."""
-        tessdata = self.manager.get_env('TESSDATA_PREFIX', '/usr/share/tesseract-ocr')  # noqa
-        languages = self.result.languages or ['en']
-        whitelist = self.manager.config.get('LANGUAGES', [])
-        if len(whitelist):
-            languages = set(languages).intersection(whitelist)
-        languages = self.convert_iso_languages(languages)
+        tessdata = '/usr/share/tesseract-ocr'
+        tessdata = self.manager.get_env('TESSDATA_PREFIX', tessdata)
+        languages = self.get_languages(self.result.languages)
 
         key = sha1(data)
         key.update(languages)
