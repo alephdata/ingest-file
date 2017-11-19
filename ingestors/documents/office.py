@@ -41,7 +41,7 @@ class DocumentIngestor(Ingestor, LibreOfficeSupport, OLESupport):
 
     def ingest(self, file_path):
         """Ingestor implementation."""
-        self.ole_extract_metadata(file_path)
+        self.extract_ole_metadata(file_path)
         with self.create_temp_dir() as temp_dir:
             pdf_path = self.document_to_pdf(file_path, temp_dir)
             self.pdf_alternative_extract(pdf_path)

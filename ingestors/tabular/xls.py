@@ -46,11 +46,9 @@ class ExcelIngestor(Ingestor, CSVEmitterSupport, OLESupport):
             yield [self.convert_cell(c, sheet) for c in sheet.row(row_index)]
 
     def ingest(self, file_path):
-        self.ole_extract_metadata(file_path)
+        self.extract_ole_metadata(file_path)
         try:
             book = xlrd.open_workbook(file_path, formatting_info=False)
-            # if self.result.author is None:
-            #     self.result.author = book.user_name
         except Exception as err:
             raise ProcessingException('Invalid Excel file: %s' % err)
 

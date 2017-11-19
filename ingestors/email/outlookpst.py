@@ -14,7 +14,7 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport, OLESupport):
     COMMAND_TIMEOUT = 12 * 60 * 60
 
     def ingest(self, file_path):
-        self.ole_extract_metadata(file_path)
+        self.extract_ole_metadata(file_path)
         with self.create_temp_dir() as temp_dir:
             if self.result.mime_type is None:
                 self.result.mime_type = self.MIME_TYPES[0]

@@ -7,15 +7,15 @@ log = logging.getLogger(__name__)
 class OLESupport(object):
     """Provides helpers for Microsoft OLE files."""
 
-    def ole_extract_metadata(self, file_path):
+    def extract_ole_metadata(self, file_path):
         with open(file_path, 'r') as fh:
             if not isOleFile(fh):
                 return
             fh.seek(0)
             ole = OleFileIO(fh)
-            self.olefileio_extract_metadata(ole)
+            self.extract_olefileio_metadata(ole)
 
-    def olefileio_extract_metadata(self, ole):
+    def extract_olefileio_metadata(self, ole):
         self.update('created_at', ole.root.getctime())
         self.update('modified_at', ole.root.getmtime())
 
