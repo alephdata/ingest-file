@@ -49,7 +49,9 @@ class HTMLSupport(object):
         for field in ['keywords', 'news_keywords']:
             content = self.get_meta(doc, field)
             if content is not None:
-                self.result.keywords.extend(content.split(','))
+                content = [collapse_spaces(c) for c in content.split(',')]
+                content = [c for c in content if len(c)]
+                self.result.keywords.extend(content)
 
     def extract_html_text(self, doc):
         """Get all text from a DOM, also used by the XML parser."""
