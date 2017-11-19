@@ -26,7 +26,7 @@ setup(
         'lxml >= 3.8.0',
         'pillow >= 4.0.0',
         'olefile >= 0.44',
-        'tesserwrap >= 0.1.6',
+        'tesserocr >= 2.2.2',
         'python-magic >= 0.4.12',
         'pypdf2 >= 1.26.0',
         'rarfile >= 3.0',

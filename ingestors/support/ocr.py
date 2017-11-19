@@ -7,7 +7,7 @@ except:
     from StringIO import StringIO
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
-from tesserwrap import Tesseract, PageSegMode
+from tesserocr import PyTessBaseAPI
 
 from ingestors.support.ocr_languages import LANGUAGES
 
@@ -18,10 +18,9 @@ class OCRSupport(object):
     """Provides helper for OCR tasks. Requires a Tesseract installation."""
     # https://tesserwrap.readthedocs.io/en/latest/#
     # https://pillow.readthedocs.io/en/3.0.x/reference/Image.html
-    MIN_OCR_WIDTH = 100
-    MIN_OCR_HEIGHT = 100
 
     def normalize_language(self, language):
+        # tesserocr.get_languages()
         if language is None:
             return
         lang = language.lower().strip()
@@ -46,7 +45,7 @@ class OCRSupport(object):
 
     def extract_text_from_image(self, data):
         """Extract text from a binary string of data."""
-        tessdata = '/usr/share/tesseract-ocr'
+        tessdata = '/usr/share/tesseract-ocr/'
         tessdata = self.manager.get_env('TESSDATA_PREFIX', tessdata)
         languages = self.get_languages(self.result.languages)
 
@@ -57,25 +56,20 @@ class OCRSupport(object):
         if text is not None:
             return text
 
+        api = PyTessBaseAPI(lang=languages, path=tessdata)
         try:
-            img = Image.open(StringIO(data))
+            image = Image.open(StringIO(data))
+            # TODO: play with contrast and sharpening the images.
+            api.SetImage(image)
+            text = api.GetUTF8Text()
         except DecompressionBombWarning as dce:
             log.warning("Image too large: %r", dce)
             return None
         except IOError as ioe:
             log.warning("Unknown image format: %r", ioe)
             return None
-        if img.width < self.MIN_OCR_WIDTH and img.height < self.MIN_OCR_HEIGHT:
-            log.warning("Image too small: %s", img.size)
-            return None
-
-        # TODO: play with contrast and sharpening the images.
-        extractor = Tesseract(tessdata, lang=languages)
-        extractor.set_image(img)
-        extractor.set_page_seg_mode(PageSegMode.PSM_AUTO_OSD)
-        text = extractor.get_text().strip()
-        text = text.decode(encoding="utf-8")
-        extractor.clear()
+        finally:
+            api.Clear()
 
         log.debug('[%s] OCR: %s, %s characters extracted',
                   self.result, languages, len(text))
