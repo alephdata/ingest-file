@@ -29,4 +29,5 @@ class CSVEmitterSupport(TempFileSupport):
             self.manager.handle_child(self.result, out_path,
                                       id=child_id,
                                       title=name,
+                                      file_name=out_name,
                                       mime_type='text/csv')

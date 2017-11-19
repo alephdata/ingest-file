@@ -3,14 +3,12 @@ from __future__ import unicode_literals
 import six
 import logging
 from collections import defaultdict
-from normality import safe_filename
 from flanker import mime
 from flanker.mime.message.errors import DecodingError
 
 from ingestors.base import Ingestor
 from ingestors.support.email import EmailSupport
 from ingestors.exc import ProcessingException
-from ingestors.util import join_path
 
 log = logging.getLogger(__name__)
 

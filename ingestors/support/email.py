@@ -20,8 +20,9 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
     """Extract metadata from email messages."""
 
     def ingest_attachment(self, name, mime_type, body, temp_dir):
-        file_path = safe_filename(name, default='attachment')
-        file_path = join_path(temp_dir, safe_filename(name))
+        file_name = safe_filename(name, default='attachment')
+        name = stringify(name) or file_name
+        file_path = join_path(temp_dir, file_name)
         with open(file_path, 'w') as fh:
             if isinstance(body, six.text_type):
                 body = body.encode('utf-8')
@@ -29,7 +30,6 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
                 fh.write(body)
         self.manager.handle_child(self.result, file_path,
                                   id=join_path(self.result.id, name),
-                                  title=name,
                                   file_name=name,
                                   mime_type=mime_type)
 
