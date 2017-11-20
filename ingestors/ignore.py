@@ -9,15 +9,18 @@ class IgnoreIngestor(Ingestor):
     MIME_TYPES = [
         'application/x-pkcs7-mime',
         'application/pkcs7-mime',
-        'application/pkcs7-signature'
+        'application/pkcs7-signature',
+        'application/x-pkcs7-signature'
     ]
     EXTENSIONS = [
         'json',
         'yml',
+        'yaml',
         'exe',
         'dll',
         'ini',
-        'psd',
+        'psd',  # adobe photoshop
+        'indd',  # adobe indesign
         'sql',
         'avi',
         'mpg',
@@ -26,7 +29,7 @@ class IgnoreIngestor(Ingestor):
         'dat',
         'log',
         'pbl',
-        'p7m'
+        'p7m',
     ]
     NAMES = [
         '.DS_Store',

@@ -10,12 +10,16 @@ class OfficeOpenXMLIngestor(Ingestor, LibreOfficeSupport, OOXMLSupport):
     Mostly a slightly adjusted PDF ingestor.
     """
 
+    PREFIX = 'application/vnd.openxmlformats-officedocument.'
     MIME_TYPES = [
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',  # noqa
-        'application/vnd.openxmlformats-officedocument.presentationml.slideshow',  # noqa
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',  # noqa
+        PREFIX + 'wordprocessingml.document',
+        PREFIX + 'wordprocessingml.template',
+        PREFIX + 'presentationml.slideshow',
+        PREFIX + 'presentationml.presentation',
+        PREFIX + 'presentationml.template',
+        PREFIX + 'presentationml.slideshow',
     ]
-    EXTENSIONS = ['docx', 'pptx']
+    EXTENSIONS = ['docx', 'docm', 'dotx', 'potx', 'pptx', 'ppsx']
     SCORE = 5
 
     def ingest(self, file_path):
