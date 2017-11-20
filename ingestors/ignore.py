@@ -19,6 +19,7 @@ class IgnoreIngestor(Ingestor):
         'exe',
         'dll',
         'ini',
+        'class',
         'psd',  # adobe photoshop
         'indd',  # adobe indesign
         'sql',
