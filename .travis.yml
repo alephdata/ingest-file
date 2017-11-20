@@ -15,6 +15,7 @@ addons:
       - sourceline: 'ppa:libreoffice/ppa'
     packages:
       - libtesseract-dev
+      - libleptonica-dev
       - tesseract-ocr-eng
       - tesseract-ocr-osd
       - imagemagick
