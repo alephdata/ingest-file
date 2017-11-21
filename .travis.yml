@@ -10,7 +10,8 @@ cache:
   - pip
 
 env:
-- LEPT_VER=1.74.2
+  - LEPT_VER=1.74.2
+  - LIBLEPT_HEADERSDIR=/usr/local/include
 
 addons:
   apt:
@@ -37,7 +38,7 @@ before_install:
   - sudo dpkg -i /tmp/unrar.deb
   - sudo ln -s /usr/bin/python /usr/bin/python2.7.12
   - wget --quiet -O pst.tgz http://www.five-ten-sg.com/libpst/packages/libpst-0.6.71.tar.gz
-  - tar xvfz pst.tgz && cd libpst-0.6.71 && ./configure && make && sudo make install && cd ..
+  - tar xvfz pst.tgz && cd libpst-0.6.71 && ./configure && make && sudo make install && cd /
   - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
   - if test ! -d leptonica-$LEPT_VER/usr; then cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=leptonica-$LEPT_VER/usr; fi
   - if test ! -e leptonica-$LEPT_VER/usr/lib/libleptonica.so; then make -C leptonica-$LEPT_VER/build install; fi
@@ -46,7 +47,7 @@ before_install:
 install:
   - git clone --depth 1  https://github.com/tesseract-ocr/tesseract.git tesseract-ocr && cd tesseract-ocr
   - ./autogen.sh
-  - ./configure
+  - ./configure --prefix=/usr/local/ --with-extra-libraries=/usr/local/lib
   - sudo make && sudo make install && sudo ldconfig
   - pip install -e .
   - pip install nose coveralls
