@@ -32,22 +32,22 @@ cache:
 before_install:
   - pip install -U pip setuptools
   - sudo apt-get -qq update
-  - sudo apt-get install -y readpst mdbtools libmagic1 libboost-python-dev libgsf-1-dev libleptonica-dev autoconf-archive automake g++ libtool pkg-config git
+  - sudo apt-get install -y readpst mdbtools libmagic1 libboost-python-dev libgsf-1-dev autoconf-archive automake g++ libtool pkg-config git
   - wget --quiet -O /tmp/unrar.deb http://www.rarlab.com/rar/unrar_5.2.5-0.1_amd64.deb
   - sudo dpkg -i /tmp/unrar.deb
   - sudo ln -s /usr/bin/python /usr/bin/python2.7.12
   - wget --quiet -O pst.tgz http://www.five-ten-sg.com/libpst/packages/libpst-0.6.71.tar.gz
   - tar xvfz pst.tgz && cd libpst-0.6.71 && ./configure && make && sudo make install && cd ..
+  - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
+  - if test ! -d leptonica-$LEPT_VER/usr; then cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=leptonica-$LEPT_VER/usr; fi
+  - if test ! -e leptonica-$LEPT_VER/usr/lib/libleptonica.so; then make -C leptonica-$LEPT_VER/build install; fi
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install:
-  # - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
-  # - if test ! -d leptonica-$LEPT_VER/usr; then cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=leptonica-$LEPT_VER/usr; fi
-  # - if test ! -e leptonica-$LEPT_VER/usr/lib/libleptonica.so; then make -C leptonica-$LEPT_VER/build install; fi
   - git clone --depth 1  https://github.com/tesseract-ocr/tesseract.git tesseract-ocr && cd tesseract-ocr
   - ./autogen.sh
   - ./configure
-  - make && make install && ldconfig
+  - sudo make && sudo make install && sudo ldconfig
   - pip install -e .
   - pip install nose coveralls
   - pip install -r requirements_dev.txt
