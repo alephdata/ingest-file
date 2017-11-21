@@ -10,7 +10,7 @@ cache:
   - pip
 
 env:
-- LEPT_VER=1.74.2
+  - LEPT_VER=1.74.2 LIBLEPT_HEADERSDIR="/usr/local/include"
 
 addons:
   apt:
