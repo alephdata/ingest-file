@@ -7,10 +7,10 @@ https://github.com/mattgwwalker/msg-extractor
 """
 import sys
 import string
-from email.parser import Parser as EmailParser
-from imapclient.imapclient import decode_utf7
-import email.utils
 import olefile as OleFile
+from normality import guess_encoding
+from normality.cleaning import remove_unsafe_chars
+from imapclient.imapclient import decode_utf7
 
 RANDOM_NAME = string.ascii_uppercase + string.digits
 
@@ -56,7 +56,7 @@ properties = {
     '0076': 'Rcvd by email',
     '0077': 'Repr adrtype',
     '0078': 'Repr email',
-    '007d': 'Message header',
+    '007D': 'Header',
     '0C1A': 'Sender name',
     '0C1E': 'Sender adr type',
     '0C1F': 'Sender email',
@@ -66,10 +66,10 @@ properties = {
     '0E1D': 'Subject (normalized)',
     '0E28': 'Recvd account1 (uncertain)',
     '0E29': 'Recvd account2 (uncertain)',
-    '1000': 'Message body',
+    '1000': 'Body',
     '1008': 'RTF sync body tag',
-    '1035': 'Message ID (uncertain)',
-    '1046': 'Sender email (uncertain)',
+    '1035': 'Message ID',
+    '1046': 'Sender email',
     '3001': 'Display name',
     '3002': 'Address type',
     '3003': 'Email address',
@@ -174,7 +174,7 @@ class Attachment:  # pragma: no cover
         # Get short filename
         self.shortFilename = msg._getStringStream(dir_ + ['__substg1.0_3704'])
 
-        # Get mine type
+        # Get mime type
         self.mimeType = msg._getStream(dir_ + ['__substg1.0_370E001E'])
 
         # Get attachment data
@@ -193,7 +193,7 @@ class Message(OleFile.OleFileIO):  # pragma: no cover
         else:
             return None
 
-    def _getStringStream(self, filename, prefer='unicode'):
+    def _getStringStream(self, filename):
         """Gets a string representation of the requested filename.
         Checks for both ASCII and Unicode representations and returns
         a value if possible.  If there are both ASCII and Unicode
@@ -205,150 +205,42 @@ class Message(OleFile.OleFileIO):  # pragma: no cover
             # Join with slashes to make it easier to append the type
             filename = "/".join(filename)
 
-        asciiVersion = self._getStream(filename + '001E')
-        unicodeVersion = windowsUnicode(self._getStream(filename + '001F'))
-        if asciiVersion is None:
-            return unicodeVersion
-        elif unicodeVersion is None:
+        value = windowsUnicode(self._getStream(filename + '001F'))
+        if value is None:
+            raw = self._getStream(filename + '001E')
             try:
-                return decode_utf7(asciiVersion)
+                value = decode_utf7(raw)
             except Exception:
-                return "".join(map(chr, asciiVersion))
-        else:
-            if prefer == 'unicode':
-                return unicodeVersion
-            else:
-                try:
-                    return decode_utf7(asciiVersion)
-                except Exception:
-                    return "".join(map(chr, asciiVersion))
+                encoding = guess_encoding(raw)
+                value = raw.decode(encoding, 'replace')
 
-    @property
-    def subject(self):
-        return self._getStringStream('__substg1.0_0037')
+        if value is not None and len(value):
+            return remove_unsafe_chars(value)
 
-    @property
-    def header(self):
-        try:
-            return self._header
-        except Exception:
-            headerText = self._getStringStream('__substg1.0_007D')
-            if headerText is not None:
-                self._header = EmailParser().parsestr(headerText)
-            else:
-                self._header = None
-            return self._header
-
-    @property
-    def date(self):
-        # Get the message's header and extract the date
-        if self.header is None:
-            return None
-        else:
-            return self.header['date']
-
-    @property
-    def parsedDate(self):
-        return email.utils.parsedate(self.date)
-
-    @property
-    def sender(self):
-        try:
-            return self._sender
-        except Exception:
-            # Check header first
-            if self.header is not None:
-                headerResult = self.header["from"]
-                if headerResult is not None:
-                    self._sender = headerResult
-                    return headerResult
-
-            # Extract from other fields
-            text = self._getStringStream('__substg1.0_0C1A')
-            email = self._getStringStream('__substg1.0_0C1F')
-            result = None
-            if text is None:
-                result = email
-            else:
-                result = text
-                if email is not None:
-                    result = result + " <" + email + ">"
-
-            self._sender = result
-            return result
-
-    @property
-    def to(self):
-        try:
-            return self._to
-        except Exception:
-            # Check header first
-            if self.header is not None:
-                headerResult = self.header["to"]
-                if headerResult is not None:
-                    self._to = headerResult
-                    return headerResult
-
-            # Extract from other fields
-            # TODO: This should really extract data from the recip folders,
-            # but how do you know which is to/cc/bcc?
-            display = self._getStringStream('__substg1.0_0E04')
-            self._to = display
-            return display
-
-    @property
-    def cc(self):
-        try:
-            return self._cc
-        except Exception:
-            # Check header first
-            if self.header is not None:
-                headerResult = self.header["cc"]
-                if headerResult is not None:
-                    self._cc = headerResult
-                    return headerResult
-
-            # Extract from other fields
-            # TODO: This should really extract data from the recip folders,
-            # but how do you know which is to/cc/bcc?
-            display = self._getStringStream('__substg1.0_0E03')
-            self._cc = display
-            return display
-
-    @property
-    def body(self):
-        # Get the message body
-        return self._getStringStream('__substg1.0_1000')
+    def getField(self, name):
+        return self._getStringStream('__substg1.0_%s' % name)
 
     @property
     def attachments(self):
-        try:
-            return self._attachments
-        except Exception:
-            # Get the attachments
-            attachmentDirs = []
+        # Get the attachments
+        attachmentDirs = []
+        dirList = self.listdir()
+        # Used to gets the most nested attachment
+        dirList = sorted(dirList, key=lambda dir: len(dir), reverse=True)
 
-            dirList = self.listdir()
-            # Used to gets the most nested attachment
-            dirList = sorted(dirList, key=lambda dir: len(dir), reverse=True)
+        for dir_ in dirList:
+            if dir_[0].startswith('__attach'):
+                result = [dir_[0]]
+                for d in dir_[1:]:
+                    if (d == "__substg1.0_3701000D") or \
+                       (d.startswith('__attach')):
+                        result.append(d)
+                    else:
+                        break
+                if len([d for d in [''.join(d) for d in attachmentDirs]
+                        if d.startswith("".join(result))]) == 0:
+                    # Reject if a more specific dir is known
+                    attachmentDirs.append(result)
 
-            for dir_ in dirList:
-                if dir_[0].startswith('__attach'):
-                    result = [dir_[0]]
-                    for d in dir_[1:]:
-                        if (d == "__substg1.0_3701000D") or \
-                           (d.startswith('__attach')):
-                            result.append(d)
-                        else:
-                            break
-                    if len([d for d in [''.join(d) for d in attachmentDirs]
-                            if d.startswith("".join(result))]) == 0:
-                        # Reject if a more specific dir is known
-                        attachmentDirs.append(result)
-
-            self._attachments = []
-
-            for attachmentDir in attachmentDirs:
-                self._attachments.append(Attachment(self, attachmentDir))
-
-            return self._attachments
+        for attachmentDir in attachmentDirs:
+            yield Attachment(self, attachmentDir)
