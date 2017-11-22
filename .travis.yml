@@ -46,8 +46,8 @@ before_install:
 install:
   - git clone --depth 1  https://github.com/tesseract-ocr/tesseract.git tesseract-ocr && cd tesseract-ocr
   - ./autogen.sh
-  - export LIBLEPT_HEADERSDIR=$HOME/local/include
-  - ./configure --prefix=$HOME/local/ --with-extra-libraries=$HOME/local/lib
+  - export LIBLEPT_HEADERSDIR=$TRAVIS_BUILD_DIR/local/include
+  - ./configure --prefix=$TRAVIS_BUILD_DIR/local/ --with-extra-libraries=$TRAVIS_BUILD_DIR/local/lib
   - sudo make && sudo make install && sudo ldconfig
   - pip install -e .
   - pip install nose coveralls
