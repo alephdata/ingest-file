@@ -25,9 +25,9 @@ addons:
       - djvulibre-bin
       - unzip
 
-cache:
-  directories:
-  - leptonica-$LEPT_VER
+# cache:
+#   directories:
+#   - leptonica-$LEPT_VER
 
 before_install:
   - pip install -U pip setuptools
