@@ -10,7 +10,7 @@ cache:
   - pip
 
 env:
-  - LEPT_VER=1.74.2 LIBLEPT_HEADERSDIR="$HOME/local/include"
+  - LEPT_VER=1.74.2
 
 addons:
   apt:
@@ -27,7 +27,7 @@ addons:
 
 cache:
   directories:
-  - $HOME/leptonica-$LEPT_VER
+  - leptonica-$LEPT_VER
 
 before_install:
   - pip install -U pip setuptools
