@@ -10,7 +10,7 @@ cache:
   - pip
 
 env:
-  - LEPT_VER=1.74.2 LIBLEPT_HEADERSDIR="/usr/local/include"
+  - LEPT_VER=1.74.2 LIBLEPT_HEADERSDIR="$HOME/local/include"
 
 addons:
   apt:
@@ -27,7 +27,7 @@ addons:
 
 cache:
   directories:
-  - leptonica-$LEPT_VER
+  - $HOME/leptonica-$LEPT_VER
 
 before_install:
   - pip install -U pip setuptools
@@ -38,16 +38,16 @@ before_install:
   - sudo ln -s /usr/bin/python /usr/bin/python2.7.12
   - wget --quiet -O pst.tgz http://www.five-ten-sg.com/libpst/packages/libpst-0.6.71.tar.gz
   - tar xvfz pst.tgz && cd libpst-0.6.71 && ./configure && make && sudo make install && cd /
-  - if test ! -d leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
-  - if test ! -d leptonica-$LEPT_VER/usr; then cmake -Hleptonica-$LEPT_VER -Bleptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=leptonica-$LEPT_VER/usr; fi
-  - if test ! -e leptonica-$LEPT_VER/usr/lib/libleptonica.so; then make -C leptonica-$LEPT_VER/build install; fi
+  - if test ! -d $HOME/leptonica-$LEPT_VER/src; then curl -Ls https://github.com/DanBloomberg/leptonica/archive/$LEPT_VER.tar.gz | tar -xz; fi
+  - if test ! -d $HOME/leptonica-$LEPT_VER/usr; then cmake -H$HOME/leptonica-$LEPT_VER -B$HOME/leptonica-$LEPT_VER/build -DCMAKE_INSTALL_PREFIX=$HOME/leptonica-$LEPT_VER/usr; fi
+  - if test ! -e $HOME/leptonica-$LEPT_VER/usr/lib/libleptonica.so; then make -C $HOME/leptonica-$LEPT_VER/build install; fi
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install:
   - git clone --depth 1  https://github.com/tesseract-ocr/tesseract.git tesseract-ocr && cd tesseract-ocr
   - ./autogen.sh
-  - export LIBLEPT_HEADERSDIR=/usr/local/include
-  - ./configure --prefix=/usr/local/ --with-extra-libraries=/usr/local/lib
+  - export LIBLEPT_HEADERSDIR=$HOME/local/include
+  - ./configure --prefix=$HOME/local/ --with-extra-libraries=$HOME/local/lib
   - sudo make && sudo make install && sudo ldconfig
   - pip install -e .
   - pip install nose coveralls
