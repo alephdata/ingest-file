@@ -36,7 +36,8 @@ class RFC822Ingestor(Ingestor, EmailSupport):
         if msg.message_id:
             self.update('id', msg.message_id)
 
-        self.extract_headers_metadata(msg.headers)
+        if msg.headers is not None:
+            self.extract_headers_metadata(msg.headers.items())
         self.extract_plain_text_content(None)
         bodies = defaultdict(list)
         for part in msg.walk(with_self=True):

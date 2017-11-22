@@ -34,9 +34,6 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
                                   mime_type=mime_type)
 
     def extract_headers_metadata(self, headers):
-        if headers is None:
-            return
-        headers = headers.items()
         headers = [(stringify(k), stringify(v)) for k, v in headers]
         self.result.headers = dict(headers)
         for field, value in headers:

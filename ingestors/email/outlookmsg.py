@@ -1,9 +1,8 @@
 from __future__ import unicode_literals
 
 import logging
-from flanker import mime
 from olefile import isOleFile
-from flanker.mime.message.errors import DecodingError
+from email.parser import Parser
 
 from ingestors.base import Ingestor
 from ingestors.support.email import EmailSupport
@@ -26,13 +25,12 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
         if headers is None:
             return
         try:
-            first, rest = headers.split('\r\n', 1)
-            if ':' not in first:
-                headers = rest
-            msg = mime.from_string(headers.encode('utf-8'))
-            self.extract_headers_metadata(msg.headers)
-        except DecodingError as derr:
-            log.warning("Cannot parse Outlook headers: %s" & derr)
+            parser = Parser()
+            message = parser.parsestr(headers, headersonly=True)
+            self.extract_headers_metadata(message.items())
+        except Exception as exc:
+            # log.exception(derr)
+            log.warning("Cannot parse Outlook headers: %s" % exc)
 
     def ingest(self, file_path):
         message = Message(file_path)
