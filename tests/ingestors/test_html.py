@@ -18,6 +18,7 @@ class HTMLIngestorTest(TestCase):
             result.body_text,
             'Ingestors Test web page. The GitHub page.'  # noqa
         )
+        self.assertIn('html', result.flags)
         self.assertEqual(result.title, u'Ingestors Title')
         self.assertEqual(result.summary, u'Ingestors description')
         self.assertEqual(set(result.keywords),

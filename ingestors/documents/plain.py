@@ -28,4 +28,5 @@ class PlainTextIngestor(Ingestor, EncodingSupport, PlainTextSupport):
         if text is None:
             raise ProcessingException("Document could not be decoded.")
 
+        self.result.flag(self.result.FLAG_PLAINTEXT)
         self.extract_plain_text_content(text)

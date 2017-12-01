@@ -75,6 +75,7 @@ class ImageIngestor(Ingestor, PDFSupport):
                 raise ProcessingException("Cannot open image: %s", ioe)
 
         self.extract_exif(img)
+        self.result.flag(self.result.FLAG_IMAGE)
 
         if img.width >= self.MIN_WIDTH and img.height >= self.MIN_HEIGHT:
             with self.create_temp_dir() as temp_dir:
@@ -106,4 +107,5 @@ class SVGIngestor(Ingestor, PDFSupport):
                               'pdf:fit-page=A4',
                               pdf_path)
             self.assert_outfile(pdf_path)
+            self.result.flag(self.result.FLAG_IMAGE)
             self.pdf_alternative_extract(pdf_path)

@@ -12,3 +12,4 @@ class DBFIngestorTest(TestCase):
         row0 = result.rows[0]
         self.assertEqual(row0['name_0'], 'Pakistan')
         self.assertEqual(row0['name_1'], 'Azad Kashmir')
+        self.assertIn('tabular', result.flags)

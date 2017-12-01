@@ -29,6 +29,7 @@ class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
         except Exception as err:
             raise ProcessingException('Invalid Excel file: %s' % err)
 
+        self.result.flag(self.result.FLAG_WORKBOOK)
         try:
             for name in book.get_sheet_names():
                 sheet = book.get_sheet_by_name(name)

@@ -28,6 +28,7 @@ class DocumentIngestorTest(TestCase):
             u'The Level 3 Bookmark',
             result.pages[1]['text']
         )
+        self.assertIn('pdf', result.flags)
 
     def test_ingest_presentation_doc(self):
         fixture_path = self.fixture('slides.ppt')
@@ -37,6 +38,7 @@ class DocumentIngestorTest(TestCase):
 
         self.assertEqual(len(result.pages), 1)
         self.assertIn(u'Now', result.pages[0]['text'])
+        self.assertIn('pdf', result.flags)
         self.assertIn(
             today.strftime('%x'),
             result.pages[0]['text']

@@ -21,9 +21,11 @@ class RFC822Test(TestCase):
         self.assertEqual(result.status, result.STATUS_SUCCESS)
         self.assertIn('Innovationskongress', result.title)
         self.assertIn(u'freiheit.org', result.body_text)
+        self.assertIn('email', result.flags)
 
     def test_mbox(self):
         fixture_path = self.fixture('plan.mbox')
         result = self.manager.ingest(fixture_path)
         # pprint(result.to_dict())
         self.assertEqual(result.status, result.STATUS_SUCCESS)
+        self.assertIn('directory', result.flags)

@@ -51,4 +51,5 @@ class CSVIngestor(Ingestor, EncodingSupport):
 
             reader = csv.reader(fh, dialect=dialect)
             rows = self.generate_rows(reader, has_header=has_header)
+            self.result.flag(self.result.FLAG_TABULAR)
             self.result.emit_rows(rows)

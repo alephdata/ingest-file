@@ -52,6 +52,7 @@ class ExcelIngestor(Ingestor, CSVEmitterSupport, OLESupport):
         except Exception as err:
             raise ProcessingException('Invalid Excel file: %s' % err)
 
+        self.result.flag(self.result.FLAG_WORKBOOK)
         try:
             for sheet in book.sheets():
                 rows = self.generate_csv(sheet)

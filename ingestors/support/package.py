@@ -53,6 +53,7 @@ class PackageSupport(TempFileSupport, EncodingSupport):
                 log.debug("Failed to unpack [%s]: %s", file_name, ex)
 
     def ingest(self, file_path):
+        self.result.flag(self.result.FLAG_PACKAGE)
         with self.create_temp_dir() as temp_dir:
             try:
                 log.info("Descending: %s", self.result)

@@ -49,7 +49,7 @@ def make_directory(file_path):
     """Create a directory, be quiet if it already exists."""
     try:
         os.makedirs(file_path)
-    except:
+    except Exception:
         pass
 
 
@@ -57,5 +57,5 @@ def remove_directory(file_path):
     """Delete a directory, ignore errors."""
     try:
         shutil.rmtree(file_path, True)
-    except:
+    except Exception:
         pass

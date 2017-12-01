@@ -60,6 +60,7 @@ class OpenOfficeSpreadsheetIngestor(Ingestor, CSVEmitterSupport,
 
     def ingest(self, file_path):
         doc = self.parse_opendocument(file_path)
+        self.result.flag(self.result.FLAG_WORKBOOK)
         for table in doc.spreadsheet.getElementsByType(Table):
             name = table.getAttribute('name')
             rows = self.generate_csv(table)

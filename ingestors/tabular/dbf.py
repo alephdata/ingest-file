@@ -25,4 +25,5 @@ class DBFIngestor(Ingestor):
 
     def ingest(self, file_path):
         table = Table(file_path).open()
+        self.result.flag(self.result.FLAG_TABULAR)
         self.result.emit_rows(self.generate_rows(table))

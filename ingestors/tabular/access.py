@@ -33,6 +33,7 @@ class AccessIngestor(Ingestor, TempFileSupport, ShellSupport):
         return out_file
 
     def ingest(self, file_path):
+        self.result.flag(self.result.FLAG_WORKBOOK)
         with self.create_temp_dir() as temp_dir:
             for table_name in self.get_tables(file_path):
                 csv_path = self.dump_table(file_path, table_name, temp_dir)

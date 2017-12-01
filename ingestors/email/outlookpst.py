@@ -15,6 +15,7 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport, OLESupport):
 
     def ingest(self, file_path):
         self.extract_ole_metadata(file_path)
+        self.result.flag(self.result.FLAG_DIRECTORY)
         with self.create_temp_dir() as temp_dir:
             if self.result.mime_type is None:
                 self.result.mime_type = self.MIME_TYPES[0]

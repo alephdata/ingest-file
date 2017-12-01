@@ -20,6 +20,8 @@ class DirectoryIngestor(Ingestor):
         if not os.path.isdir(file_path):
             raise ProcessingException("Not a directory.")
 
+        self.result.flag(self.result.FLAG_DIRECTORY)
+
         for name in os.listdir(file_path):
             name = decode_path(name)
             if name in self.SKIP_ENTRIES:

@@ -70,4 +70,5 @@ class XMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
         html_body = html.tostring(html_doc,
                                   encoding='unicode',
                                   pretty_print=True)
+        self.result.flag(self.result.FLAG_HTML)
         self.result.emit_html_body(html_body, text)

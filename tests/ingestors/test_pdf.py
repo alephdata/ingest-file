@@ -25,6 +25,7 @@ class PDFIngestorTest(TestCase):
             ' in a structured standard format',
             result.pages[0]['text']
         )
+        self.assertIn('pdf', result.flags)
 
     def test_ingest_noisy_fixture(self):
         fixture_path = self.fixture('500 pages.pdf')

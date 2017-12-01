@@ -19,6 +19,7 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
         This will convert the whole file to XML using `pdftohtml`, then run OCR
         on individual images within the file.
         """
+        self.result.flag(self.result.FLAG_PDF)
         with self.create_temp_dir() as temp_dir:
             out_path = os.path.join(temp_dir, 'pdf.xml')
             self.exec_command('pdftohtml',

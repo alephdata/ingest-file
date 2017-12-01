@@ -13,3 +13,4 @@ class DejaVuIngestorTest(TestCase):
 
         self.assertEqual(len(result.pages), 11)
         self.assertIn(u'Executive Orders', result.pages[0]['text'])
+        self.assertIn('pdf', result.flags)

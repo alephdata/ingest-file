@@ -2,7 +2,7 @@
 from ..support import TestCase
 
 
-class MessyTablesIngestorTest(TestCase):
+class TabularIngestorTest(TestCase):
 
     def test_simple_xlsx(self):
         fixture_path = self.fixture('file.xlsx')

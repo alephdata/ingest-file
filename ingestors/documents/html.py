@@ -11,4 +11,5 @@ class HTMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
     def ingest(self, file_path):
         """Ingestor implementation."""
         html_body = self.read_file_decoded(file_path)
+        self.result.flag(self.result.FLAG_HTML)
         self.extract_html_content(html_body)

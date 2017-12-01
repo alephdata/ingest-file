@@ -14,8 +14,19 @@ class Result(object):
     #: Indicates a complete ingestor stop due to system issue.
     STATUS_STOPPED = u'stopped'
 
+    FLAG_DIRECTORY = 'directory'
+    FLAG_PACKAGE = 'package'
+    FLAG_PLAINTEXT = 'plaintext'
+    FLAG_TABULAR = 'tabular'
+    FLAG_WORKBOOK = 'workbook'
+    FLAG_IMAGE = 'image'
+    FLAG_EMAIL = 'email'
+    FLAG_PDF = 'pdf'
+    FLAG_HTML = 'html'
+
     def __init__(self, **kwargs):
         self.status = None
+        self.flags = set()
         self.file_path = decode_path(kwargs.get('file_path'))
         file_name = kwargs.get('file_name') or os.path.basename(self.file_path)
         self.file_name = decode_path(file_name)
@@ -49,6 +60,9 @@ class Result(object):
     def label(self):
         return self.file_name
 
+    def flag(self, value):
+        self.flags.add(value)
+
     def emit_html_body(self, html, text):
         self.body_html = html
         self.body_text = text
@@ -69,6 +83,7 @@ class Result(object):
     def to_dict(self):
         return {
             'id': self.id,
+            'flags': list(self.flags),
             'title': self.title,
             'summary': self.summary,
             'keywords': self.keywords,

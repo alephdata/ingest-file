@@ -85,4 +85,5 @@ class HTMLSupport(object):
         self.extract_html_header(doc)
         self.cleaner(doc)
         text = self.extract_html_text(doc)
+        self.result.flag(self.result.FLAG_HTML)
         self.result.emit_html_body(html_body, text)

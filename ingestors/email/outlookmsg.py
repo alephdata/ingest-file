@@ -55,6 +55,8 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
         # pprint(self.result.to_dict())
 
         self.extract_olefileio_metadata(message)
+        self.result.flag(self.result.FLAG_EMAIL)
+        self.result.flag(self.result.FLAG_PLAINTEXT)
         with self.create_temp_dir() as temp_dir:
             for attachment in message.attachments:
                 name = attachment.longFilename or attachment.shortFilename
