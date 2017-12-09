@@ -37,7 +37,7 @@ class HTMLSupport(object):
 
     def extract_html_header(self, doc):
         """Get metadata from the HTML head element."""
-        self.update('summary', self.get_meta(doc, 'og:title'))
+        self.update('title', self.get_meta(doc, 'og:title'))
         self.update('title', doc.findtext('.//title'))
         self.update('summary', self.get_meta(doc, 'og:description'))
         self.update('summary', self.get_meta(doc, 'description'))

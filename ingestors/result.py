@@ -107,7 +107,7 @@ class Result(object):
         }
 
     def __unicode__(self):
-        return stringify(self.file_name)
+        return stringify(self.file_name) or self.checksum
 
     def __repr__(self):
         return '<Result(%s,%s)>' % (self.label, self.mime_type)

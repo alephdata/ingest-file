@@ -17,6 +17,7 @@ class DirectoryIngestor(Ingestor):
 
     def ingest(self, file_path):
         """Ingestor implementation."""
+        file_path = decode_path(file_path)
         if not os.path.isdir(file_path):
             raise ProcessingException("Not a directory.")
 

@@ -21,7 +21,7 @@ class OLESupport(object):
 
         meta = ole.get_metadata()
         self.update('title', meta.title)
-        self.update('title', meta.subject)
+        # self.update('title', meta.subject)
         self.update('author', meta.author)
         self.update('author', meta.last_saved_by)
         self.update('summary', meta.notes)

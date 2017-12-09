@@ -37,13 +37,12 @@ class OOXMLSupport(object):
         if doc is None:
             # TODO: should this trigger a ProcessingExc on the whole doc?
             return
-        # print etree.tostring(doc, pretty_print=True)
 
         def get(ns, name):
             return doc.findtext('.//%s%s' % (ns, name))
 
         self.update('title', get(self.DC_NS, 'title'))
-        self.update('title', get(self.DC_NS, 'subject'))
+        # self.update('title', get(self.DC_NS, 'subject'))
         self.update('summary', get(self.DC_NS, 'description'))
         self.update('author', get(self.DC_NS, 'creator'))
         self.update('author', get(self.CP_NS, 'lastModifiedBy'))

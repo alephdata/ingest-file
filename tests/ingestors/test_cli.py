@@ -8,7 +8,6 @@ class CliTest(TestCase):
         fixture_path = self.fixture('utf.txt')
         result = self.manager.ingest(fixture_path)
 
-        self.assertEqual(result.file_name, 'utf.txt')
         self.assertEqual(result.size, 19)
         self.assertEqual(result.mime_type, 'text/plain')
         self.assertEqual(result.checksum,
