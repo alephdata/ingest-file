@@ -1,4 +1,3 @@
-import os
 from normality import stringify
 
 from ingestors.util import decode_path
@@ -28,8 +27,7 @@ class Result(object):
         self.status = None
         self.flags = set()
         self.file_path = decode_path(kwargs.get('file_path'))
-        file_name = kwargs.get('file_name') or os.path.basename(self.file_path)
-        self.file_name = decode_path(file_name)
+        self.file_name = decode_path(kwargs.get('file_name'))
         self.id = kwargs.get('id') or self.file_path
         self.title = kwargs.get('title')
         self.summary = kwargs.get('summary')

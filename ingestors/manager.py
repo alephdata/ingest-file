@@ -78,13 +78,8 @@ class Manager(object):
         """Stub handler for results memoization."""
         pass
 
-    def handle_child(self, parent, file_path, id=None, title=None,
-                     file_name=None, mime_type=None):
-        result = self.RESULT_CLASS(file_path=file_path,
-                                   id=id,
-                                   title=title,
-                                   file_name=file_name,
-                                   mime_type=mime_type)
+    def handle_child(self, parent, file_path, **kwargs):
+        result = self.RESULT_CLASS(file_path=file_path, **kwargs)
         parent.children.append(result)
         self.ingest(file_path, result=result)
 
