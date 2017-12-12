@@ -19,7 +19,7 @@ class DirectoryIngestor(Ingestor):
         self.result.flag(self.result.FLAG_DIRECTORY)
         file_path = decode_path(file_path)
 
-        if not os.path.isdir(file_path):
+        if file_path is None or not os.path.isdir(file_path):
             return
 
         for name in os.listdir(file_path):

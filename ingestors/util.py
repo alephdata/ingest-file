@@ -45,6 +45,14 @@ def join_path(*args):
     return os.path.join(*args)
 
 
+def is_file(file_path):
+    """Check if a thing is a file, with null guard."""
+    file_path = decode_path(file_path)
+    if file_path is None:
+        return False
+    return os.path.isfile(file_path)
+
+
 def make_directory(file_path):
     """Create a directory, be quiet if it already exists."""
     try:

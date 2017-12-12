@@ -8,7 +8,7 @@ from pkg_resources import iter_entry_points
 from ingestors.result import Result
 from ingestors.directory import DirectoryIngestor
 from ingestors.exc import ProcessingException
-from ingestors.util import normalize_mime_type
+from ingestors.util import normalize_mime_type, is_file
 
 log = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ class Manager(object):
         return self._ingestors
 
     def auction(self, file_path, result):
-        if not os.path.isfile(file_path):
+        if not is_file(file_path):
             result.mime_type = DirectoryIngestor.MIME_TYPE
             return DirectoryIngestor
 
@@ -85,7 +85,7 @@ class Manager(object):
 
     def checksum_file(self, result, file_path):
         "Generate a hash and file size for a given file name."
-        if not os.path.isfile(file_path):
+        if not is_file(file_path):
             return
 
         if result.checksum is None:
