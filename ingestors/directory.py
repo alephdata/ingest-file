@@ -1,7 +1,6 @@
 import os
 
 from ingestors.base import Ingestor
-from ingestors.exc import ProcessingException
 from ingestors.util import join_path, decode_path
 
 
@@ -17,11 +16,11 @@ class DirectoryIngestor(Ingestor):
 
     def ingest(self, file_path):
         """Ingestor implementation."""
-        file_path = decode_path(file_path)
-        if not os.path.isdir(file_path):
-            raise ProcessingException("Not a directory.")
-
         self.result.flag(self.result.FLAG_DIRECTORY)
+        file_path = decode_path(file_path)
+
+        if not os.path.isdir(file_path):
+            return
 
         for name in os.listdir(file_path):
             name = decode_path(name)

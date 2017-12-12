@@ -42,7 +42,7 @@ class Manager(object):
         return self._ingestors
 
     def auction(self, file_path, result):
-        if os.path.isdir(file_path):
+        if not os.path.isfile(file_path):
             result.mime_type = DirectoryIngestor.MIME_TYPE
             return DirectoryIngestor
 
@@ -85,7 +85,7 @@ class Manager(object):
 
     def checksum_file(self, result, file_path):
         "Generate a hash and file size for a given file name."
-        if os.path.isdir(file_path):
+        if not os.path.isfile(file_path):
             return
 
         if result.checksum is None:
