@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import logging
 from olefile import isOleFile
+from normality import stringify
 from email.parser import Parser
 
 from ingestors.base import Ingestor
@@ -59,7 +60,8 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
         self.result.flag(self.result.FLAG_PLAINTEXT)
         with self.create_temp_dir() as temp_dir:
             for attachment in message.attachments:
-                name = attachment.longFilename or attachment.shortFilename
+                name = stringify(attachment.longFilename)
+                name = name or stringify(attachment.shortFilename)
                 self.ingest_attachment(name,
                                        attachment.mimeType,
                                        attachment.data,

@@ -22,14 +22,17 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
     def ingest_attachment(self, name, mime_type, body, temp_dir):
         file_name = safe_filename(name, default='attachment')
         name = stringify(name) or file_name
+        foreign_id = join_path(self.result.id, name)
+
         file_path = join_path(temp_dir, file_name)
         with open(file_path, 'w') as fh:
             if isinstance(body, six.text_type):
                 body = body.encode('utf-8')
             if body is not None:
                 fh.write(body)
+
         self.manager.handle_child(self.result, file_path,
-                                  id=join_path(self.result.id, name),
+                                  id=foreign_id,
                                   file_name=name,
                                   mime_type=mime_type)
 

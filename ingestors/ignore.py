@@ -31,6 +31,7 @@ class IgnoreIngestor(Ingestor):
         'log',
         'pbl',
         'p7m',
+        'plist'
     ]
     NAMES = [
         '.DS_Store',

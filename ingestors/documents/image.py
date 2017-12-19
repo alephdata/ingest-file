@@ -46,7 +46,7 @@ class ImageIngestor(Ingestor, PDFSupport):
 
         exif = img._getexif()
         if exif is None:
-            return            
+            return
 
         make, model = '', ''
         for num, value in exif.items():

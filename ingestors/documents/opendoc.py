@@ -37,6 +37,7 @@ class OpenDocumentIngestor(Ingestor, LibreOfficeSupport, OpenDocumentSupport):
 
     def ingest(self, file_path):
         """Ingestor implementation."""
+        self.result.flag(self.result.FLAG_PDF)
         self.parse_opendocument(file_path)
         with self.create_temp_dir() as temp_dir:
             pdf_path = self.document_to_pdf(file_path, temp_dir)

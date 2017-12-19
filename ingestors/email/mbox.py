@@ -18,14 +18,15 @@ class MboxFileIngestor(RFC822Ingestor, TempFileSupport):
         self.result.flag(self.result.FLAG_DIRECTORY)
         with self.create_temp_dir() as temp_dir:
             for i, msg in enumerate(mbox, 1):
-                msg_name = 'Message_%s.eml' % i
-                msg_path = join_path(temp_dir, msg_name)
-                child_id = join_path(self.result.id, str(i))
+                msg_path = join_path(temp_dir, '%s.eml' % i)
                 with open(msg_path, 'wb') as fh:
                     fh.write(msg.as_string())
-                self.manager.handle_child(self.result, msg_path,
+
+                child_id = join_path(self.result.id, str(i))
+                self.manager.handle_child(self.result,
+                                          msg_path,
                                           id=child_id,
-                                          mime_type='multipart/mixed')
+                                          mime_type='message/rfc822')
 
     @classmethod
     def match(cls, file_path, result=None):

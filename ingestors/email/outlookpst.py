@@ -18,7 +18,7 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport, OLESupport):
         self.result.flag(self.result.FLAG_DIRECTORY)
         with self.create_temp_dir() as temp_dir:
             if self.result.mime_type is None:
-                self.result.mime_type = self.MIME_TYPES[0]
+                self.result.mime_type = 'application/vnd.ms-outlook'
             self.exec_command('readpst',
                               '-M',  # make subfolders, files per message
                               '-D',  # include deleted
