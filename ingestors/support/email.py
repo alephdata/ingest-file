@@ -20,6 +20,11 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
     """Extract metadata from email messages."""
 
     def ingest_attachment(self, name, mime_type, body, temp_dir):
+        has_body = body is not None and len(body)
+        if stringify(name) is None and not has_body:
+            # Hello, Outlook.
+            return
+
         file_name = safe_filename(name, default='attachment')
         name = stringify(name) or file_name
         foreign_id = join_path(self.result.id, name)

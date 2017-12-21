@@ -22,22 +22,29 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
     EXTENSIONS = ['msg']
     SCORE = 10
 
-    def _parse_headers(self, headers):
-        if headers is None:
-            return
+    def _parse_headers(self, message):
+        headers = message.getField('007D')
         try:
-            parser = Parser()
-            message = parser.parsestr(headers, headersonly=True)
+            assert headers is not None
+            message = Parser().parsestr(headers, headersonly=True)
             self.extract_headers_metadata(message.items())
         except Exception as exc:
-            # log.exception(derr)
             log.warning("Cannot parse Outlook headers: %s" % exc)
+            self.result.headers = {
+                'Subject': message.getField('0037'),
+                'BCC': message.getField('0E02'),
+                'CC': message.getField('0E03'),
+                'To': message.getField('0E04'),
+                'From': message.getField('1046'),
+                'Message-ID': message.getField('1035'),
+            }
 
     def ingest(self, file_path):
         message = Message(file_path)
-        self._parse_headers(message.getField('007D'))
+        self._parse_headers(message)
         self.extract_plain_text_content(message.getField('1000'))
-        self.update('id', message.getField('1035'))
+        # WARNING: this is fuck-stupid, destroys incremental import:
+        # self.update('id', message.getField('1035'))
         self.update('title', message.getField('0037'))
         self.update('title', message.getField('0070'))
         self.update('author', message.getField('0C1A'))
