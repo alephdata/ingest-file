@@ -25,6 +25,8 @@ class Result(object):
 
     def __init__(self, **kwargs):
         self.status = None
+        self.checksum = kwargs.get('checksum')
+        self.size = kwargs.get('size')
         self.flags = set()
         self.file_path = decode_path(kwargs.get('file_path'))
         self.file_name = decode_path(kwargs.get('file_name'))
@@ -45,8 +47,6 @@ class Result(object):
         self.languages = kwargs.get('languages')
         self.headers = kwargs.get('headers')
         self.error_message = None
-        self.checksum = kwargs.get('checksum')
-        self.size = kwargs.get('size')
         self.pages = []
         self.body_text = None
         self.body_html = None

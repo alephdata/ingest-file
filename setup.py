@@ -74,6 +74,8 @@ setup(
             'gz = ingestors.packages:GzipIngestor',
             'bz2 = ingestors.packages:BZ2Ingestor',
             'pst = ingestors.email.outlookpst:OutlookPSTIngestor',
+            'olm = ingestors.email.olm:OutlookOLMArchiveIngestor',
+            'opfmsg = ingestors.email.olm:OutlookOLMMessageIngestor',
             'olemsg = ingestors.email.outlookmsg:OutlookMsgIngestor',
             'msg = ingestors.email.msg:RFC822Ingestor',
             'csv = ingestors.tabular.csv:CSVIngestor',

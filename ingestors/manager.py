@@ -82,6 +82,7 @@ class Manager(object):
         result = self.RESULT_CLASS(file_path=file_path, **kwargs)
         parent.children.append(result)
         self.ingest(file_path, result=result)
+        return result
 
     def checksum_file(self, result, file_path):
         "Generate a hash and file size for a given file name."
