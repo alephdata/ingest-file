@@ -24,10 +24,3 @@ class ImageIngestorTest(TestCase):
 
         # self.assert(u'Testing ingestors', result.pages[0]['text'])
         self.assertEqual(result.status, Result.STATUS_SUCCESS)
-
-    def test_ingest_tiff_format(self):
-        fixture_path = self.fixture('hello_world_tiff.tif')
-        result = self.manager.ingest(fixture_path)
-
-        self.assertEqual(result.pages[0]['text'], 'HELLO WORLD')
-        self.assertEqual(result.status, Result.STATUS_SUCCESS)

@@ -1,5 +1,6 @@
 import logging
 from PyPDF2 import PdfFileReader
+from PyPDF2.utils import PdfReadError
 
 from ingestors.base import Ingestor
 from ingestors.support.pdf import PDFSupport
@@ -45,6 +46,8 @@ class PDFIngestor(Ingestor, PDFSupport):
         """Ingestor implementation."""
         try:
             self.extract_metadata(file_path)
+        except PdfReadError as rex:
+            log.warning("PDF error: %s", rex)
         except Exception as exc:
             # don't bail entirely, perhaps poppler knows how to deal.
             log.exception(exc)

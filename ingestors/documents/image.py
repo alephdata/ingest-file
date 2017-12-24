@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from PIL import Image, ExifTags
 from PIL.Image import DecompressionBombWarning
@@ -6,6 +7,8 @@ from ingestors.base import Ingestor
 from ingestors.support.pdf import PDFSupport
 from ingestors.exc import ProcessingException
 from ingestors.util import join_path
+
+log = logging.getLogger(__name__)
 
 
 class ImageIngestor(Ingestor, PDFSupport):
@@ -17,8 +20,6 @@ class ImageIngestor(Ingestor, PDFSupport):
     MIME_TYPES = [
         'image/x-portable-graymap',
         'image/png',
-        'image/tiff',
-        'image/x-tiff',
         'image/jpeg',
         'image/gif',
         'image/pjpeg',
@@ -50,7 +51,11 @@ class ImageIngestor(Ingestor, PDFSupport):
 
         make, model = '', ''
         for num, value in exif.items():
-            tag = ExifTags.TAGS[num]
+            try:
+                tag = ExifTags.TAGS[num]
+            except KeyError:
+                log.warning("Unknown EXIF code: %s", num)
+                continue
             if tag == 'DateTimeOriginal':
                 if not self.result.created_at:
                     self.result.created_at = self.parse_exif_date(value)
@@ -66,6 +71,7 @@ class ImageIngestor(Ingestor, PDFSupport):
         self.result.generator = generator.strip()
 
     def ingest(self, file_path):
+        self.result.flag(self.result.FLAG_IMAGE)
         with open(file_path, 'r') as fh:
             try:
                 img = Image.open(fh)
@@ -75,8 +81,6 @@ class ImageIngestor(Ingestor, PDFSupport):
                 raise ProcessingException("Cannot open image: %s", ioe)
 
         self.extract_exif(img)
-        self.result.flag(self.result.FLAG_IMAGE)
-
         if img.width >= self.MIN_WIDTH and img.height >= self.MIN_HEIGHT:
             with self.create_temp_dir() as temp_dir:
                 pdf_path = join_path(temp_dir, 'image.pdf')

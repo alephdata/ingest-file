@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ingestors',
-    version='0.6.7',
+    version='0.6.8',
     description="Ingestors extract useful information in a structured standard format.",  # noqa
     author="Organized Crime and Corruption Reporting Project",
     author_email='tech@occrp.org',
@@ -64,6 +64,7 @@ setup(
             'opendoc = ingestors.documents.opendoc:OpenDocumentIngestor',
             'ooxml = ingestors.documents.ooxml:OfficeOpenXMLIngestor',
             'image = ingestors.documents.image:ImageIngestor',
+            'tiff = ingestors.documents.tiff:TIFFIngestor',
             'svg = ingestors.documents.image:SVGIngestor',
             'djvu = ingestors.documents.djvu:DjVuIngestor',
             'pdf = ingestors.documents.pdf:PDFIngestor',
