@@ -16,6 +16,8 @@ class OOXMLSupport(object):
     DCT_NS = '{http://purl.org/dc/terms/}'  # noqa
 
     def parse_ooxml_date(self, date):
+        if date is None:
+            return
         try:
             return datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
         except ValueError:
