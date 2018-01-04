@@ -23,6 +23,10 @@ class CSVEmitterSupport(TempFileSupport):
                     writer.writerow(row)
                     row_count += 1
 
+            if row_count == 0:
+                log.warning("Skip [%s]: no rows", name)
+                return
+
             log.info("Generated [%s]: %s, %s rows", name, out_name, row_count)
 
             child_id = join_path(self.result.id, name)

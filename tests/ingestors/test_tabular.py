@@ -19,7 +19,7 @@ class TabularIngestorTest(TestCase):
         fixture_path = self.fixture('rom.xls')
         result = self.manager.ingest(fixture_path)
         self.assertEqual(result.status, result.STATUS_SUCCESS)
-        self.assertEqual(len(result.children), 3)
+        self.assertEqual(len(result.children), 1)
         child = result.children[0]
         self.assertEqual(child.title, u'Лист1')
         self.assertEqual(child.file_name, u'List1.csv')
