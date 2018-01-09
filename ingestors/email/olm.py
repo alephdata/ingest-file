@@ -70,8 +70,9 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
                                   file_name=name,
                                   mime_type=mime_type)
 
-
     def extract_message(self, zipf, name):
+        if 'message_' not in name or not name.endswith('.xml'):
+            return
         parent = self.extract_hierarchy(name)
         with self.create_temp_dir() as temp_dir:
             xml_path = self.extract_file(zipf, name, temp_dir)
@@ -85,16 +86,18 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
                 for el in doc.findall('.//messageAttachment'):
                     self.extract_attachment(zipf, message, el, temp_dir)
             except TypeError:
-                pass # this will be reported for the individual file.
+                pass  # this will be reported for the individual file.
 
     def ingest(self, file_path):
         self.result.flag(self.result.FLAG_PACKAGE)
         try:
             with zipfile.ZipFile(file_path, 'r') as zipf:
                 for name in zipf.namelist():
-                    if 'message_' in name and name.endswith('.xml'):
+                    try:
                         self.extract_message(zipf, name)
-        except zipfile.BadZipfile as bzfe:
+                    except Exception as exc:
+                        log.exception(exc)
+        except zipfile.BadZipfile:
             raise ProcessingException('Invalid OLM file.')
 
 
@@ -118,7 +121,7 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
                     email = name
             if email is not None:
                 emails.append(email)
-    
+
         if len(emails):
             return ', '.join(emails)
 
@@ -128,10 +131,10 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
             doc = self.parse_xml(file_path)
         except TypeError:
             raise ProcessingException("Cannot parse OPF XML file.")
-        
+
         if len(doc.findall('//email')) != 1:
             raise ProcessingException("More than one email in file.")
-        
+
         email = doc.find('//email')
         props = {c.tag: c.text.strip() for c in email.getchildren() if c.text}
         headers = {
