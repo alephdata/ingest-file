@@ -95,8 +95,8 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
                 for name in zipf.namelist():
                     try:
                         self.extract_message(zipf, name)
-                    except Exception as exc:
-                        log.exception(exc)
+                    except Exception:
+                        log.exception('Error processing message: %s', name)
         except zipfile.BadZipfile:
             raise ProcessingException('Invalid OLM file.')
 
@@ -168,7 +168,8 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
 
         body = props.pop('OPFMessageCopyBody', None)
         html = props.pop('OPFMessageCopyHTMLBody', None)
-        if '1E0' == props.pop('OPFMessageGetHasHTML', None) and stringify(html):
+        has_html = '1E0' == props.pop('OPFMessageGetHasHTML', None)
+        if has_html and stringify(html):
             self.extract_html_content(html)
             self.result.flag(self.result.FLAG_HTML)
         else:

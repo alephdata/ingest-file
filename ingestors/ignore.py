@@ -10,7 +10,8 @@ class IgnoreIngestor(Ingestor):
         'application/x-pkcs7-mime',
         'application/pkcs7-mime',
         'application/pkcs7-signature',
-        'application/x-pkcs7-signature'
+        'application/x-pkcs7-signature',
+        'application/vnd.apple.pkpass'
     ]
     EXTENSIONS = [
         'json',
