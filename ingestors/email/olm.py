@@ -62,7 +62,8 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
         name = attachment.get('OPFAttachmentName')
         mime_type = attachment.get('OPFAttachmentContentType')
         url = attachment.get('OPFAttachmentURL')
-        foreign_id = os.path.join(self.result.id, url)
+        foreign_id = url or name or 'attachment'
+        foreign_id = os.path.join(self.result.id, foreign_id)
         file_path = self.extract_file(zipf, url, temp_dir)
         self.manager.handle_child(message,
                                   file_path,

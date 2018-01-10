@@ -48,7 +48,7 @@ class PDFIngestor(Ingestor, PDFSupport):
             self.extract_metadata(file_path)
         except PdfReadError as rex:
             log.warning("PDF error: %s", rex)
-        except Exception as exc:
+        except Exception:
             # don't bail entirely, perhaps poppler knows how to deal.
-            log.exception(exc)
+            log.exception('Cannot read PDF: %s', file_path)
         self.pdf_extract(file_path)

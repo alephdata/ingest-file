@@ -57,7 +57,7 @@ class UnoconvSupport(object):
                 if length == 0:
                     raise ProcessingException("Could not convert to PDF.")
                 return out_path
-            except RequestException as re:
-                log.exception(re)
+            except RequestException:
+                log.exception('Error contacting unoservice.')
                 time.sleep(3 ** try_num)
         raise ProcessingException("Could not convert to PDF.")
