@@ -53,9 +53,13 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
             foreign_id = os.path.join(foreign_id, name)
             if name in self.EXCLUDE:
                 continue
-            result = self.manager.handle_child(result, None,
-                                               id=foreign_id,
-                                               file_name=name)
+            if foreign_id in self._hierarchy:
+                result = self._hierarchy.get(foreign_id)
+            else:
+                result = self.manager.handle_child(result, None,
+                                                   id=foreign_id,
+                                                   file_name=name)
+                self._hierarchy[foreign_id] = result
         return result
 
     def extract_attachment(self, zipf, message, attachment, temp_dir):
@@ -90,6 +94,7 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
                 pass  # this will be reported for the individual file.
 
     def ingest(self, file_path):
+        self._hierarchy = {}
         self.result.flag(self.result.FLAG_PACKAGE)
         try:
             with zipfile.ZipFile(file_path, 'r') as zipf:
