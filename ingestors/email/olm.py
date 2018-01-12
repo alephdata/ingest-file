@@ -9,7 +9,7 @@ from lxml import etree
 from email import utils
 from banal import clean_dict
 from datetime import datetime
-from normality import stringify
+from normality import stringify, safe_filename
 
 from ingestors.base import Ingestor
 from ingestors.support.email import EmailSupport
@@ -38,7 +38,7 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
     EXCLUDE = ['com.microsoft.__Messages']
 
     def extract_file(self, zipf, name, temp_dir):
-        base_name = os.path.basename(name)
+        base_name = safe_filename(os.path.basename(name))
         out_file = os.path.join(temp_dir, base_name)
         with open(out_file, 'w+b') as outfh:
             with zipf.open(name) as infh:
@@ -63,12 +63,20 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
         return result
 
     def extract_attachment(self, zipf, message, attachment, temp_dir):
-        name = attachment.get('OPFAttachmentName')
-        mime_type = attachment.get('OPFAttachmentContentType')
         url = attachment.get('OPFAttachmentURL')
-        foreign_id = url or name or 'attachment'
-        foreign_id = os.path.join(self.result.id, foreign_id)
-        file_path = self.extract_file(zipf, url, temp_dir)
+        name = attachment.get('OPFAttachmentName')
+        name = name or attachment.get('OPFAttachmentContentID')
+        mime_type = attachment.get('OPFAttachmentContentType')
+        if url is None and name is None:
+            return
+        if url is not None:
+            foreign_id = os.path.join(self.result.id, url)
+            file_path = self.extract_file(zipf, url, temp_dir)
+        else:
+            foreign_id = os.path.join(message.id, name)
+            file_path = os.path.join(temp_dir, safe_filename(name))
+            fh = open(file_path, 'w')
+            fh.close()
         self.manager.handle_child(message,
                                   file_path,
                                   id=foreign_id,
