@@ -35,9 +35,15 @@ class PDFIngestor(Ingestor, PDFSupport):
                     self.update('title', title)
                     self.result.languages.append(lang)
                 self.update('generator', xmp.pdf_producer)
-                self.update('created_at', xmp.xmp_createDate)
-                self.update('modified_at', xmp.xmp_modifyDate)
                 self.result.languages.extend(xmp.dc_language)
+                try:
+                    self.update('created_at', xmp.xmp_createDate)
+                except Exception:
+                    pass
+                try:
+                    self.update('modified_at', xmp.xmp_modifyDate)
+                except Exception:
+                    pass
 
         # from pprint import pprint
         # pprint(self.result.to_dict())
