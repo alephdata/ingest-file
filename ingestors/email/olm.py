@@ -41,8 +41,11 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
         base_name = safe_filename(os.path.basename(name))
         out_file = os.path.join(temp_dir, base_name)
         with open(out_file, 'w+b') as outfh:
-            with zipf.open(name) as infh:
-                shutil.copyfileobj(infh, outfh)
+            try:
+                with zipf.open(name) as infh:
+                    shutil.copyfileobj(infh, outfh)
+            except KeyError:
+                log.warning("Cannot load zip member: %s", name)
         return out_file
 
     def extract_hierarchy(self, name):

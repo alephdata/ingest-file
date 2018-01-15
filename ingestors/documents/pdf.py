@@ -16,6 +16,28 @@ class PDFIngestor(Ingestor, PDFSupport):
     """
     MIME_TYPES = ['application/pdf']
 
+    def extract_xmp_metadata(self, pdf):
+        try:
+            xmp = pdf.getXmpMetadata()
+            if xmp is None:
+                return
+            self.update('id', xmp.xmpmm_documentId)
+            for lang, title in xmp.dc_title.items():
+                self.update('title', title)
+                self.result.languages.append(lang)
+            self.update('generator', xmp.pdf_producer)
+            self.result.languages.extend(xmp.dc_language)
+            try:
+                self.update('created_at', xmp.xmp_createDate)
+            except Exception:
+                pass
+            try:
+                self.update('modified_at', xmp.xmp_modifyDate)
+            except Exception:
+                pass
+        except Exception as ex:
+            log.warning("Error reading XMP: %r", ex)
+
     def extract_metadata(self, file_path):
         with open(file_path, 'rb') as fh:
             pdf = PdfFileReader(fh, strict=False)
@@ -28,23 +50,7 @@ class PDFIngestor(Ingestor, PDFSupport):
                 if meta.subject:
                     self.result.keywords.append(meta.subject)
 
-            xmp = pdf.getXmpMetadata()
-            if xmp is not None:
-                self.update('id', xmp.xmpmm_documentId)
-                for lang, title in xmp.dc_title.items():
-                    self.update('title', title)
-                    self.result.languages.append(lang)
-                self.update('generator', xmp.pdf_producer)
-                self.result.languages.extend(xmp.dc_language)
-                try:
-                    self.update('created_at', xmp.xmp_createDate)
-                except Exception:
-                    pass
-                try:
-                    self.update('modified_at', xmp.xmp_modifyDate)
-                except Exception:
-                    pass
-
+            self.extract_xmp_metadata(pdf)
         # from pprint import pprint
         # pprint(self.result.to_dict())
 
@@ -56,5 +62,5 @@ class PDFIngestor(Ingestor, PDFSupport):
             log.warning("PDF error: %s", rex)
         except Exception:
             # don't bail entirely, perhaps poppler knows how to deal.
-            log.exception('Cannot read PDF: %s', file_path)
+            log.warning('Cannot read PDF: %s', file_path)
         self.pdf_extract(file_path)

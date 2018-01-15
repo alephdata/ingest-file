@@ -3,7 +3,7 @@ from hashlib import sha1
 from banal import ensure_list
 try:
     from cStringIO import StringIO
-except:
+except ImportError:
     from StringIO import StringIO
 from PIL import Image
 from PIL.Image import DecompressionBombWarning
@@ -67,6 +67,9 @@ class OCRSupport(object):
             return None
         except IOError as ioe:
             log.warning("Unknown image format: %r", ioe)
+            return None
+        except RuntimeError as err:
+            log.warning("Failed to load image: %r", err)
             return None
         finally:
             api.Clear()

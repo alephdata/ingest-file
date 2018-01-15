@@ -38,6 +38,7 @@ class RFC822Ingestor(Ingestor, EmailSupport):
 
         if msg.headers is not None:
             self.extract_headers_metadata(msg.headers.items())
+
         self.extract_plain_text_content(None)
         self.result.flag(self.result.FLAG_EMAIL)
         bodies = defaultdict(list)
@@ -46,7 +47,7 @@ class RFC822Ingestor(Ingestor, EmailSupport):
                 if part.body is None:
                     continue
             except DecodingError:
-                log.error("Cannot decode part: [%s]", self.result)
+                log.exception("Cannot decode part: [%s]", self.result)
                 continue
 
             file_name = part.detected_file_name
