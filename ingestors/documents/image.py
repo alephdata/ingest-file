@@ -38,7 +38,7 @@ class ImageIngestor(Ingestor, PDFSupport):
     def parse_exif_date(self, date):
         try:
             return datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
-        except ValueError:
+        except Exception:
             return None
 
     def extract_exif(self, img):
@@ -57,18 +57,16 @@ class ImageIngestor(Ingestor, PDFSupport):
                 log.warning("Unknown EXIF code: %s", num)
                 continue
             if tag == 'DateTimeOriginal':
-                if not self.result.created_at:
-                    self.result.created_at = self.parse_exif_date(value)
+                self.update('created_at', self.parse_exif_date(value))
             if tag == 'DateTime':
-                if not self.result.date:
-                    self.result.date = self.parse_exif_date(value)
+                self.update('date', self.parse_exif_date(value))
             if tag == 'Make':
                 make = value
             if tag == 'Model':
                 model = value
 
         generator = ' '.join((make, model))
-        self.result.generator = generator.strip()
+        self.update('generator', generator.strip())
 
     def ingest(self, file_path):
         self.result.flag(self.result.FLAG_IMAGE)
