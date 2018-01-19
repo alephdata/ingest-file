@@ -19,7 +19,9 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
         'appliation/x-msg',
         'message/rfc822'
     ]
-    EXTENSIONS = ['msg']
+    EXTENSIONS = [
+        'msg'
+    ]
     SCORE = 10
 
     def _parse_headers(self, message):

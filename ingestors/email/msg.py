@@ -18,7 +18,12 @@ class RFC822Ingestor(Ingestor, EmailSupport):
         'multipart/mixed',
         'message/rfc822'
     ]
-    EXTENSIONS = ['eml', 'rfc822', 'email', 'msg']
+    EXTENSIONS = [
+        'eml',
+        'rfc822',
+        'email',
+        'msg'
+    ]
     SCORE = 6
 
     def ingest(self, file_path):
@@ -47,7 +52,7 @@ class RFC822Ingestor(Ingestor, EmailSupport):
                 if part.body is None:
                     continue
             except DecodingError:
-                log.exception("Cannot decode part: [%s]", self.result)
+                log.warning("Cannot decode part [%s]", self.result)
                 continue
 
             file_name = part.detected_file_name

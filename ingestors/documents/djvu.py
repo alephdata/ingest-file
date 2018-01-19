@@ -5,7 +5,12 @@ from ingestors.util import join_path
 
 class DjVuIngestor(Ingestor, PDFSupport):
     """Read DejaVu E-Books."""
-    MIME_TYPES = ['image/vnd.djvu', 'image/x.djvu']  # noqa
+    MIME_TYPES = [
+        'image/vnd.djvu',
+        'image/x.djvu',
+        'image/x-djvu',
+        'image/djvu',
+    ]  # noqa
 
     def ingest(self, file_path):
         """Ingestor implementation."""

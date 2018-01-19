@@ -32,6 +32,10 @@ class OpenOfficeSpreadsheetIngestor(Ingestor, CSVEmitterSupport,
         if cell_type == "currency":
             value = cell.getAttrNS(OFFICENS, 'value')
             currency = cell.getAttrNS(OFFICENS, cell_type)
+            if value is None:
+                return None
+            if currency is None:
+                return value
             return value + ' ' + currency
 
         for field in self.VALUE_FIELDS:

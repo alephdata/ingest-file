@@ -11,7 +11,8 @@ class IgnoreIngestor(Ingestor):
         'application/pkcs7-mime',
         'application/pkcs7-signature',
         'application/x-pkcs7-signature',
-        'application/vnd.apple.pkpass'
+        'application/vnd.apple.pkpass',
+        'text/calendar'
     ]
     EXTENSIONS = [
         'json',
@@ -32,7 +33,8 @@ class IgnoreIngestor(Ingestor):
         'log',
         'pbl',
         'p7m',
-        'plist'
+        'plist',
+        'ics'
     ]
     NAMES = [
         '.DS_Store',

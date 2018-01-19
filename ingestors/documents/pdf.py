@@ -15,6 +15,7 @@ class PDFIngestor(Ingestor, PDFSupport):
     Splits the file into pages.
     """
     MIME_TYPES = ['application/pdf']
+    EXTENSIONS = ['pdf']
 
     def extract_xmp_metadata(self, pdf):
         try:
