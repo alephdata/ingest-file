@@ -20,7 +20,11 @@ class ExcelIngestor(Ingestor, CSVEmitterSupport, OLESupport):
         'application/vnd.ms-excel',
         'application/x-msexcel',
     ]
-    EXTENSIONS = ['xls', 'xlt', 'xla']
+    EXTENSIONS = [
+        'xls',
+        'xlt',
+        'xla'
+    ]
     SCORE = 6
 
     def convert_cell(self, cell, sheet):

@@ -8,7 +8,9 @@ from ingestors.util import join_path
 class MboxFileIngestor(RFC822Ingestor, TempFileSupport):
     DEFAULT_MIME = 'application/mbox'
     MIME_TYPES = [DEFAULT_MIME]
-    EXTENSIONS = ['mbox']
+    EXTENSIONS = [
+        'mbox'
+    ]
     MAGIC = 'From '
     SCORE = 6
 

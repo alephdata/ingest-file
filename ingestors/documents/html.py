@@ -9,6 +9,11 @@ class HTMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
     MIME_TYPES = [
         'text/html'
     ]
+    EXTENSIONS = [
+        'htm',
+        'html'
+    ]
+    SCORE = 4
 
     def ingest(self, file_path):
         """Ingestor implementation."""

@@ -29,7 +29,13 @@ class ImageIngestor(Ingestor, PDFSupport):
         'application/postscript',
         'image/vnd.dxf',
     ]
-    EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'bmp']
+    EXTENSIONS = [
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'bmp'
+    ]
     SCORE = 5
 
     MIN_WIDTH = 100

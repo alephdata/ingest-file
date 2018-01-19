@@ -17,7 +17,9 @@ class RARIngestor(PackageSupport, Ingestor):
         'application/rar'
         'application/x-rar'
     ]
-    EXTENSIONS = ['rar']
+    EXTENSIONS = [
+        'rar'
+    ]
     SCORE = 4
 
     def unpack(self, file_path, temp_dir):
@@ -43,7 +45,9 @@ class ZipIngestor(PackageSupport, Ingestor):
         'application/zip-compressed',
         'application/x-zip-compressed',
     ]
-    EXTENSIONS = ['zip']
+    EXTENSIONS = [
+        'zip'
+    ]
     SCORE = 3
 
     def unpack(self, file_path, temp_dir):
@@ -67,7 +71,9 @@ class TarIngestor(PackageSupport, Ingestor):
         'application/x-tgz',
         'application/x-gtar'
     ]
-    EXTENSIONS = ['tar']
+    EXTENSIONS = [
+        'tar'
+    ]
     SCORE = 4
 
     def unpack(self, file_path, temp_dir):
@@ -89,7 +95,10 @@ class SevenZipIngestor(PackageSupport, Ingestor, ShellSupport):
         'application/x-7z-compressed',
         'application/7z-compressed'
     ]
-    EXTENSIONS = ['7z', '7zip']
+    EXTENSIONS = [
+        '7z',
+        '7zip'
+    ]
     SCORE = 4
 
     def unpack(self, file_path, temp_dir):
@@ -128,7 +137,10 @@ class GzipIngestor(SingleFilePackageIngestor):
         'application/x-gzip',
         'multipart/x-gzip'
     ]
-    EXTENSIONS = ['gz', 'tgz']
+    EXTENSIONS = [
+        'gz',
+        'tgz'
+    ]
 
     def unpack_file(self, file_path, temp_file):
         with gzip.GzipFile(file_path) as src:
@@ -143,7 +155,12 @@ class BZ2Ingestor(SingleFilePackageIngestor):
         'multipart/x-bzip',
         'multipart/x-bzip2'
     ]
-    EXTENSIONS = ['bz', 'tbz', 'bz2', 'tbz2']
+    EXTENSIONS = [
+        'bz',
+        'tbz',
+        'bz2',
+        'tbz2'
+    ]
 
     def unpack_file(self, file_path, temp_file):
         with bz2.BZ2File(file_path) as src:

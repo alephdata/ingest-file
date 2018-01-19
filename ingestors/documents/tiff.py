@@ -14,7 +14,10 @@ class TIFFIngestor(Ingestor, PDFSupport):
         'image/tiff',
         'image/x-tiff',
     ]
-    EXTENSIONS = ['tif', 'tiff']
+    EXTENSIONS = [
+        'tif',
+        'tiff'
+    ]
     SCORE = 6
 
     def ingest(self, file_path):

@@ -15,7 +15,12 @@ class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',  # noqa
         'application/vnd.openxmlformats-officedocument.spreadsheetml.template',  # noqa
     ]
-    EXTENSIONS = ['xlsx', 'xlsm', 'xltx', 'xltm']
+    EXTENSIONS = [
+        'xlsx',
+        'xlsm',
+        'xltx',
+        'xltm'
+    ]
     SCORE = 6
 
     def generate_csv(self, sheet):

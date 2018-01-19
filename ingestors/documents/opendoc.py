@@ -32,7 +32,11 @@ class OpenDocumentIngestor(Ingestor, LibreOfficeSupport, OpenDocumentSupport):
         'application/vnd.oasis.opendocument.text-master',
         'application/vnd.oasis.opendocument.text-web',
     ]
-    EXTENSIONS = ['odt', 'odp', 'otp']
+    EXTENSIONS = [
+        'odt',
+        'odp',
+        'otp'
+    ]
     SCORE = 5
 
     def ingest(self, file_path):

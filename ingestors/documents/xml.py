@@ -13,7 +13,12 @@ from ingestors.exc import ProcessingException
 class XMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
     "XML file ingestor class. Generates a tabular HTML representation."
 
-    MIME_TYPES = ['text/xml']
+    MIME_TYPES = [
+        'text/xml'
+    ]
+    EXTENSIONS = [
+        'xml'
+    ]
     SCORE = 1
     MAX_SIZE = 4 * 1024 * 1024
     XSLT = etree.XML(b"""<?xml version="1.0" encoding="UTF-8"?>
