@@ -8,7 +8,7 @@ from pkg_resources import iter_entry_points
 from ingestors.result import Result
 from ingestors.directory import DirectoryIngestor
 from ingestors.exc import ProcessingException
-from ingestors.util import normalize_mime_type, is_file
+from ingestors.util import normalize_mime_type, is_file, safe_string
 
 log = logging.getLogger(__name__)
 
@@ -126,7 +126,7 @@ class Manager(object):
             self.delegate(ingestor_class, result, file_path)
             result.status = Result.STATUS_SUCCESS
         except ProcessingException as pexc:
-            result.error_message = stringify(pexc)
+            result.error_message = safe_string(pexc)
             result.status = Result.STATUS_FAILURE
             log.warning("Failed [%s]: %s", result, result.error_message)
         finally:

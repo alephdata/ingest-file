@@ -1,6 +1,4 @@
-from normality import stringify
-
-from ingestors.util import decode_path
+from ingestors.util import decode_path, safe_string
 
 
 class Result(object):
@@ -62,21 +60,24 @@ class Result(object):
         self.flags.add(value)
 
     def emit_html_body(self, html, text):
-        self.body_html = html
-        self.body_text = text
+        self.body_html = safe_string(html)
+        self.body_text = safe_string(text)
 
     def emit_text_body(self, text):
-        self.body_text = text
+        self.body_text = safe_string(text)
 
     def emit_page(self, index, text):
-        self.pages.append({'text': text, 'index': index})
+        self.pages.append({
+            'text': safe_string(text),
+            'index': index
+        })
 
     def emit_rows(self, iterator):
         for row in iterator:
             self.rows.append(row)
 
     def emit_pdf_alternative(self, file_path):
-        self.pdf_path = file_path
+        self.pdf_path = safe_string(file_path)
 
     def to_dict(self):
         return {
@@ -107,7 +108,7 @@ class Result(object):
         }
 
     def __unicode__(self):
-        return stringify(self.file_name) or self.checksum
+        return safe_string(self.file_name) or self.checksum
 
     def __repr__(self):
         return '<Result(%s,%s)>' % (self.label, self.mime_type)

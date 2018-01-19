@@ -1,9 +1,9 @@
 from __future__ import absolute_import
 from dbf import Table
-from normality import stringify
 from collections import OrderedDict
 
 from ingestors.base import Ingestor
+from ingestors.util import safe_string
 
 
 class DBFIngestor(Ingestor):
@@ -17,10 +17,11 @@ class DBFIngestor(Ingestor):
     BASE_SCORE = 7
 
     def generate_rows(self, table):
+        headers = [safe_string(h) for h in table.field_names]
         for row in table:
             data = OrderedDict()
-            for field, value in zip(table.field_names, row):
-                data[field] = stringify(value)
+            for header, value in zip(headers, row):
+                data[header] = safe_string(value)
             yield data
 
     def ingest(self, file_path):

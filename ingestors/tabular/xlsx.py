@@ -1,11 +1,11 @@
 import logging
 from openpyxl import load_workbook
-from normality import stringify
 
 from ingestors.base import Ingestor
 from ingestors.support.csv import CSVEmitterSupport
 from ingestors.support.ooxml import OOXMLSupport
 from ingestors.exc import ProcessingException
+from ingestors.util import safe_string
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
 
     def generate_csv(self, sheet):
         for row in sheet.rows:
-            yield [stringify(c.value) for c in row]
+            yield [safe_string(c.value) for c in row]
 
     def ingest(self, file_path):
         self.ooxml_extract_metadata(file_path)

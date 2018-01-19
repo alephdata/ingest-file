@@ -2,13 +2,13 @@ from __future__ import unicode_literals
 
 import logging
 from olefile import isOleFile
-from normality import stringify
 from email.parser import Parser
 
 from ingestors.base import Ingestor
 from ingestors.support.email import EmailSupport
 from ingestors.support.ole import OLESupport
 from ingestors.email.outlookmsg_lib import Message
+from ingestors.util import safe_string, safe_dict
 
 log = logging.getLogger(__name__)
 
@@ -32,14 +32,14 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
             self.extract_headers_metadata(message.items())
         except Exception as exc:
             log.warning("Cannot parse Outlook headers: %s" % exc)
-            self.result.headers = {
+            self.result.headers = safe_dict({
                 'Subject': message.getField('0037'),
                 'BCC': message.getField('0E02'),
                 'CC': message.getField('0E03'),
                 'To': message.getField('0E04'),
                 'From': message.getField('1046'),
                 'Message-ID': message.getField('1035'),
-            }
+            })
 
     def ingest(self, file_path):
         message = Message(file_path)
@@ -69,8 +69,8 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
         self.result.flag(self.result.FLAG_PLAINTEXT)
         with self.create_temp_dir() as temp_dir:
             for attachment in message.attachments:
-                name = stringify(attachment.longFilename)
-                name = name or stringify(attachment.shortFilename)
+                name = safe_string(attachment.longFilename)
+                name = name or safe_string(attachment.shortFilename)
                 self.ingest_attachment(name,
                                        attachment.mimeType,
                                        attachment.data,

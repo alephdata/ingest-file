@@ -1,8 +1,7 @@
 import logging
-import mimetypes
-from normality import stringify
 from datetime import date, datetime
 from ingestors.util import normalize_mime_type, normalize_extension
+from ingestors.util import safe_string
 
 log = logging.getLogger(__name__)
 
@@ -31,23 +30,20 @@ class Ingestor(object):
         if existing:
             return
         if not isinstance(value, (date, datetime)):
-            value = stringify(value)
+            value = safe_string(value)
         if value is None:
             return
         setattr(self.result, name, value)
 
     @classmethod
     def match(cls, file_path, result=None):
-        mime_type = result.mime_type
-        if mime_type is None:
-            (mime_type, enc) = mimetypes.guess_type(file_path)
-
+        mime_type = normalize_mime_type(result.mime_type)
         if mime_type is not None:
             for match_type in cls.MIME_TYPES:
                 match_type = normalize_mime_type(match_type)
                 if normalize_mime_type is None:
                     continue
-                if match_type.lower().strip() == mime_type.lower().strip():
+                if match_type == mime_type:
                     return cls.SCORE
 
         extensions = [normalize_extension(e) for e in cls.EXTENSIONS]

@@ -3,11 +3,11 @@ from __future__ import unicode_literals
 import io
 import logging
 from backports import csv
-from normality import stringify
 from collections import OrderedDict
 
 from ingestors.base import Ingestor
 from ingestors.support.encoding import EncodingSupport
+from ingestors.util import safe_string
 
 log = logging.getLogger(__name__)
 
@@ -27,13 +27,14 @@ class CSVIngestor(Ingestor, EncodingSupport):
 
     def generate_rows(self, reader, has_header=False):
         headers = next(reader) if has_header else []
+        headers = [safe_string(h) for h in headers]
         for row in reader:
             while len(headers) < len(row):
                 next_col = len(headers) + 1
                 headers.append('Column %s' % next_col)
             data = OrderedDict()
             for header, value in zip(headers, row):
-                data[header] = stringify(value)
+                data[header] = safe_string(value)
             yield data
 
     def ingest(self, file_path):

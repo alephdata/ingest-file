@@ -3,12 +3,12 @@ import logging
 from time import time
 from datetime import datetime
 from xlrd.biffh import XLRDError
-from normality import stringify
 
 from ingestors.base import Ingestor
 from ingestors.support.csv import CSVEmitterSupport
 from ingestors.support.ole import OLESupport
 from ingestors.exc import ProcessingException
+from ingestors.util import safe_string
 
 log = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class ExcelIngestor(Ingestor, CSVEmitterSupport, OLESupport):
                     return value.isoformat()
         except Exception:
             pass
-        return stringify(value)
+        return safe_string(value)
 
     def generate_csv(self, sheet):
         for row_index in xrange(0, sheet.nrows):

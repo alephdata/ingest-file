@@ -7,14 +7,14 @@ import logging
 import zipfile
 from lxml import etree
 from email import utils
-from banal import clean_dict
 from datetime import datetime
-from normality import stringify, safe_filename
+from normality import safe_filename
 
 from ingestors.base import Ingestor
 from ingestors.support.email import EmailSupport
 from ingestors.support.temp import TempFileSupport
 from ingestors.exc import ProcessingException
+from ingestors.util import safe_string, safe_dict
 
 log = logging.getLogger(__name__)
 MIME = 'application/xml+opfmessage'
@@ -127,9 +127,9 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
         emails = []
         path = './%s/emailAddress' % tag
         for address in doc.findall(path):
-            email = address.get('OPFContactEmailAddressAddress')
+            email = safe_string(address.get('OPFContactEmailAddressAddress'))
             self.result.emails.append(email)
-            name = address.get('OPFContactEmailAddressName')
+            name = safe_string(address.get('OPFContactEmailAddressName'))
             if name is not None and name != email:
                 self.result.entities.append(name)
                 if email is not None and not display:
@@ -153,7 +153,8 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
             raise ProcessingException("More than one email in file.")
 
         email = doc.find('//email')
-        props = {c.tag: c.text.strip() for c in email.getchildren() if c.text}
+        props = email.getchildren()
+        props = {c.tag: safe_string(c.text) for c in props if c.text}
         headers = {
             'Subject': props.get('OPFMessageCopySubject'),
             'Message-ID': props.pop('OPFMessageCopyMessageID', None),
@@ -169,7 +170,7 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
             date = time.mktime(date.timetuple())
             headers['Date'] = utils.formatdate(date)
 
-        self.result.headers = clean_dict(headers)
+        self.result.headers = safe_dict(headers)
 
         self.update('title', props.pop('OPFMessageCopySubject', None))
         self.update('title', props.pop('OPFMessageCopyThreadTopic', None))
@@ -186,7 +187,7 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
         body = props.pop('OPFMessageCopyBody', None)
         html = props.pop('OPFMessageCopyHTMLBody', None)
         has_html = '1E0' == props.pop('OPFMessageGetHasHTML', None)
-        if has_html and stringify(html):
+        if has_html and safe_string(html):
             self.extract_html_content(html)
             self.result.flag(self.result.FLAG_HTML)
         else:

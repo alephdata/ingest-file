@@ -5,15 +5,42 @@ import shutil
 from banal import decode_path
 from normality import stringify, slugify
 from normality import safe_filename as make_filename  # noqa
-from normality.cleaning import remove_control_chars
+
+
+def safe_string(data, encoding_default='utf-8', encoding=None):
+    """Stringify and round-trip through encoding."""
+    data = stringify(data,
+                     encoding_default=encoding_default,
+                     encoding=encoding)
+    if isinstance(data, six.text_type):
+        data = data.encode(encoding_default, 'replace')
+        data = data.decode(encoding_default)
+    return data
+
+
+def safe_dict(data):
+    """Clean a dictionary to make sure it contains only valid,
+    non-null keys and values."""
+    if data is None:
+        return
+
+    safe = {}
+    for key, value in data.items():
+        key = safe_string(key)
+        value = safe_string(value)
+        if key is not None and value is not None:
+            safe[key] = value
+
+    if len(safe):
+        return safe
 
 
 def normalize_mime_type(mime_type):
     """Clean up the mime type a bit."""
-    mime_type = stringify(mime_type)
+    mime_type = safe_string(mime_type)
     if mime_type is None:
         return None
-    mime_type = mime_type.lower()
+    mime_type = mime_type.lower().strip()
     if mime_type in ['application/octet-stream']:
         return None
     return mime_type
@@ -29,15 +56,6 @@ def normalize_extension(extension):
         extension = slugify(extension, sep='')
         if extension is not None and len(extension):
             return extension
-
-
-def string_value(value, encoding=None):
-    value = stringify(value, encoding=encoding, encoding_default='utf-8')
-    if value is None:
-        return
-    if isinstance(value, six.text_type):
-        value = remove_control_chars(value)
-    return value
 
 
 def join_path(*args):
