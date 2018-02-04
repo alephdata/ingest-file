@@ -45,8 +45,7 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
         message = Message(file_path)
         self._parse_headers(message)
         self.extract_plain_text_content(message.getField('1000'))
-        # WARNING: this is fuck-stupid, destroys incremental import:
-        # self.update('id', message.getField('1035'))
+        self.update('message_id', message.getField('1035'))
         self.update('title', message.getField('0037'))
         self.update('title', message.getField('0070'))
         self.update('author', message.getField('0C1A'))
