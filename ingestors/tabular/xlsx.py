@@ -36,9 +36,8 @@ class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
 
         self.result.flag(self.result.FLAG_WORKBOOK)
         try:
-            for name in book.get_sheet_names():
-                sheet = book.get_sheet_by_name(name)
-                rows = self.generate_csv(sheet)
+            for name in book.sheetnames:
+                rows = self.generate_csv(book[name])
                 self.csv_child_iter(rows, name)
         finally:
             book.close()
