@@ -8,8 +8,8 @@ services:
   - docker
 
 before_install:
-  - docker pull alephdata/test-base
-  - docker run -di --rm -v $TRAVIS_BUILD_DIR:/srv --name ingestors alephdata/test-base /bin/bash
+  - docker pull alephdata/aleph
+  - docker run -di --rm -v $TRAVIS_BUILD_DIR:/srv --name ingestors alephdata/aleph /bin/bash
   - docker exec ingestors /bin/bash -c "cd /srv; pip install -r /srv/requirements_dev.txt;"
   - docker exec ingestors /bin/bash -c "cd /srv; pip install -e .;"
   - docker ps | grep -q ingestors
