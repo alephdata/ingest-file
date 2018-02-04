@@ -27,7 +27,7 @@ Other features:
 To install ``ingestors``, use `pip` or add it to your project dependencies.
 
 ```shell
-$ pip install ingestors
+$ pip install ingestors[dev]
 ```
 
 Once installed, this package provides a command line tool::

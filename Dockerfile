@@ -37,9 +37,7 @@ ENV LANG='en_US.UTF-8' \
 
 # Install Python dependencies
 RUN pip install -q --upgrade pip && pip install -q --upgrade setuptools six
-COPY requirements_dev.txt /tmp/
-RUN pip install -q -r /tmp/requirements_dev.txt
 
 COPY . /ingestors
 WORKDIR /ingestors
-RUN pip install -e /ingestors
+RUN pip install -e /ingestors[dev]
