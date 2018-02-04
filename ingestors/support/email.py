@@ -53,7 +53,7 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
                 self.update('title', value)
 
             if field == 'message-id':
-                self.update('id', value)
+                self.update('message_id', value)
 
             if field == 'date':
                 try:

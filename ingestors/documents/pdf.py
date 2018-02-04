@@ -23,7 +23,7 @@ class PDFIngestor(Ingestor, PDFSupport):
             xmp = pdf.getXmpMetadata()
             if xmp is None:
                 return
-            self.update('id', xmp.xmpmm_documentId)
+            self.update('message_id', xmp.xmpmm_documentId)
             for lang, title in xmp.dc_title.items():
                 self.update('title', title)
                 self.result.languages.append(lang)

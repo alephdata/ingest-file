@@ -28,7 +28,8 @@ class Result(object):
         self.flags = set()
         self.file_path = decode_path(kwargs.get('file_path'))
         self.file_name = decode_path(kwargs.get('file_name'))
-        self.id = kwargs.get('id') or self.file_path
+        self.id = kwargs.get('id')
+        self.message_id = kwargs.get('message_id')
         self.title = kwargs.get('title')
         self.summary = kwargs.get('summary')
         self.date = kwargs.get('date')
@@ -84,6 +85,7 @@ class Result(object):
             'id': self.id,
             'flags': list(self.flags),
             'title': self.title,
+            'message_id': self.message_id,
             'summary': self.summary,
             'keywords': self.keywords,
             'status': self.status,

@@ -5,6 +5,7 @@ import logging
 from collections import defaultdict
 from flanker import mime
 from flanker.mime.message.errors import DecodingError
+from normality.encoding import normalize_encoding
 
 from ingestors.base import Ingestor
 from ingestors.support.email import EmailSupport
@@ -39,7 +40,7 @@ class RFC822Ingestor(Ingestor, EmailSupport):
 
         self.update('title', msg.clean_subject)
         if msg.message_id:
-            self.update('id', msg.message_id)
+            self.update('message_id', six.text_type(msg.message_id))
 
         if msg.headers is not None:
             self.extract_headers_metadata(msg.headers.items())
@@ -47,17 +48,27 @@ class RFC822Ingestor(Ingestor, EmailSupport):
         self.extract_plain_text_content(None)
         self.result.flag(self.result.FLAG_EMAIL)
         bodies = defaultdict(list)
+
         for part in msg.walk(with_self=True):
             try:
                 if part.body is None:
                     continue
-            except DecodingError:
-                log.warning("Cannot decode part [%s]", self.result)
+            except DecodingError as de:
+                log.warning("Cannot decode part [%s]: %s", self.result, de)
                 continue
 
             file_name = part.detected_file_name
+
+            # HACK HACK HACK - WTF flanker?
+            # Disposition headers can have multiple filename declarations,
+            # flanker decides to concatenate.
+            if file_name is not None and len(file_name) > 4:
+                half = len(file_name)/2
+                if file_name[:half] == file_name[half:]:
+                    file_name = file_name[:half]
+
             mime_type = six.text_type(part.detected_content_type)
-            mime_type = mime_type.lower().strip()
+            mime_type = normalize_encoding(mime_type, 'text/plain')
 
             if part.is_attachment():
                 self.ingest_attachment(file_name,
