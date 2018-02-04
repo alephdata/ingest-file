@@ -71,12 +71,14 @@ def is_file(file_path):
     return os.path.isfile(file_path)
 
 
-def make_directory(file_path):
+def make_directory(*parts):
     """Create a directory, be quiet if it already exists."""
+    file_path = join_path(*parts)
     try:
         os.makedirs(file_path)
     except Exception:
         pass
+    return file_path
 
 
 def remove_directory(file_path):

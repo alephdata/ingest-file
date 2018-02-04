@@ -17,9 +17,8 @@ class LibreOfficeSupport(PDFSupport, UnoconvSupport):
         if self.is_unoconv_available():
             return self.unoconv_to_pdf(file_path, temp_dir)
 
-        instance_dir = join_path(temp_dir, 'soffice_instance')
-        out_dir = join_path(temp_dir, 'soffice_output')
-        make_directory(out_dir)
+        instance_dir = make_directory(temp_dir, 'soffice_instance')
+        out_dir = make_directory(temp_dir, 'soffice_output')
         log.info('Converting [%s] to PDF...', self.result)
         instance_dir = '-env:UserInstallation=file://{}'.format(instance_dir)
         self.exec_command('soffice',
