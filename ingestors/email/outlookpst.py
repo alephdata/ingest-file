@@ -19,13 +19,18 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport, OLESupport):
         with self.create_temp_dir() as temp_dir:
             if self.result.mime_type is None:
                 self.result.mime_type = 'application/vnd.ms-outlook'
-            self.exec_command('readpst',
-                              '-M',  # make subfolders, files per message
-                              '-D',  # include deleted
-                              '-r',  # recursive structure
-                              '-8',  # utf-8 where possible
-                              '-b',
-                              '-q',  # quiet
-                              '-o', temp_dir,
-                              file_path)
-            self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
+            try:
+                self.exec_command('readpst',
+                                  '-e',  # make subfolders, files per message
+                                  '-D',  # include deleted
+                                  '-r',  # recursive structure
+                                  '-8',  # utf-8 where possible
+                                  '-b',
+                                  '-q',  # quiet
+                                  '-o', temp_dir,
+                                  file_path)
+                self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
+            except Exception:
+                # Handle partially extracted archives.
+                self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
+                raise
