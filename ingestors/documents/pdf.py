@@ -14,6 +14,7 @@ class PDFIngestor(Ingestor, PDFSupport):
     Extracts the text from the document by converting it first to XML.
     Splits the file into pages.
     """
+    MAGIC = '%PDF-1.'
     MIME_TYPES = ['application/pdf']
     EXTENSIONS = ['pdf']
     SCORE = 5
@@ -66,3 +67,12 @@ class PDFIngestor(Ingestor, PDFSupport):
             # don't bail entirely, perhaps poppler knows how to deal.
             log.warning('Cannot read PDF: %s', file_path)
         self.pdf_extract(file_path)
+
+    @classmethod
+    def match(cls, file_path, result=None):
+        score = super(PDFIngestor, cls).match(file_path, result=result)
+        if score <= 0:
+            with open(file_path, 'r') as fh:
+                if fh.read(len(cls.MAGIC)) == cls.MAGIC:
+                    return cls.SCORE
+        return score
