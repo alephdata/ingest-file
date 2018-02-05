@@ -1,7 +1,7 @@
 import io
 import logging
 from backports import csv
-from normality import safe_filename
+from normality import safe_filename, stringify
 
 from ingestors.support.temp import TempFileSupport
 from ingestors.util import join_path
@@ -14,7 +14,9 @@ class CSVEmitterSupport(TempFileSupport):
 
     def csv_child_iter(self, iter, name):
         with self.create_temp_dir() as temp_dir:
-            out_name = safe_filename(name, extension='csv')
+            out_name = safe_filename(name,
+                                     default='sheet.csv',
+                                     extension='csv')
             out_path = join_path(temp_dir, out_name)
             row_count = 0
             with io.open(out_path, 'w', newline='', encoding='utf-8') as fh:
@@ -23,6 +25,7 @@ class CSVEmitterSupport(TempFileSupport):
                     writer.writerow(row)
                     row_count += 1
 
+            name = stringify(name) or 'sheet'
             if row_count == 0:
                 log.warning("Skip [%s]: no rows", name)
                 return
