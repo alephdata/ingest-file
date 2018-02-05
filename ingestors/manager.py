@@ -3,12 +3,13 @@ import magic
 import logging
 import hashlib
 from normality import stringify
+from celestial import normalize_mimetype
 from pkg_resources import iter_entry_points
 
 from ingestors.result import Result
 from ingestors.directory import DirectoryIngestor
 from ingestors.exc import ProcessingException
-from ingestors.util import normalize_mime_type, is_file, safe_string
+from ingestors.util import is_file, safe_string
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ class Manager(object):
 
         if result.mime_type is None:
             mime_type = self.MAGIC.from_file(file_path)
-            result.mime_type = normalize_mime_type(mime_type)
+            result.mime_type = normalize_mimetype(mime_type)
 
         best_score, best_cls = 0, None
         for cls in self.ingestors:

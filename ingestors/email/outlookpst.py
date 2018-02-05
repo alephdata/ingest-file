@@ -6,9 +6,8 @@ from ingestors.directory import DirectoryIngestor
 
 
 class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport, OLESupport):
-    MIME_TYPES = [
-        'application/vnd.ms-outlook'
-    ]
+    MIME_DEFAULT = 'application/vnd.ms-outlook'
+    MIME_TYPES = [MIME_DEFAULT]
     EXTENSIONS = ['pst', 'ost', 'pab']
     BASE_SCORE = 5
     COMMAND_TIMEOUT = 12 * 60 * 60
@@ -17,8 +16,6 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport, OLESupport):
         self.extract_ole_metadata(file_path)
         self.result.flag(self.result.FLAG_DIRECTORY)
         with self.create_temp_dir() as temp_dir:
-            if self.result.mime_type is None:
-                self.result.mime_type = 'application/vnd.ms-outlook'
             try:
                 self.exec_command('readpst',
                                   '-e',  # make subfolders, files per message

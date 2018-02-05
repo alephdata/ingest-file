@@ -115,7 +115,7 @@ class SingleFilePackageIngestor(PackageSupport, Ingestor):
     SCORE = 2
 
     def unpack(self, file_path, temp_dir):
-        file_name = self.result.file_name
+        file_name = self.result.file_name or 'extracted'
         for ext in self.EXTENSIONS:
             ext = '.' + ext
             if file_name.endswith(ext):

@@ -3,6 +3,7 @@ import time
 import logging
 import requests
 import threading
+from celestial import DEFAULT
 from requests.exceptions import RequestException
 
 from ingestors.exc import ConfigurationException, ProcessingException
@@ -13,7 +14,6 @@ log = logging.getLogger(__name__)
 
 class UnoconvSupport(object):
     """Provides helpers for unconv via HTTP."""
-    UNO_MIME = 'application/octet-stream'
 
     def get_unoconv_url(self):
         return self.manager.get_env('UNOSERVICE_URL')
@@ -36,11 +36,11 @@ class UnoconvSupport(object):
 
         log.info('Converting [%s] to PDF...', self.result)
         file_name = os.path.basename(file_path)
-        out_path = join_path(temp_dir, '%s.pdf' % file_name)    
+        out_path = join_path(temp_dir, '%s.pdf' % file_name)
         try:
             with open(file_path, 'rb') as fh:
                 data = {'format': 'pdf', 'doctype': 'document'}
-                files = {'file': (file_name, fh, self.UNO_MIME)}
+                files = {'file': (file_name, fh, DEFAULT)}
                 res = self.unoconv_client.post(self.get_unoconv_url(),
                                                data=data,
                                                files=files,

@@ -1,6 +1,7 @@
 import logging
 from datetime import date, datetime
-from ingestors.util import normalize_mime_type, normalize_extension
+from celestial import normalize_mimetype
+from ingestors.util import normalize_extension
 from ingestors.util import safe_string
 
 log = logging.getLogger(__name__)
@@ -37,12 +38,10 @@ class Ingestor(object):
 
     @classmethod
     def match(cls, file_path, result=None):
-        mime_type = normalize_mime_type(result.mime_type)
+        mime_type = normalize_mimetype(result.mime_type, default=None)
         if mime_type is not None:
             for match_type in cls.MIME_TYPES:
-                match_type = normalize_mime_type(match_type)
-                if normalize_mime_type is None:
-                    continue
+                match_type = normalize_mimetype(match_type, default=None)
                 if match_type == mime_type:
                     return cls.SCORE
 

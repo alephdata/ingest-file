@@ -35,17 +35,6 @@ def safe_dict(data):
         return safe
 
 
-def normalize_mime_type(mime_type):
-    """Clean up the mime type a bit."""
-    mime_type = safe_string(mime_type)
-    if mime_type is None:
-        return None
-    mime_type = mime_type.lower().strip()
-    if mime_type in ['application/octet-stream']:
-        return None
-    return mime_type
-
-
 def normalize_extension(extension):
     extension = decode_path(extension)
     if extension is not None:

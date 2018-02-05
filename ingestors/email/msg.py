@@ -5,7 +5,7 @@ import logging
 from collections import defaultdict
 from flanker import mime
 from flanker.mime.message.errors import DecodingError
-from normality.encoding import normalize_encoding
+from celestial import normalize_mimetype
 
 from ingestors.base import Ingestor
 from ingestors.support.email import EmailSupport
@@ -35,15 +35,14 @@ class RFC822Ingestor(Ingestor, EmailSupport):
     def ingest_message(self, data, temp_dir):
         try:
             msg = mime.from_string(data)
+            self.update('title', msg.clean_subject)
+            if msg.message_id:
+                self.update('message_id', six.text_type(msg.message_id))
+
+            if msg.headers is not None:
+                self.extract_headers_metadata(msg.headers.items())
         except DecodingError as derr:
             raise ProcessingException('Cannot parse email: %s' % derr)
-
-        self.update('title', msg.clean_subject)
-        if msg.message_id:
-            self.update('message_id', six.text_type(msg.message_id))
-
-        if msg.headers is not None:
-            self.extract_headers_metadata(msg.headers.items())
 
         self.extract_plain_text_content(None)
         self.result.flag(self.result.FLAG_EMAIL)
@@ -68,7 +67,7 @@ class RFC822Ingestor(Ingestor, EmailSupport):
                     file_name = file_name[:half]
 
             mime_type = six.text_type(part.detected_content_type)
-            mime_type = normalize_encoding(mime_type, 'text/plain')
+            mime_type = normalize_mimetype(mime_type)
 
             if part.is_attachment():
                 self.ingest_attachment(file_name,
