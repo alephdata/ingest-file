@@ -33,7 +33,7 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
             self.assert_outfile(out_path)
 
             with open(out_path, 'r') as fh:
-                xml = fh.read().decode('utf-8')
+                xml = fh.read().decode('utf-8', 'replace')
                 xml = xml.replace('encoding="UTF-8"', '')
                 parser = etree.XMLParser(recover=True, remove_comments=True)
                 doc = etree.fromstring(xml, parser=parser)
