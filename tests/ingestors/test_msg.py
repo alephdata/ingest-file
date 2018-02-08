@@ -28,4 +28,4 @@ class RFC822Test(TestCase):
         result = self.manager.ingest(fixture_path)
         # pprint(result.to_dict())
         self.assertEqual(result.status, result.STATUS_SUCCESS)
-        self.assertIn('directory', result.flags)
+        self.assertIn('package', result.flags)

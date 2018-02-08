@@ -14,7 +14,7 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport, OLESupport):
 
     def ingest(self, file_path):
         self.extract_ole_metadata(file_path)
-        self.result.flag(self.result.FLAG_DIRECTORY)
+        self.result.flag(self.result.FLAG_PACKAGE)
         with self.create_temp_dir() as temp_dir:
             try:
                 self.exec_command('readpst',

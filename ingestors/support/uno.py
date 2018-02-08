@@ -22,7 +22,7 @@ class UnoconvSupport(object):
         return self.get_unoconv_url() is not None
 
     @property
-    def unoconv_client(self):
+    def uno_client(self):
         if not hasattr(self, '_unoconv_client'):
             self._unoconv_client = threading.local()
         if not hasattr(self._unoconv_client, 'session'):
@@ -39,13 +39,12 @@ class UnoconvSupport(object):
         out_path = join_path(temp_dir, '%s.pdf' % file_name)
         try:
             with open(file_path, 'rb') as fh:
-                data = {'format': 'pdf', 'doctype': 'document'}
                 files = {'file': (file_name, fh, DEFAULT)}
-                res = self.unoconv_client.post(self.get_unoconv_url(),
-                                               data=data,
-                                               files=files,
-                                               timeout=300.0,
-                                               stream=True)
+                res = self.uno_client.post(self.get_unoconv_url(),
+                                           data={'format': 'pdf'},
+                                           files=files,
+                                           timeout=300.0,
+                                           stream=True)
             length = 0
             with open(out_path, 'w') as fh:
                 for chunk in res.iter_content(chunk_size=None):
@@ -55,11 +54,11 @@ class UnoconvSupport(object):
             if length == 0:
                 raise ProcessingException("Could not convert to PDF.")
             return out_path
-        except RequestException:
+        except RequestException as ex:
             if retry > 0:
-                log.warning("unoservice not available, retry %s...", retry)
-                time.sleep(3)
-                return self.unoconv_to_pdf(file_path, temp_dir,
+                log.warning("unoservice error: %s, retries: %s", ex, retry)
+                time.sleep(10)
+                return self.unoconv_to_pdf(file_path,
+                                           temp_dir,
                                            retry=retry - 1)
-            log.exception('Error contacting unoservice.')
             raise ProcessingException("Could not convert to PDF.")

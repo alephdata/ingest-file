@@ -15,7 +15,7 @@ class OLESupport(object):
             try:
                 ole = OleFileIO(fh)
                 self.extract_olefileio_metadata(ole)
-            except RuntimeError:
+            except (RuntimeError, IOError):
                 # OLE reading can go fully recursive, at which point it's OK
                 # to just eat this runtime error quietly.
                 log.warning("Failed to read OLE data: %s", self.result)

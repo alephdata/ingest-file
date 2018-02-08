@@ -11,4 +11,4 @@ class OutlookPSTTest(TestCase):
         result = self.manager.ingest(fixture_path)
         # pprint(result.to_dict())
         self.assertEqual(len(result.children), 1)
-        self.assertIn('directory', result.flags)
+        self.assertIn('package', result.flags)

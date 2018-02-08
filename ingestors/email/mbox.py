@@ -17,7 +17,7 @@ class MboxFileIngestor(RFC822Ingestor, TempFileSupport):
     def ingest(self, file_path):
         mbox = mailbox.mbox(file_path)
         self.result.mime_type = self.DEFAULT_MIME
-        self.result.flag(self.result.FLAG_DIRECTORY)
+        self.result.flag(self.result.FLAG_PACKAGE)
         with self.create_temp_dir() as temp_dir:
             for i, msg in enumerate(mbox, 1):
                 msg_path = join_path(temp_dir, '%s.eml' % i)
