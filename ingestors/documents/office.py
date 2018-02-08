@@ -36,7 +36,7 @@ class DocumentIngestor(Ingestor, LibreOfficeSupport, OLESupport):
         'application/CDFV2-unknown',
         'application/CDFV2-corrupt'
     ]
-    EXTENSIONS = ['doc', 'ppt', 'rtf']
+    EXTENSIONS = ['doc', 'ppt', 'rtf', 'pot']
     SCORE = 5
 
     def ingest(self, file_path):

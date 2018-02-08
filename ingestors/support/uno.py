@@ -54,9 +54,9 @@ class UnoconvSupport(object):
             if length == 0:
                 raise ProcessingException("Could not convert to PDF.")
             return out_path
-        except RequestException as ex:
+        except RequestException:
+            log.exception("unoservice dead (retries: %s)", retry)
             if retry > 0:
-                log.warning("unoservice error: %s, retries: %s", ex, retry)
                 time.sleep(10)
                 return self.unoconv_to_pdf(file_path,
                                            temp_dir,
