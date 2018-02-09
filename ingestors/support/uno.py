@@ -43,7 +43,7 @@ class UnoconvSupport(object):
                 res = self.uno_client.post(self.get_unoconv_url(),
                                            data={'format': 'pdf'},
                                            files=files,
-                                           timeout=300.0,
+                                           timeout=None,
                                            stream=True)
             length = 0
             with open(out_path, 'w') as fh:
