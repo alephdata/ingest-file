@@ -26,39 +26,39 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
 
     def _parse_headers(self, message):
         headers = message.getField('007D')
-        try:
-            assert headers is not None
-            message = Parser().parsestr(headers, headersonly=True)
-            self.extract_headers_metadata(message.items())
-        except Exception as exc:
-            log.warning("Cannot parse Outlook headers: %s" % exc)
-            self.result.headers = safe_dict({
-                'Subject': message.getField('0037'),
-                'BCC': message.getField('0E02'),
-                'CC': message.getField('0E03'),
-                'To': message.getField('0E04'),
-                'From': message.getField('1046'),
-                'Message-ID': message.getField('1035'),
-            })
+        if headers is not None:
+            try:
+                message = Parser().parsestr(headers, headersonly=True)
+                self.extract_headers_metadata(message.items())
+                return
+            except Exception:
+                log.warning("Cannot parse headers: %s" % headers)
+
+        self.result.headers = safe_dict({
+            'Subject': message.getField('0037'),
+            'BCC': message.getField('0E02'),
+            'CC': message.getField('0E03'),
+            'To': message.getField('0E04'),
+            'From': message.getField('1046'),
+            'Message-ID': message.getField('1035'),
+        })
 
     def ingest(self, file_path):
         message = Message(file_path)
         self._parse_headers(message)
         self.extract_plain_text_content(message.getField('1000'))
         self.update('message_id', message.getField('1035'))
+
+        # all associated person names, i.e. sender, recipient etc.
+        NAME_FIELDS = ['0C1A', '0E04', '0040', '004D']
+        EMAIL_FIELDS = ['0C1F', '0076', '0078', '1046', '3003',
+                        '0065', '3FFC', '403E']
+        for field in NAME_FIELDS + EMAIL_FIELDS:
+            self.parse_emails(message.getField(field))
+
         self.update('title', message.getField('0037'))
         self.update('title', message.getField('0070'))
         self.update('author', message.getField('0C1A'))
-
-        # all associated person names, i.e. sender, recipient etc.
-        for field in ('0C1A', '0E04', '0040'):
-            value = message.getField(field)
-            self.result.entities.append(value)
-
-        # fields storing emails:
-        for field in ('0C1F', '0076', '0078'):
-            value = message.getField(field)
-            self.result.emails.append(value)
 
         # from pprint import pprint
         # pprint(self.result.to_dict())

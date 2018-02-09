@@ -123,24 +123,36 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
     EXTENSIONS = []
     SCORE = 15
 
-    def get_contacts(self, doc, tag, display=False):
-        emails = []
+    def get_email_addresses(self, doc, tag):
         path = './%s/emailAddress' % tag
         for address in doc.findall(path):
             email = safe_string(address.get('OPFContactEmailAddressAddress'))
-            self.result.emails.append(email)
+            if not self.check_email(email):
+                email = None
+            self.result.emit_email(email)
             name = safe_string(address.get('OPFContactEmailAddressName'))
-            if name is not None and name != email:
-                self.result.entities.append(name)
-                if email is not None and not display:
-                    email = '%s <%s>' % (name, email)
-                else:
-                    email = name
-            if email is not None:
+            if self.check_email(name):
+                name = None
+            if name or email:
+                yield (name, email)
+
+    def get_contacts(self, doc, tag, display=False):
+        emails = []
+        for (name, email) in self.get_email_addresses(doc, tag):
+            if name is None:
                 emails.append(email)
+            elif email is None:
+                emails.append(name)
+            else:
+                emails.append('%s <%s>' % (name, email))
 
         if len(emails):
-            return ', '.join(emails)
+            return '; '.join(emails)
+
+    def get_contact_name(self, doc, tag):
+        for (name, email) in self.get_email_addresses(doc, tag):
+            if name is not None:
+                return name
 
     def ingest(self, file_path):
         self.result.flag(self.result.FLAG_EMAIL)
@@ -174,18 +186,17 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
 
         self.update('title', props.pop('OPFMessageCopySubject', None))
         self.update('title', props.pop('OPFMessageCopyThreadTopic', None))
-        self.update('author', self.get_contacts(email,
-                                                'OPFMessageCopyFromAddresses',
-                                                display=True))
-        self.update('author', self.get_contacts(email,
-                                                'OPFMessageCopySenderAddress',
-                                                display=True))
+        for tag in ('OPFMessageCopyFromAddresses',
+                    'OPFMessageCopySenderAddress'):
+            self.update('author', self.get_contact_name(email, tag))
+
         self.update('summary', props.pop('OPFMessageCopyPreview', None))
         self.update('created_at', props.pop('OPFMessageCopySentTime', None))
         self.update('modified_at', props.pop('OPFMessageCopyModDate', None))
 
         body = props.pop('OPFMessageCopyBody', None)
         html = props.pop('OPFMessageCopyHTMLBody', None)
+
         has_html = '1E0' == props.pop('OPFMessageGetHasHTML', None)
         if has_html and safe_string(html):
             self.extract_html_content(html)

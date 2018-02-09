@@ -32,6 +32,8 @@ class Result(object):
         self.message_id = kwargs.get('message_id')
         self.title = kwargs.get('title')
         self.summary = kwargs.get('summary')
+        self.mime_type = kwargs.get('mime_type')
+        self.encoding = kwargs.get('encoding')
         self.date = kwargs.get('date')
         self.created_at = kwargs.get('created_at')
         self.modified_at = kwargs.get('modified_at')
@@ -41,9 +43,7 @@ class Result(object):
         self.keywords = kwargs.get('keywords') or []
         self.emails = kwargs.get('emails') or []
         self.entities = kwargs.get('entities') or []
-        self.mime_type = kwargs.get('mime_type')
-        self.encoding = kwargs.get('encoding')
-        self.languages = kwargs.get('languages')
+        self.languages = kwargs.get('languages') or []
         self.headers = kwargs.get('headers')
         self.error_message = None
         self.pages = []
@@ -80,6 +80,32 @@ class Result(object):
     def emit_pdf_alternative(self, file_path):
         self.pdf_path = safe_string(file_path)
 
+    def emit_email(self, text):
+        text = safe_string(text)
+        if text is None:
+            return
+        self.emails.append(text)
+
+    def emit_name(self, text):
+        text = safe_string(text)
+        if text is None:
+            return
+        self.entities.append(text)
+
+    def emit_keyword(self, text):
+        text = safe_string(text)
+        if text is None:
+            return
+        if text not in self.keywords:
+            self.keywords.append(text)
+
+    def emit_language(self, text):
+        text = safe_string(text)
+        if text is None:
+            return
+        if text not in self.keywords:
+            self.languages.append(text)
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -88,6 +114,8 @@ class Result(object):
             'message_id': self.message_id,
             'summary': self.summary,
             'keywords': self.keywords,
+            'entities': self.entities,
+            'emails': self.emails,
             'status': self.status,
             'file_path': self.file_path,
             'file_name': self.file_name,

@@ -1,12 +1,13 @@
 from __future__ import unicode_literals
 
+import re
 import six
 import rfc822
 import logging
 from time import mktime
 from datetime import datetime
 from flanker.addresslib import address
-from normality import safe_filename
+from normality import safe_filename, stringify
 
 from ingestors.support.html import HTMLSupport
 from ingestors.support.temp import TempFileSupport
@@ -14,6 +15,8 @@ from ingestors.support.plain import PlainTextSupport
 from ingestors.util import join_path, safe_string, safe_dict
 
 log = logging.getLogger(__name__)
+
+EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
 
 class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
@@ -41,6 +44,40 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
                                   file_name=name,
                                   mime_type=mime_type)
 
+    def check_email(self, text):
+        """Does it roughly look like an email?"""
+        if text is None:
+            return False
+        if EMAIL_REGEX.match(text):
+            return True
+        return False
+
+    def parse_emails(self, text):
+        """Parse an email list with the side effect of adding them to the
+        relevant result lists."""
+        parsed = address.parse_list(safe_string(text))
+
+        # If the snippet didn't parse, assume it is just a name.
+        if not len(parsed):
+            return [(text, None)]
+
+        values = []
+        for addr in parsed:
+            name = stringify(addr.display_name)
+            email = stringify(addr.address)
+
+            if not self.check_email(email):
+                email = None
+
+            if self.check_email(name):
+                email = email or name
+                name = None
+
+            self.result.emit_email(email)
+            self.result.emit_name(name)
+            values.append((name, email))
+        return values
+
     def extract_headers_metadata(self, headers):
         self.result.headers = safe_dict(dict(headers))
         headers = [(safe_string(k), safe_string(v)) for k, v in headers]
@@ -64,19 +101,8 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
                     log.warning("Failed to parse [%s]: %s", date, ex)
 
             if field == 'from':
-                addr = address.parse(value)
-                if addr is not None:
-                    author = safe_string(addr.display_name)
-                    email = safe_string(addr.address)
-                    self.result.emails.append(email)
-                    if author is not None and author != email:
-                        self.update('author', author)
-                        self.result.entities.append(author)
+                for (name, _) in self.parse_emails(value):
+                    self.update('author', name)
 
             if field in ['to', 'cc', 'bcc']:
-                for addr in address.parse_list(value):
-                    name = safe_string(addr.display_name)
-                    email = safe_string(addr.address)
-                    self.result.emails.append(email)
-                    if name is not None and name != email:
-                        self.result.entities.append(name)
+                self.parse_emails(value)

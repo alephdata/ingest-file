@@ -41,15 +41,10 @@ class OLESupport(object):
             self.update('generator', meta.creating_application)
             self.update('created_at', meta.create_time)
             self.update('modified_at', meta.last_saved_time)
+            self.result.emit_name(meta.company)
+            self.result.emit_language(meta.language)
+            # self.result.emit_keyword(meta.keywords)
 
-            if meta.company:
-                self.result.entities.append(meta.company)
-
-            if meta.language:
-                self.result.languages.append(meta.language)
-
-            if meta.keywords:
-                self.result.keywords.append(meta.keywords)
         except Exception:
             log.exception("OLE parsing error.")
 

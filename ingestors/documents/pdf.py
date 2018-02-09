@@ -27,9 +27,9 @@ class PDFIngestor(Ingestor, PDFSupport):
             self.update('message_id', xmp.xmpmm_documentId)
             for lang, title in xmp.dc_title.items():
                 self.update('title', title)
-                self.result.languages.append(lang)
+                self.result.emit_language(lang)
             self.update('generator', xmp.pdf_producer)
-            self.result.languages.extend(xmp.dc_language)
+            self.result.emit_language(xmp.dc_language)
             try:
                 self.update('created_at', xmp.xmp_createDate)
             except Exception:
@@ -51,7 +51,7 @@ class PDFIngestor(Ingestor, PDFSupport):
                 self.update('generator', meta.creator)
                 self.update('generator', meta.producer)
                 if meta.subject:
-                    self.result.keywords.append(meta.subject)
+                    self.result.emit_keyword(meta.subject)
 
             self.extract_xmp_metadata(pdf)
         # from pprint import pprint
