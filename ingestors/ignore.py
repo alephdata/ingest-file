@@ -49,6 +49,8 @@ class IgnoreIngestor(Ingestor):
 
     @classmethod
     def match(cls, file_path, result=None):
+        if result.size is not None and result.size == 0:
+            return cls.SCORE * 100
         if result.file_name in cls.NAMES:
             return cls.SCORE
         return super(IgnoreIngestor, cls).match(file_path, result=result)

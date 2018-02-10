@@ -29,7 +29,7 @@ class UnoconvSupport(object):
             self._unoconv_client.session = requests.Session()
         return self._unoconv_client.session
 
-    def unoconv_to_pdf(self, file_path, temp_dir, retry=3):
+    def unoconv_to_pdf(self, file_path, temp_dir, retry=5):
         """Converts an office document to PDF."""
         if not self.is_unoconv_available():
             raise ConfigurationException("UNOSERVICE_URL is missing.")

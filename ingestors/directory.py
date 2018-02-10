@@ -12,8 +12,6 @@ class DirectoryIngestor(Ingestor):
         '.git',
         '.hg',
         '__MACOSX',
-        '.DS_Store',
-        'Thumbs.db',
         '.gitignore'
     ]
 
