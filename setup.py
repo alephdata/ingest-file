@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ingestors',
-    version='0.7.5',
+    version='0.7.6',
     description="Ingestors extract useful information in a structured standard format.",  # noqa
     author="Organized Crime and Corruption Reporting Project",
     author_email='tech@occrp.org',
@@ -15,7 +15,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'banal >= 0.1',
-        'normality >= 0.5.8',
+        'normality >= 0.5.11',
         'celestial >= 0.2.0',
         'urllib3 >= 1.21',
         'requests >= 2.18.4',
