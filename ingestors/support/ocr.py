@@ -1,20 +1,16 @@
 import logging
 from hashlib import sha1
 from banal import ensure_list
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
-from PIL import Image
-from PIL.Image import DecompressionBombWarning
 from tesserocr import PyTessBaseAPI
 
 from ingestors.support.ocr_languages import LANGUAGES
+from ingestors.support.image import ImageSupport
+from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
 
-class OCRSupport(object):
+class OCRSupport(ImageSupport):
     """Provides helper for OCR tasks. Requires a Tesseract installation."""
     # https://tesserwrap.readthedocs.io/en/latest/#
     # https://pillow.readthedocs.io/en/3.0.x/reference/Image.html
@@ -43,7 +39,7 @@ class OCRSupport(object):
         languages.add('eng')
         return '+'.join(sorted(set(languages)))
 
-    def extract_text_from_image(self, data):
+    def extract_text_from_image(self, data, image=None):
         """Extract text from a binary string of data."""
         tessdata = '/usr/share/tesseract-ocr/'
         tessdata = self.manager.get_env('TESSDATA_PREFIX', tessdata)
@@ -58,23 +54,17 @@ class OCRSupport(object):
 
         api = PyTessBaseAPI(lang=languages, path=tessdata)
         try:
-            image = Image.open(StringIO(data))
+            image = image or self.parse_image(data)
             # TODO: play with contrast and sharpening the images.
             api.SetImage(image)
             text = api.GetUTF8Text()
-        except DecompressionBombWarning as dce:
-            log.warning("Image too large: %r", dce)
-            return None
-        except IOError as ioe:
-            log.warning("Unknown image format: %r", ioe)
-            return None
-        except RuntimeError as err:
-            log.warning("Failed to load image: %r", err)
+        except ProcessingException as pe:
+            log.warning(pe)
             return None
         finally:
             api.Clear()
 
-        log.debug('[%s] OCR: %s, %s characters extracted',
-                  self.result, languages, len(text))
+        log.info('[%s] OCR: %s, %s characters extracted',
+                 self.result, languages, len(text))
         self.manager.set_cache(key, text)
         return text

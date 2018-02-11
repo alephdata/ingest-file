@@ -78,7 +78,7 @@ setup(
             'ooxml = ingestors.documents.ooxml:OfficeOpenXMLIngestor',
             'image = ingestors.documents.image:ImageIngestor',
             'tiff = ingestors.documents.tiff:TIFFIngestor',
-            'svg = ingestors.documents.image:SVGIngestor',
+            'svg = ingestors.documents.svg:SVGIngestor',
             'djvu = ingestors.documents.djvu:DjVuIngestor',
             'pdf = ingestors.documents.pdf:PDFIngestor',
             'rar = ingestors.packages:RARIngestor',

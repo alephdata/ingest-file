@@ -1,17 +1,15 @@
 import logging
 from datetime import datetime
-from PIL import Image, ExifTags
-from PIL.Image import DecompressionBombWarning
+from PIL import ExifTags
 
 from ingestors.base import Ingestor
-from ingestors.support.pdf import PDFSupport
-from ingestors.exc import ProcessingException
-from ingestors.util import join_path
+from ingestors.support.ocr import OCRSupport
+from ingestors.support.plain import PlainTextSupport
 
 log = logging.getLogger(__name__)
 
 
-class ImageIngestor(Ingestor, PDFSupport):
+class ImageIngestor(Ingestor, OCRSupport, PlainTextSupport):
     """Image file ingestor class.
 
     Extracts the text from images using OCR.
@@ -37,9 +35,6 @@ class ImageIngestor(Ingestor, PDFSupport):
         'bmp'
     ]
     SCORE = 5
-
-    MIN_WIDTH = 100
-    MIN_HEIGHT = 100
 
     def parse_exif_date(self, date):
         try:
@@ -77,41 +72,10 @@ class ImageIngestor(Ingestor, PDFSupport):
     def ingest(self, file_path):
         self.result.flag(self.result.FLAG_IMAGE)
         with open(file_path, 'r') as fh:
-            try:
-                img = Image.open(fh)
-            except DecompressionBombWarning as dce:
-                raise ProcessingException("Image too large: %s", dce)
-            except IOError as ioe:
-                raise ProcessingException("Cannot open image: %s", ioe)
+            data = fh.read()
 
-        self.extract_exif(img)
-        if img.width >= self.MIN_WIDTH and img.height >= self.MIN_HEIGHT:
-            pdf_path = join_path(self.work_path, 'image.pdf')
-            self.exec_command('convert',
-                              file_path,
-                              '-density', '300',
-                              '-define',
-                              'pdf:fit-page=A4',
-                              pdf_path)
-            self.assert_outfile(pdf_path)
-            self.pdf_alternative_extract(pdf_path)
+        image = self.parse_image(data)
+        self.extract_exif(image)
 
-
-class SVGIngestor(Ingestor, PDFSupport):
-    MIME_TYPES = [
-        'image/svg+xml'
-    ]
-    EXTENSIONS = ['svg']
-    SCORE = 20
-
-    def ingest(self, file_path):
-        pdf_path = join_path(self.work_path, 'image.pdf')
-        self.exec_command('convert',
-                          file_path,
-                          '-density', '300',
-                          '-define',
-                          'pdf:fit-page=A4',
-                          pdf_path)
-        self.assert_outfile(pdf_path)
-        self.result.flag(self.result.FLAG_IMAGE)
-        self.pdf_alternative_extract(pdf_path)
+        text = self.extract_text_from_image(data, image=image)
+        self.extract_plain_text_content(text)
