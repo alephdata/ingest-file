@@ -1,4 +1,4 @@
-FROM alephdata/platform:2.0.0
+FROM alephdata/platform:2.0.1
 
 COPY . /ingestors
 WORKDIR /ingestors

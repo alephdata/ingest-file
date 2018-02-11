@@ -14,6 +14,7 @@ setup(
     package_dir={'ingestors': 'ingestors'},
     include_package_data=True,
     install_requires=[
+        'six >= 1.11.0',
         'banal >= 0.1',
         'normality >= 0.5.11',
         'celestial >= 0.2.0',
