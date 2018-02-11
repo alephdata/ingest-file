@@ -22,7 +22,7 @@ EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
 class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
     """Extract metadata from email messages."""
 
-    def ingest_attachment(self, name, mime_type, body, temp_dir):
+    def ingest_attachment(self, name, mime_type, body):
         has_body = body is not None and len(body)
         if safe_string(name) is None and not has_body:
             # Hello, Outlook.
@@ -32,7 +32,7 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
         name = safe_string(name) or file_name
         foreign_id = join_path(self.result.id, name)
 
-        file_path = join_path(temp_dir, file_name)
+        file_path = join_path(self.work_path, file_name)
         with open(file_path, 'w') as fh:
             if isinstance(body, six.text_type):
                 body = body.encode('utf-8')

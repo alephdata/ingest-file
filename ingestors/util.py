@@ -67,7 +67,7 @@ def make_directory(*parts):
         os.makedirs(file_path)
     except Exception:
         pass
-    return file_path
+    return decode_path(file_path)
 
 
 def remove_directory(file_path):

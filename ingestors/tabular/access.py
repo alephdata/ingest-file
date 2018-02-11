@@ -1,13 +1,11 @@
-import os
 from normality import safe_filename
 
 from ingestors.base import Ingestor
-from ingestors.support.temp import TempFileSupport
 from ingestors.support.shell import ShellSupport
 from ingestors.util import join_path
 
 
-class AccessIngestor(Ingestor, TempFileSupport, ShellSupport):
+class AccessIngestor(Ingestor, ShellSupport):
     MIME_TYPES = [
         'application/msaccess',
         'application/x-msaccess',
@@ -33,14 +31,13 @@ class AccessIngestor(Ingestor, TempFileSupport, ShellSupport):
 
     def ingest(self, file_path):
         self.result.flag(self.result.FLAG_WORKBOOK)
-        with self.create_temp_dir() as temp_dir:
-            for table_name in self.get_tables(file_path):
-                csv_name = safe_filename(table_name, extension='csv')
-                csv_path = join_path(temp_dir, csv_name)
-                self.dump_table(file_path, table_name, csv_path)
-                child_id = join_path(self.result.id, table_name)
-                self.manager.handle_child(self.result, csv_path,
-                                          id=child_id,
-                                          title=table_name,
-                                          file_name=csv_name,
-                                          mime_type='text/csv')
+        for table_name in self.get_tables(file_path):
+            csv_name = safe_filename(table_name, extension='csv')
+            csv_path = join_path(self.work_path, csv_name)
+            self.dump_table(file_path, table_name, csv_path)
+            child_id = join_path(self.result.id, table_name)
+            self.manager.handle_child(self.result, csv_path,
+                                      id=child_id,
+                                      title=table_name,
+                                      file_name=csv_name,
+                                      mime_type='text/csv')

@@ -86,16 +86,15 @@ class ImageIngestor(Ingestor, PDFSupport):
 
         self.extract_exif(img)
         if img.width >= self.MIN_WIDTH and img.height >= self.MIN_HEIGHT:
-            with self.create_temp_dir() as temp_dir:
-                pdf_path = join_path(temp_dir, 'image.pdf')
-                self.exec_command('convert',
-                                  file_path,
-                                  '-density', '300',
-                                  '-define',
-                                  'pdf:fit-page=A4',
-                                  pdf_path)
-                self.assert_outfile(pdf_path)
-                self.pdf_alternative_extract(pdf_path)
+            pdf_path = join_path(self.work_path, 'image.pdf')
+            self.exec_command('convert',
+                              file_path,
+                              '-density', '300',
+                              '-define',
+                              'pdf:fit-page=A4',
+                              pdf_path)
+            self.assert_outfile(pdf_path)
+            self.pdf_alternative_extract(pdf_path)
 
 
 class SVGIngestor(Ingestor, PDFSupport):
@@ -106,14 +105,13 @@ class SVGIngestor(Ingestor, PDFSupport):
     SCORE = 20
 
     def ingest(self, file_path):
-        with self.create_temp_dir() as temp_dir:
-            pdf_path = join_path(temp_dir, 'image.pdf')
-            self.exec_command('convert',
-                              file_path,
-                              '-density', '300',
-                              '-define',
-                              'pdf:fit-page=A4',
-                              pdf_path)
-            self.assert_outfile(pdf_path)
-            self.result.flag(self.result.FLAG_IMAGE)
-            self.pdf_alternative_extract(pdf_path)
+        pdf_path = join_path(self.work_path, 'image.pdf')
+        self.exec_command('convert',
+                          file_path,
+                          '-density', '300',
+                          '-define',
+                          'pdf:fit-page=A4',
+                          pdf_path)
+        self.assert_outfile(pdf_path)
+        self.result.flag(self.result.FLAG_IMAGE)
+        self.pdf_alternative_extract(pdf_path)

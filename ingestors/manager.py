@@ -107,7 +107,7 @@ class Manager(object):
         if result.size is None:
             result.size = os.path.getsize(file_path)
 
-    def ingest(self, file_path, result=None, ingestor_class=None):
+    def ingest(self, file_path, result=None, work_path=None):
         """Main execution step of an ingestor."""
         if result is None:
             result = self.RESULT_CLASS(file_path=file_path)
@@ -116,12 +116,11 @@ class Manager(object):
         self.before(result)
         result.status = Result.STATUS_PENDING
         try:
-            if ingestor_class is None:
-                ingestor_class = self.auction(file_path, result)
-                log.debug("Ingestor [%s, %s]: %s", result,
-                          result.mime_type, ingestor_class.__name__)
-
-            self.delegate(ingestor_class, result, file_path)
+            ingestor_class = self.auction(file_path, result)
+            log.debug("Ingestor [%s, %s]: %s", result,
+                      result.mime_type, ingestor_class.__name__)
+            self.delegate(ingestor_class, result, file_path,
+                          work_path=work_path)
             result.status = Result.STATUS_SUCCESS
         except ProcessingException as pexc:
             result.error_message = safe_string(pexc)
@@ -134,6 +133,9 @@ class Manager(object):
 
         return result
 
-    def delegate(self, ingestor_class, result, file_path):
-        ingestor = ingestor_class(self, result)
-        ingestor.ingest(file_path)
+    def delegate(self, ingestor_class, result, file_path, work_path=None):
+        ingestor = ingestor_class(self, result, work_path=work_path)
+        try:
+            ingestor.ingest(file_path)
+        finally:
+            ingestor.cleanup()

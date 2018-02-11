@@ -22,11 +22,10 @@ class TIFFIngestor(Ingestor, PDFSupport):
 
     def ingest(self, file_path):
         self.result.flag(self.result.FLAG_PDF)
-        with self.create_temp_dir() as temp_dir:
-            pdf_path = join_path(temp_dir, 'tiff.pdf')
-            self.exec_command('convert',
-                              file_path,
-                              '-density', '300',
-                              pdf_path)
-            self.assert_outfile(pdf_path)
-            self.pdf_alternative_extract(pdf_path)
+        pdf_path = join_path(self.work_path, 'tiff.pdf')
+        self.exec_command('convert',
+                          file_path,
+                          '-density', '300',
+                          pdf_path)
+        self.assert_outfile(pdf_path)
+        self.pdf_alternative_extract(pdf_path)

@@ -1,17 +1,10 @@
-import contextlib
-import tempfile
+from uuid import uuid4
 
-from ingestors.util import decode_path, remove_directory
+from ingestors.util import make_directory
 
 
 class TempFileSupport(object):
     """Provides helpers for file system related tasks."""
 
-    @contextlib.contextmanager
-    def create_temp_dir(self, *args, **kwargs):
-        """Creates a temporary folder and removes it later."""
-        temp_dir = tempfile.mkdtemp(*args, **kwargs)
-        try:
-            yield decode_path(temp_dir)
-        finally:
-            remove_directory(temp_dir)
+    def make_empty_directory(self):
+        return make_directory(self.work_path, uuid4().hex)

@@ -1,11 +1,10 @@
 import mailbox
 
 from ingestors.email.msg import RFC822Ingestor
-from ingestors.support.temp import TempFileSupport
 from ingestors.util import join_path
 
 
-class MboxFileIngestor(RFC822Ingestor, TempFileSupport):
+class MboxFileIngestor(RFC822Ingestor):
     DEFAULT_MIME = 'application/mbox'
     MIME_TYPES = [DEFAULT_MIME]
     EXTENSIONS = [
@@ -18,17 +17,17 @@ class MboxFileIngestor(RFC822Ingestor, TempFileSupport):
         mbox = mailbox.mbox(file_path)
         self.result.mime_type = self.DEFAULT_MIME
         self.result.flag(self.result.FLAG_PACKAGE)
-        with self.create_temp_dir() as temp_dir:
-            for i, msg in enumerate(mbox, 1):
-                msg_path = join_path(temp_dir, '%s.eml' % i)
-                with open(msg_path, 'wb') as fh:
-                    fh.write(msg.as_string())
 
-                child_id = join_path(self.result.id, str(i))
-                self.manager.handle_child(self.result,
-                                          msg_path,
-                                          id=child_id,
-                                          mime_type='message/rfc822')
+        for i, msg in enumerate(mbox, 1):
+            msg_path = join_path(self.work_path, '%s.eml' % i)
+            with open(msg_path, 'wb') as fh:
+                fh.write(msg.as_string())
+
+            child_id = join_path(self.result.id, str(i))
+            self.manager.handle_child(self.result,
+                                      msg_path,
+                                      id=child_id,
+                                      mime_type='message/rfc822')
 
     @classmethod
     def match(cls, file_path, result=None):

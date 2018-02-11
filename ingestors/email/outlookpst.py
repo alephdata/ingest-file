@@ -15,19 +15,19 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport, OLESupport):
     def ingest(self, file_path):
         self.extract_ole_metadata(file_path)
         self.result.flag(self.result.FLAG_PACKAGE)
-        with self.create_temp_dir() as temp_dir:
-            try:
-                self.exec_command('readpst',
-                                  '-e',  # make subfolders, files per message
-                                  '-D',  # include deleted
-                                  '-r',  # recursive structure
-                                  '-8',  # utf-8 where possible
-                                  '-b',
-                                  '-q',  # quiet
-                                  '-o', temp_dir,
-                                  file_path)
-                self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
-            except Exception:
-                # Handle partially extracted archives.
-                self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
-                raise
+        temp_dir = self.make_empty_directory()
+        try:
+            self.exec_command('readpst',
+                              '-e',  # make subfolders, files per message
+                              '-D',  # include deleted
+                              '-r',  # recursive structure
+                              '-8',  # utf-8 where possible
+                              '-b',
+                              '-q',  # quiet
+                              '-o', temp_dir,
+                              file_path)
+            self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
+        except Exception:
+            # Handle partially extracted archives.
+            self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
+            raise

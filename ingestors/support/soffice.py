@@ -12,13 +12,13 @@ log = logging.getLogger(__name__)
 class LibreOfficeSupport(PDFSupport, UnoconvSupport):
     """Provides helpers for Libre/Open Office tools."""
 
-    def document_to_pdf(self, file_path, temp_dir):
+    def document_to_pdf(self, file_path):
         """Converts an office document to PDF."""
         if self.is_unoconv_available():
-            return self.unoconv_to_pdf(file_path, temp_dir)
+            return self.unoconv_to_pdf(file_path)
 
-        instance_dir = make_directory(temp_dir, 'soffice_instance')
-        out_dir = make_directory(temp_dir, 'soffice_output')
+        instance_dir = make_directory(self.work_path, 'soffice_instance')
+        out_dir = make_directory(self.work_path, 'soffice_output')
         log.info('Converting [%s] to PDF...', self.result)
         instance_dir = '-env:UserInstallation=file://{}'.format(instance_dir)
         self.exec_command('soffice',

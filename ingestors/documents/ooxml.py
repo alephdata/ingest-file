@@ -26,6 +26,5 @@ class OfficeOpenXMLIngestor(Ingestor, LibreOfficeSupport, OOXMLSupport):
         """Ingestor implementation."""
         self.result.flag(self.result.FLAG_PDF)
         self.ooxml_extract_metadata(file_path)
-        with self.create_temp_dir() as temp_dir:
-            pdf_path = self.document_to_pdf(file_path, temp_dir)
-            self.pdf_alternative_extract(pdf_path)
+        pdf_path = self.document_to_pdf(file_path)
+        self.pdf_alternative_extract(pdf_path)

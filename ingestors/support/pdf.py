@@ -20,26 +20,26 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
         on individual images within the file.
         """
         self.result.flag(self.result.FLAG_PDF)
-        with self.create_temp_dir() as temp_dir:
-            out_path = os.path.join(temp_dir, 'pdf.xml')
-            self.exec_command('pdftohtml',
-                              '-xml',
-                              '-hidden',
-                              '-q',
-                              '-nodrm',
-                              # '-enc', 'utf-8',
-                              file_path,
-                              out_path)
-            self.assert_outfile(out_path)
+        temp_dir = self.make_empty_directory()
+        out_path = os.path.join(temp_dir, 'pdf.xml')
+        self.exec_command('pdftohtml',
+                          '-xml',
+                          '-hidden',
+                          '-q',
+                          '-nodrm',
+                          # '-enc', 'utf-8',
+                          file_path,
+                          out_path)
+        self.assert_outfile(out_path)
 
-            with open(out_path, 'r') as fh:
-                xml = fh.read().decode('utf-8', 'replace')
-                xml = xml.replace('encoding="UTF-8"', '')
-                parser = etree.XMLParser(recover=True, remove_comments=True)
-                doc = etree.fromstring(xml, parser=parser)
+        with open(out_path, 'r') as fh:
+            xml = fh.read().decode('utf-8', 'replace')
+            xml = xml.replace('encoding="UTF-8"', '')
+            parser = etree.XMLParser(recover=True, remove_comments=True)
+            doc = etree.fromstring(xml, parser=parser)
 
-            for page in doc.findall('./page'):
-                self.pdf_extract_page(file_path, temp_dir, page)
+        for page in doc.findall('./page'):
+            self.pdf_extract_page(file_path, temp_dir, page)
 
     def pdf_alternative_extract(self, pdf_path):
         self.result.emit_pdf_alternative(pdf_path)

@@ -15,6 +15,7 @@ from ingestors.support.email import EmailSupport
 from ingestors.support.temp import TempFileSupport
 from ingestors.exc import ProcessingException
 from ingestors.util import safe_string, safe_dict
+from ingestors.util import remove_directory
 
 log = logging.getLogger(__name__)
 MIME = 'application/xml+opfmessage'
@@ -90,8 +91,9 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
         if 'message_' not in name or not name.endswith('.xml'):
             return
         parent = self.extract_hierarchy(name)
-        with self.create_temp_dir() as temp_dir:
-            xml_path = self.extract_file(zipf, name, temp_dir)
+        message_dir = self.make_empty_directory()
+        try:
+            xml_path = self.extract_file(zipf, name, message_dir)
             foreign_id = os.path.join(self.result.id, name)
             message = self.manager.handle_child(parent,
                                                 xml_path,
@@ -100,9 +102,11 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
             try:
                 doc = self.parse_xml(xml_path)
                 for el in doc.findall('.//messageAttachment'):
-                    self.extract_attachment(zipf, message, el, temp_dir)
+                    self.extract_attachment(zipf, message, el, message_dir)
             except TypeError:
                 pass  # this will be reported for the individual file.
+        finally:
+            remove_directory(message_dir)
 
     def ingest(self, file_path):
         self._hierarchy = {}

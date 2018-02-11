@@ -28,11 +28,10 @@ class RFC822Ingestor(Ingestor, EmailSupport):
     SCORE = 6
 
     def ingest(self, file_path):
-        with self.create_temp_dir() as temp_dir:
-            with open(file_path, 'rb') as fh:
-                self.ingest_message(fh.read(), temp_dir)
+        with open(file_path, 'rb') as fh:
+            self.ingest_message(fh.read())
 
-    def ingest_message(self, data, temp_dir):
+    def ingest_message(self, data):
         try:
             msg = mime.from_string(data)
             self.update('title', msg.clean_subject)
@@ -72,8 +71,7 @@ class RFC822Ingestor(Ingestor, EmailSupport):
             if part.is_attachment():
                 self.ingest_attachment(file_name,
                                        mime_type,
-                                       part.body,
-                                       temp_dir)
+                                       part.body)
 
             if part.is_body():
                 bodies[mime_type].append(part.body)

@@ -1,8 +1,9 @@
 import logging
+from tempfile import mkdtemp
 from datetime import date, datetime
 from celestial import normalize_mimetype
 from ingestors.util import normalize_extension
-from ingestors.util import safe_string
+from ingestors.util import safe_string, remove_directory
 
 log = logging.getLogger(__name__)
 
@@ -13,9 +14,12 @@ class Ingestor(object):
     EXTENSIONS = []
     SCORE = 3
 
-    def __init__(self, manager, result):
+    def __init__(self, manager, result, work_path=None):
         self.manager = manager
         self.result = result
+        if work_path is None:
+            work_path = mkdtemp(prefix='ingestor-')
+        self.work_path = work_path
 
     def ingest(self, file_path):
         """The ingestor implementation. Should be overwritten.
@@ -24,6 +28,9 @@ class Ingestor(object):
         Use the ``result`` attribute to store any resulted data.
         """
         raise NotImplemented()
+
+    def cleanup(self):
+        remove_directory(self.work_path)
 
     def update(self, name, value):
         """Set a metadata value if it is not already set with a value."""

@@ -66,14 +66,12 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
         self.extract_olefileio_metadata(message)
         self.result.flag(self.result.FLAG_EMAIL)
         self.result.flag(self.result.FLAG_PLAINTEXT)
-        with self.create_temp_dir() as temp_dir:
-            for attachment in message.attachments:
-                name = safe_string(attachment.longFilename)
-                name = name or safe_string(attachment.shortFilename)
-                self.ingest_attachment(name,
-                                       attachment.mimeType,
-                                       attachment.data,
-                                       temp_dir)
+        for attachment in message.attachments:
+            name = safe_string(attachment.longFilename)
+            name = name or safe_string(attachment.shortFilename)
+            self.ingest_attachment(name,
+                                   attachment.mimeType,
+                                   attachment.data)
 
     @classmethod
     def match(cls, file_path, result=None):

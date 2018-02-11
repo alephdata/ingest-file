@@ -54,13 +54,13 @@ class PackageSupport(TempFileSupport, EncodingSupport):
 
     def ingest(self, file_path):
         self.result.flag(self.result.FLAG_PACKAGE)
-        with self.create_temp_dir() as temp_dir:
-            try:
-                log.info("Descending: %s", self.result)
-                self.unpack(file_path, temp_dir)
-                self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
-            except rarfile.NeedFirstVolume:
-                pass
+        temp_dir = self.make_empty_directory()
+        try:
+            log.info("Descending: %s", self.result)
+            self.unpack(file_path, temp_dir)
+            self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
+        except rarfile.NeedFirstVolume:
+            pass
 
     def unpack(self, file_path, temp_dir):
         pass

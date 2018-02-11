@@ -29,14 +29,14 @@ class UnoconvSupport(object):
             self._unoconv_client.session = requests.Session()
         return self._unoconv_client.session
 
-    def unoconv_to_pdf(self, file_path, temp_dir, retry=5):
+    def unoconv_to_pdf(self, file_path, retry=5):
         """Converts an office document to PDF."""
         if not self.is_unoconv_available():
             raise ConfigurationException("UNOSERVICE_URL is missing.")
 
         log.info('Converting [%s] to PDF...', self.result)
         file_name = os.path.basename(file_path)
-        out_path = join_path(temp_dir, '%s.pdf' % file_name)
+        out_path = join_path(self.work_path, '%s.pdf' % file_name)
         try:
             with open(file_path, 'rb') as fh:
                 files = {'file': (file_name, fh, DEFAULT)}
@@ -58,7 +58,5 @@ class UnoconvSupport(object):
             log.exception("unoservice dead (retries: %s)", retry)
             if retry > 0:
                 time.sleep(10)
-                return self.unoconv_to_pdf(file_path,
-                                           temp_dir,
-                                           retry=retry - 1)
+                return self.unoconv_to_pdf(file_path, retry=retry - 1)
             raise ProcessingException("Could not convert to PDF.")
