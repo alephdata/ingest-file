@@ -1,4 +1,4 @@
-FROM alephdata/platform:2.0.1
+FROM alephdata/platform:2.0.2
 
 RUN apt-get -qq -y update \
     && apt-get -qq -y upgrade \
