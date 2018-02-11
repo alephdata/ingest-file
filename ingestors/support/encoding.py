@@ -13,20 +13,21 @@ class EncodingSupport(object):
     DEFAULT_ENCODING = 'utf-8'
 
     def detect_stream_encoding(self, fh):
-        return guess_file_encoding(fh, self.DEFAULT_ENCODING)
+        return guess_file_encoding(fh, default=self.DEFAULT_ENCODING)
 
     def read_file_decoded(self, file_path):
+        encoding = self.result.encoding
         with open(file_path, 'rb') as fh:
-            encoding = self.detect_stream_encoding(fh)
+            if encoding is None:
+                encoding = self.detect_stream_encoding(fh)
             body = fh.read()
 
-        if encoding != self.DEFAULT_ENCODING:
-            log.info("Decoding [%s] as: %s", self.result, encoding)
         try:
-            body = body.decode(encoding, 'replace')
-            if not self.result.encoding:
-                self.result.encoding = encoding
+            body = body.decode(encoding)
+            if encoding != self.DEFAULT_ENCODING:
+                log.info("Decoding [%s] as: %s", self.result, encoding)
+            # self.result.encoding = encoding
             return body
         except UnicodeDecodeError as ude:
-            raise ProcessingException('Error decoding file [%s]: %s' %
+            raise ProcessingException('Error decoding file  as %s: %s' %
                                       (encoding, ude))
