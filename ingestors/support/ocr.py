@@ -1,7 +1,8 @@
 import logging
+from threading import local
 from hashlib import sha1
 from banal import ensure_list
-from tesserocr import PyTessBaseAPI
+from tesserocr import PyTessBaseAPI, PSM  # noqa
 
 from ingestors.support.ocr_languages import LANGUAGES
 from ingestors.support.image import ImageSupport
@@ -12,8 +13,7 @@ log = logging.getLogger(__name__)
 
 class OCRSupport(ImageSupport):
     """Provides helper for OCR tasks. Requires a Tesseract installation."""
-    # https://tesserwrap.readthedocs.io/en/latest/#
-    # https://pillow.readthedocs.io/en/3.0.x/reference/Image.html
+    thread = local()
 
     def normalize_language(self, language):
         # tesserocr.get_languages()
@@ -52,19 +52,28 @@ class OCRSupport(ImageSupport):
         if text is not None:
             return text
 
-        api = PyTessBaseAPI(lang=languages, path=tessdata)
+        if not hasattr(self.thread, 'api'):
+            self.thread.api = PyTessBaseAPI(lang=languages, path=tessdata)
+        else:
+            self.thread.api.Init(path=tessdata, lang=languages)
+
         try:
             image = image or self.parse_image(data)
             # TODO: play with contrast and sharpening the images.
-            api.SetImage(image)
-            text = api.GetUTF8Text()
+
+            self.thread.api.SetPageSegMode(PSM.AUTO_OSD)
+            self.thread.api.SetImage(image)
+            text = self.thread.api.GetUTF8Text()
         except ProcessingException as pe:
             log.warning(pe)
             return None
         finally:
-            api.Clear()
+            self.thread.api.Clear()
 
         log.info('[%s] OCR: %s, %s characters extracted',
                  self.result, languages, len(text))
+
+        # from normality import collapse_spaces
+        # print collapse_spaces(text)
         self.manager.set_cache(key, text)
         return text

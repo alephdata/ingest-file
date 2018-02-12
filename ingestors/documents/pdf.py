@@ -74,5 +74,5 @@ class PDFIngestor(Ingestor, PDFSupport):
         if score <= 0:
             with open(file_path, 'r') as fh:
                 if fh.read(len(cls.MAGIC)) == cls.MAGIC:
-                    return cls.SCORE
+                    return cls.SCORE * 2
         return score

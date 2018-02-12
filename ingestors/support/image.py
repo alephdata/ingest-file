@@ -14,7 +14,9 @@ class ImageSupport(object):
     def parse_image(self, data):
         """Parse an image file into PIL."""
         try:
-            return Image.open(StringIO(data))
+            image = Image.open(StringIO(data))
+            image.load()
+            return image
         except DecompressionBombWarning as dce:
             raise ProcessingException("Image too large: %r" % dce)
         except IOError as ioe:
