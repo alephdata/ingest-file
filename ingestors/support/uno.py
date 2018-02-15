@@ -4,7 +4,7 @@ import logging
 import requests
 import threading
 from celestial import DEFAULT
-from requests.exceptions import RequestException
+from requests.exceptions import RequestException, ReadTimeout
 
 from ingestors.exc import ConfigurationException, ProcessingException
 from ingestors.util import join_path
@@ -29,7 +29,7 @@ class UnoconvSupport(object):
             self._unoconv_client.session = requests.Session()
         return self._unoconv_client.session
 
-    def unoconv_to_pdf(self, file_path, retry=6):
+    def unoconv_to_pdf(self, file_path, retry=10):
         """Converts an office document to PDF."""
         if not self.is_unoconv_available():
             raise ConfigurationException("UNOSERVICE_URL is missing.")
@@ -43,21 +43,29 @@ class UnoconvSupport(object):
                     files = {'file': (file_name, fh, DEFAULT)}
                     res = self.unoconv.post(self.get_unoconv_url(),
                                             files=files,
-                                            timeout=3600,
+                                            timeout=600,
                                             stream=True)
 
-                res.raise_for_status()
-                length = 0
+                # check for busy signal
+                if res.status_code > 399:
+                    log.info("unoservice HTTP error: %s", res.status_code)
+                    # wait for TTL on RR DNS to expire.
+                    time.sleep(2)
+                    continue
+
                 with open(out_path, 'w') as fh:
                     for chunk in res.iter_content(chunk_size=None):
-                        length += len(chunk)
                         fh.write(chunk)
 
-                if length == 0:
+                if not os.path.getsize(out_path):
                     raise ProcessingException("Could not convert to PDF.")
                 return out_path
+            except ReadTimeout:
+                # file is too big or in a format that makes libreoffice
+                # crash. We'll give up immediately, not try again.
+                break
             except RequestException:
                 log.exception("unoservice failed (attempt: %s)", attempt)
                 time.sleep(3)
 
-        raise ConfigurationException("PDF conversion service has failed.")
+        raise ConfigurationException("PDF conversion has failed.")
