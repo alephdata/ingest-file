@@ -64,6 +64,9 @@ class OCRSupport(ImageSupport):
             self.thread.api.SetPageSegMode(PSM.AUTO_OSD)
             self.thread.api.SetImage(image)
             text = self.thread.api.GetUTF8Text()
+        except RuntimeError as re:
+            log.warning(re)
+            return None
         except ProcessingException as pe:
             log.warning(pe)
             return None
