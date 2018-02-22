@@ -1,8 +1,12 @@
+import logging
 from normality import safe_filename
 
 from ingestors.base import Ingestor
 from ingestors.support.shell import ShellSupport
+from ingestors.exc import ProcessingException
 from ingestors.util import join_path
+
+log = logging.getLogger(__name__)
 
 
 class AccessIngestor(Ingestor, ShellSupport):
@@ -19,8 +23,12 @@ class AccessIngestor(Ingestor, ShellSupport):
 
     def get_tables(self, local_path):
         mdb_tables = self.find_command('mdb-tables')
-        output = self.subprocess.check_output([mdb_tables, local_path])
-        return [t.strip() for t in output.split(' ') if len(t.strip())]
+        try:
+            output = self.subprocess.check_output([mdb_tables, local_path])
+            return [t.strip() for t in output.split(' ') if len(t.strip())]
+        except self.subprocess.CalledProcessError as cpe:
+            log.warning("Failed to open MDB: %s", cpe)
+            raise ProcessingException("Failed to extract Access database.")
 
     def dump_table(self, file_path, table_name, csv_path):
         mdb_export = self.find_command('mdb-export')

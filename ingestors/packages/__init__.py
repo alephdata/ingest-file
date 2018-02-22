@@ -6,6 +6,7 @@ import tarfile
 from ingestors.base import Ingestor
 from ingestors.support.shell import ShellSupport
 from ingestors.support.package import PackageSupport
+from ingestors.exc import ProcessingException
 from ingestors.util import join_path
 
 
@@ -62,9 +63,12 @@ class GzipIngestor(SingleFilePackageIngestor):
     ]
 
     def unpack_file(self, file_path, temp_file):
-        with gzip.GzipFile(file_path) as src:
-            with open(temp_file, 'wb') as dst:
-                shutil.copyfileobj(src, dst)
+        try:
+            with gzip.GzipFile(file_path) as src:
+                with open(temp_file, 'wb') as dst:
+                    shutil.copyfileobj(src, dst)
+        except IOError as ioe:
+            raise ProcessingException('Error: %s' % ioe)
 
 
 class BZ2Ingestor(SingleFilePackageIngestor):
@@ -82,6 +86,9 @@ class BZ2Ingestor(SingleFilePackageIngestor):
     ]
 
     def unpack_file(self, file_path, temp_file):
-        with bz2.BZ2File(file_path) as src:
-            with open(temp_file, 'wb') as dst:
-                shutil.copyfileobj(src, dst)
+        try:
+            with bz2.BZ2File(file_path) as src:
+                with open(temp_file, 'wb') as dst:
+                    shutil.copyfileobj(src, dst)
+        except IOError as ioe:
+            raise ProcessingException('Error: %s' % ioe)

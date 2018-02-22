@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 from ingestors.base import Ingestor
 from ingestors.support.encoding import EncodingSupport
+from ingestors.exc import ProcessingException
 from ingestors.util import safe_string
 
 log = logging.getLogger(__name__)
@@ -42,7 +43,8 @@ class CSVIngestor(Ingestor, EncodingSupport):
             encoding = self.detect_stream_encoding(fh)
             log.debug("Detected encoding [%s]: %s", self.result, encoding)
 
-        with io.open(file_path, 'r', newline='', encoding=encoding) as fh:
+        fh = io.open(file_path, 'r', newline='', encoding=encoding)
+        try:
             sample = fh.read(4096 * 10)
             fh.seek(0)
 
@@ -54,3 +56,8 @@ class CSVIngestor(Ingestor, EncodingSupport):
             rows = self.generate_rows(reader, has_header=has_header)
             self.result.flag(self.result.FLAG_TABULAR)
             self.result.emit_rows(rows)
+        except csv.Error as err:
+            log.warning("CSV error: %s", err)
+            raise ProcessingException("Invalid CSV: %s" % err)
+        finally:
+            fh.close()
