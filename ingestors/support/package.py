@@ -2,8 +2,6 @@ import os
 import six
 import shutil
 import logging
-import rarfile
-from normality import guess_encoding
 
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.encoding import EncodingSupport
@@ -15,52 +13,41 @@ log = logging.getLogger(__name__)
 
 class PackageSupport(TempFileSupport, EncodingSupport):
 
-    def unpack_members(self, pack, temp_dir):
-        # Some archives come with non-Unicode file names, this
-        # attempts to avoid that issue by naming the destination
-        # explicitly.
-        names = pack.namelist()
-        names = [n for n in names if isinstance(n, six.binary_type)]
-        encoding = guess_encoding('\n'.join(names))
-        log.debug('Detected filename encoding: %s', encoding)
+    def ensure_path(self, base_dir, name, encoding='utf-8'):
+        if isinstance(name, six.binary_type):
+            name = name.decode(encoding, 'ignore')
 
-        for name in pack.namelist():
-            file_name = name
-            if isinstance(name, six.binary_type):
-                file_name = name.decode(encoding, 'ignore')
+        out_path = join_path(base_dir, name)
+        out_path = os.path.normpath(out_path)
+        if not out_path.startswith(base_dir):
+            return
+        if os.path.exists(out_path):
+            return
 
-            out_path = join_path(temp_dir, file_name)
-            if os.path.exists(out_path):
-                continue
-            if not out_path.startswith(temp_dir):
-                continue
+        out_dir = os.path.dirname(out_path)
+        make_directory(out_dir)
+        if os.path.isdir(out_path):
+            return
 
-            out_dir = os.path.dirname(out_path)
-            make_directory(out_dir)
-            if os.path.isdir(out_path):
-                continue
+        return out_path
 
-            try:
-                in_fh = pack.open(name)
-                try:
-                    log.debug("Unpack: %s -> %s", self.result, file_name)
-                    with open(out_path, 'w') as out_fh:
-                        shutil.copyfileobj(in_fh, out_fh)
-                finally:
-                    in_fh.close()
-            except Exception as ex:
-                # TODO: should this be a fatal error?
-                log.debug("Failed to unpack [%s]: %s", file_name, ex)
+    def extract_member(self, base_dir, name, fh, encoding):
+        out_path = self.ensure_path(base_dir, name, encoding=encoding)
+        if out_path is None:
+            return
+        file_name = os.path.basename(out_path)
+        try:
+            log.debug("Unpack: %s -> %s", self.result, file_name)
+            with open(out_path, 'w') as out_fh:
+                shutil.copyfileobj(fh, out_fh)
+        finally:
+            fh.close()
 
     def ingest(self, file_path):
         self.result.flag(self.result.FLAG_PACKAGE)
         temp_dir = self.make_empty_directory()
-        try:
-            log.info("Descending: %s", self.result)
-            self.unpack(file_path, temp_dir)
-            self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
-        except rarfile.NeedFirstVolume:
-            pass
+        self.unpack(file_path, temp_dir)
+        self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
 
     def unpack(self, file_path, temp_dir):
         pass

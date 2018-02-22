@@ -64,7 +64,7 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
                 texts.append(content)
 
         for image in page.findall('.//image'):
-            ratio = self._element_size(image) / page_size
+            ratio = self._element_size(image) / max(1, page_size)
             if len(texts) < 2 or ratio > self.IMAGE_RATIO_FOR_OCR:
                 is_ocr = True
 

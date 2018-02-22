@@ -1,5 +1,10 @@
+import six
 import logging
-from normality import guess_file_encoding
+try:
+    import cchardet as chardet
+except ImportError:
+    import chardet
+from normality.encoding import guess_file_encoding, normalize_result
 
 from ingestors.exc import ProcessingException
 
@@ -12,8 +17,20 @@ class EncodingSupport(object):
 
     DEFAULT_ENCODING = 'utf-8'
 
-    def detect_stream_encoding(self, fh):
-        return guess_file_encoding(fh, default=self.DEFAULT_ENCODING)
+    def detect_stream_encoding(self, fh, default=DEFAULT_ENCODING):
+        return guess_file_encoding(fh, default=default)
+
+    def detect_list_encoding(self, items, default=DEFAULT_ENCODING):
+        detector = chardet.UniversalDetector()
+        for text in items:
+            if not isinstance(text, six.binary_type):
+                continue
+            detector.feed(text)
+            if detector.done:
+                break
+
+        detector.close()
+        return normalize_result(detector.result, default)
 
     def read_file_decoded(self, file_path):
         encoding = self.result.encoding
