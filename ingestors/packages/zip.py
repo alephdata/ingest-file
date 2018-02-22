@@ -24,7 +24,6 @@ class ZipIngestor(PackageSupport, Ingestor):
     def unpack(self, file_path, temp_dir):
         try:
             with zipfile.ZipFile(file_path) as zf:
-                print "ZIP", dir(zf)
                 names = zf.namelist()
                 encoding = self.detect_list_encoding(names)
                 log.debug('Detected filename encoding: %s', encoding)

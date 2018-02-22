@@ -21,5 +21,5 @@ class ImageSupport(object):
             raise ProcessingException("Image too large: %r" % dce)
         except IOError as ioe:
             raise ProcessingException("Unknown image format: %r" % ioe)
-        except RuntimeError as err:
+        except (RuntimeError, SyntaxError) as err:
             raise ProcessingException("Failed to load image: %r" % err)

@@ -34,15 +34,23 @@ class RFC822Ingestor(Ingestor, EmailSupport):
     def ingest_message(self, data):
         try:
             msg = mime.from_string(data)
-            self.update('title', msg.clean_subject)
-            if msg.message_id:
-                self.update('message_id', six.text_type(msg.message_id))
-
-            if msg.headers is not None:
-                self.extract_headers_metadata(msg.headers.items())
         except DecodingError as derr:
             raise ProcessingException('Cannot parse email: %s' % derr)
 
+        try:
+            if msg.subject:
+                self.update('title', six.text_type(msg.subject))
+        except DecodingError as derr:
+            log.warning("Decoding subject: %s", derr)
+
+        try:
+            if msg.message_id:
+                self.update('message_id', six.text_type(msg.message_id))
+        except DecodingError as derr:
+            log.warning("Decoding message ID: %s", derr)
+
+        if msg.headers is not None:
+            self.extract_headers_metadata(msg.headers.items())
         self.extract_plain_text_content(None)
         self.result.flag(self.result.FLAG_EMAIL)
         bodies = defaultdict(list)
