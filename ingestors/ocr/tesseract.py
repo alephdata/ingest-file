@@ -39,7 +39,7 @@ def get_languages(codes, defaults):
     return '+'.join(sorted(set(languages)))
 
 
-def tesseract_image(self, image, languages, defaults):
+def tesseract_image(image, languages, defaults):
     """Extract text from a binary string of data."""
     languages = get_languages(languages, defaults)
 

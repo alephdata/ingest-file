@@ -18,7 +18,7 @@ class PackageSupport(TempFileSupport, EncodingSupport):
             name = name.decode(encoding, 'ignore')
 
         out_path = join_path(base_dir, name)
-        out_path = os.path.normpath(out_path)
+        # out_path = os.path.normpath(out_path)
         if not out_path.startswith(base_dir):
             return
         if os.path.exists(out_path):

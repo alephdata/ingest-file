@@ -8,6 +8,7 @@ __version__ = '0.3.0'
 
 logging.getLogger('chardet').setLevel(logging.INFO)
 logging.getLogger('PIL').setLevel(logging.INFO)
+logging.getLogger('google.auth').setLevel(logging.INFO)
 
 
 def ingest(file_path):

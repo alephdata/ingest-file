@@ -34,7 +34,8 @@ setup(
         'rarfile >= 3.0',
         'flanker >= 0.4.38',
         'imapclient >= 1.0.2',
-        'dbf >= 0.96.8'
+        'dbf >= 0.96.8',
+        # 'google-cloud-vision'
     ],
     extras_require={
         ':python_version<"3"': ['subprocess32'],

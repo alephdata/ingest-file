@@ -72,7 +72,7 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
             image_file = self.pdf_page_to_image(file_path, pagenum, temp_dir)
             with open(image_file, 'rb') as fh:
                 text = self.extract_text_from_image(fh.read())
-                text = collapse_spaces(text)
+                # text = collapse_spaces(text)
                 if text is not None:
                     texts.append(text)
 
@@ -86,7 +86,7 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
         e.g. inverted colors and weird rotations in TIFF files.
         A better idea is to make an image out of the whole page and OCR it.
         """
-        out_path = os.path.join(temp_dir, '{}.pgm'.format(pagenum))
+        out_path = os.path.join(temp_dir, '{}.png'.format(pagenum))
 
         # TODO: figure out if there's something nicer than 300dpi. Seems
         # like tesseract is trained on 300 and 600 actually sometimes gives
@@ -95,8 +95,9 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
                           '-f', str(pagenum),
                           '-singlefile',
                           '-r', '300',
-                          '-gray',
+                          # '-gray',
+                          '-png',
                           file_path,
-                          out_path.replace('.pgm', ''))
+                          out_path.replace('.png', ''))
         self.assert_outfile(out_path)
         return out_path
