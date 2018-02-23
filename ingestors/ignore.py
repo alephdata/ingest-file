@@ -11,17 +11,38 @@ class IgnoreIngestor(Ingestor):
         'application/pkcs7-mime',
         'application/pkcs7-signature',
         'application/x-pkcs7-signature',
+        'application/x-pkcs12'
+        'application/pgp-encrypted',
+        'application/x-shockwave-flash',
         'application/vnd.apple.pkpass',
-        'text/calendar'
+        'application/x-executable',
+        'application/x-mach-binary',
+        'application/x-sharedlib',
+        'application/x-dosexec',
+        'application/x-java-keystore',
+        'application/font-sfnt',
+        'application/vnd.ms-office.vbaproject',
+        'application/x-x509-ca-cert',
+        'text/calendar',
+        'video/quicktime',
+        'video/mp4',
+        'video/x-flv',
+        'audio/mpeg',
+        'audio/mp3',  # TODO: ID3
+        'audio/x-m4a',
+        'audio/x-hx-aac-adts',
+        'audio/x-wav',
+        'text/css',
+        'application/vnd.ms-opentype',
+        'application/x-font-ttf',
     ]
     EXTENSIONS = [
         'json',
-        'yml',
-        'yaml',
         'exe',
         'dll',
         'ini',
         'class',
+        'jar',
         'psd',  # adobe photoshop
         'indd',  # adobe indesign
         'sql',

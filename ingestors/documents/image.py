@@ -18,12 +18,15 @@ class ImageIngestor(Ingestor, OCRSupport, PlainTextSupport):
     MIME_TYPES = [
         'image/x-portable-graymap',
         'image/png',
+        'image/x-png',
         'image/jpeg',
+        'image/jpg',
         'image/gif',
         'image/pjpeg',
         'image/bmp',
         'image/x-windows-bmp',
         'image/x-portable-bitmap',
+        'image/x-coreldraw',
         'application/postscript',
         'image/vnd.dxf',
     ]
