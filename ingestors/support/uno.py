@@ -4,7 +4,7 @@ import logging
 import requests
 import threading
 from celestial import DEFAULT
-from requests.exceptions import RequestException, ReadTimeout
+from requests.exceptions import RequestException
 
 from ingestors.exc import ConfigurationException, ProcessingException
 from ingestors.util import join_path
@@ -37,7 +37,8 @@ class UnoconvSupport(object):
         log.info('Converting [%s] to PDF...', self.result)
         file_name = os.path.basename(file_path)
         out_path = join_path(self.work_path, '%s.pdf' % file_name)
-        for attempt in range(1, retry):
+        attempt = 1
+        while attempt <= retry:
             try:
                 with open(file_path, 'rb') as fh:
                     files = {'file': (file_name, fh, DEFAULT)}
@@ -48,9 +49,9 @@ class UnoconvSupport(object):
 
                 # check for busy signal
                 if res.status_code > 399:
-                    log.info("unoservice HTTP error: %s", res.status_code)
+                    log.info("unoservice HTTP: %s", res.status_code)
                     # wait for TTL on RR DNS to expire.
-                    time.sleep(2)
+                    time.sleep(3)
                     continue
 
                 with open(out_path, 'w') as fh:
@@ -59,13 +60,12 @@ class UnoconvSupport(object):
 
                 if not os.path.getsize(out_path):
                     raise ProcessingException("Could not convert to PDF.")
-                return out_path
-            except ReadTimeout:
-                # file is too big or in a format that makes libreoffice
-                # crash. We'll give up immediately, not try again.
-                break
-            except RequestException:
-                log.exception("unoservice failed (attempt: %s)", attempt)
-                time.sleep(3)
 
+                return out_path
+            except RequestException as ex:
+                log.exception("unoservice error: %s", ex)
+                time.sleep(5)
+                attempt += 1
+
+        log.exception("unoservice failed")
         raise ConfigurationException("PDF conversion has failed.")
