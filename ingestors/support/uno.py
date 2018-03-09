@@ -48,11 +48,11 @@ class UnoconvSupport(object):
                                             stream=True)
 
                 # check for busy signal
-                if res.status_code > 399:
-                    log.info("unoservice HTTP: %s", res.status_code)
+                if res.status_code == 503:
                     # wait for TTL on RR DNS to expire.
                     time.sleep(3)
                     continue
+                res.raise_for_status()
 
                 with open(out_path, 'w') as fh:
                     for chunk in res.iter_content(chunk_size=None):

@@ -26,6 +26,8 @@ class OCRSupport(ImageSupport):
         image = image or self.parse_image(data)
         defaults = self.manager.config.get('OCR_DEFAULTS', [])
         text = tesseract_image(image, self.result.languages, defaults)
+        if text is None:
+            return
 
         log.info('[%s] OCR: %s chars recognized', self.result, len(text))
         self.manager.set_cache(key, text)
