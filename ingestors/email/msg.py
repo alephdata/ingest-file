@@ -34,6 +34,8 @@ class RFC822Ingestor(Ingestor, EmailSupport):
     def ingest_message(self, data):
         try:
             msg = mime.from_string(data)
+            if msg.headers is not None:
+                self.extract_headers_metadata(msg.headers.items())
         except DecodingError as derr:
             raise ProcessingException('Cannot parse email: %s' % derr)
 
@@ -49,8 +51,6 @@ class RFC822Ingestor(Ingestor, EmailSupport):
         except DecodingError as derr:
             log.warning("Decoding message ID: %s", derr)
 
-        if msg.headers is not None:
-            self.extract_headers_metadata(msg.headers.items())
         self.extract_plain_text_content(None)
         self.result.flag(self.result.FLAG_EMAIL)
         bodies = defaultdict(list)
