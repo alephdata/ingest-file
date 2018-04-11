@@ -15,3 +15,9 @@ before_install:
 # command to run tests, e.g. python setup.py test
 script:
   - docker exec ingestors /bin/bash -c "cd /srv; nosetests -v --with-coverage --cover-package=ingestors;"
+
+after_success:
+  - if [[ $TRAVIS_TAG = $TRAVIS_BRANCH ]]; then
+      python setup.py sdist bdist_wheel ;
+      twine upload dist/* ;
+    fi

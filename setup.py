@@ -8,7 +8,7 @@ setup(
     version='0.7.14',
     description="Ingestors extract useful information in a structured standard format.",  # noqa
     author="Organized Crime and Corruption Reporting Project",
-    author_email='tech@occrp.org',
+    author_email='data@occrp.org',
     url='https://github.com/alephdata/ingestors',
     packages=find_packages(exclude=['tests']),
     package_dir={'ingestors': 'ingestors'},
