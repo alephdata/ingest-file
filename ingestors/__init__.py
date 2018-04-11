@@ -7,6 +7,7 @@ from ingestors.result import Result  # noqa
 __version__ = '0.3.0'
 
 logging.getLogger('chardet').setLevel(logging.INFO)
+logging.getLogger('flanker').setLevel(logging.INFO)
 logging.getLogger('PIL').setLevel(logging.INFO)
 logging.getLogger('google.auth').setLevel(logging.INFO)
 
