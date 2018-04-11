@@ -18,6 +18,8 @@ script:
 
 after_success:
   - if [[ $TRAVIS_TAG = $TRAVIS_BRANCH ]]; then
+      pip install --upgrade six ;
+      pip install twine ;
       python setup.py sdist bdist_wheel ;
       twine upload dist/* ;
     fi
