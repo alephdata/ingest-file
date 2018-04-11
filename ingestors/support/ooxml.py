@@ -31,7 +31,8 @@ class OOXMLSupport(object):
                     return etree.parse(xml)
         except KeyError:  # missing the PROP_FILE
             return None
-        except BadZipfile:
+        except (BadZipfile, IOError):
+            log.warning("Cannot read OOXML metadata: %s", file_path)
             return None
 
     def ooxml_extract_metadata(self, file_path):

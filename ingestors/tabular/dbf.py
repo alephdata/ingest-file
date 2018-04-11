@@ -1,9 +1,13 @@
 from __future__ import absolute_import
+
+import logging
 from dbf import Table
 from collections import OrderedDict
 
 from ingestors.base import Ingestor
 from ingestors.util import safe_string
+
+log = logging.getLogger(__name__)
 
 
 class DBFIngestor(Ingestor):
@@ -19,10 +23,13 @@ class DBFIngestor(Ingestor):
     def generate_rows(self, table):
         headers = [safe_string(h) for h in table.field_names]
         for row in table:
-            data = OrderedDict()
-            for header, value in zip(headers, row):
-                data[header] = safe_string(value)
-            yield data
+            try:
+                data = OrderedDict()
+                for header, value in zip(headers, row):
+                    data[header] = safe_string(value)
+                yield data
+            except Exception as ex:
+                log.warning("Cannot decode DBF row: %s", ex)
 
     def ingest(self, file_path):
         table = Table(file_path).open()

@@ -25,7 +25,10 @@ class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
 
     def generate_csv(self, sheet):
         for row in sheet.rows:
-            yield [safe_string(c.value) for c in row]
+            try:
+                yield [safe_string(c.value) for c in row]
+            except (ValueError, OverflowError) as ve:
+                log.warning("Failed to read Excel row: %s", ve)
 
     def ingest(self, file_path):
         self.ooxml_extract_metadata(file_path)

@@ -45,16 +45,20 @@ class Ingestor(object):
 
     @classmethod
     def match(cls, file_path, result=None):
-        mime_type = normalize_mimetype(result.mime_type, default=None)
-        if mime_type is not None:
-            for match_type in cls.MIME_TYPES:
-                match_type = normalize_mimetype(match_type, default=None)
-                if match_type == mime_type:
-                    return cls.SCORE
+        if not hasattr(cls, '_MIME_TYPES'):
+            cls._MIME_TYPES = [normalize_mimetype(m, default=None) for m in cls.MIME_TYPES]  # noqa
+            cls._MIME_TYPES = [m for m in cls._MIME_TYPES if m is not None]
 
-        extensions = [normalize_extension(e) for e in cls.EXTENSIONS]
-        extensions = [e for e in extensions if e is not None]
-        if normalize_extension(file_path) in extensions:
+        mime_type = normalize_mimetype(result.mime_type, default=None)
+        if mime_type in cls._MIME_TYPES:
+            return cls.SCORE
+
+        if not hasattr(cls, '_EXTENSIONS'):
+            cls._EXTENSIONS = [normalize_extension(e) for e in cls.EXTENSIONS]
+            cls._EXTENSIONS = [e for e in cls._EXTENSIONS if e is not None]
+
+        extension = normalize_extension(result.file_name)
+        if extension in cls._EXTENSIONS:
             return cls.SCORE
 
         return -1

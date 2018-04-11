@@ -110,7 +110,9 @@ class Manager(object):
     def ingest(self, file_path, result=None, work_path=None):
         """Main execution step of an ingestor."""
         if result is None:
-            result = self.RESULT_CLASS(file_path=file_path)
+            file_name = os.path.basename(file_path) if file_path else None
+            result = self.RESULT_CLASS(file_path=file_path,
+                                       file_name=file_name)
 
         self.checksum_file(result, file_path)
         self.before(result)
