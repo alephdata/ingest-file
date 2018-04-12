@@ -39,7 +39,10 @@ class Manager(object):
         if not hasattr(self, '_ingestors'):
             self._ingestors = []
             for ep in iter_entry_points('ingestors'):
-                self._ingestors.append(ep.load())
+                try:
+                    self._ingestors.append(ep.load())
+                except Exception:
+                    log.exception("Cannot load: %s", ep.name)
         return self._ingestors
 
     def auction(self, file_path, result):
