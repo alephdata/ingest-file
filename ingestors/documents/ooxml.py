@@ -19,7 +19,10 @@ class OfficeOpenXMLIngestor(Ingestor, LibreOfficeSupport, OOXMLSupport):
         PREFIX + 'presentationml.template',
         PREFIX + 'presentationml.slideshow',
     ]
-    EXTENSIONS = ['docx', 'docm', 'dotx', 'potx', 'pptx', 'ppsx']
+    EXTENSIONS = [
+        'docx', 'docm', 'dotx', 'dotm',
+        'potx', 'pptx', 'ppsx', 'pptm', 'ppsm', 'potm'
+    ]
     SCORE = 5
 
     def ingest(self, file_path):
@@ -28,3 +31,10 @@ class OfficeOpenXMLIngestor(Ingestor, LibreOfficeSupport, OOXMLSupport):
         self.ooxml_extract_metadata(file_path)
         pdf_path = self.document_to_pdf(file_path)
         self.pdf_alternative_extract(pdf_path)
+
+    @classmethod
+    def match(cls, file_path, result=None):
+        score = super(OfficeOpenXMLIngestor, cls).match(file_path, result=result)  # noqa
+        if score <= 0 and cls.inspect_ooxml_manifest(file_path):
+            score = cls.SCORE * 2
+        return score

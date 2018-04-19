@@ -17,7 +17,7 @@ setup(
         'six >= 1.11.0',
         'banal >= 0.1',
         'normality >= 0.5.11',
-        'celestial >= 0.2.0',
+        'celestial >= 0.2.2',
         'urllib3 >= 1.21',
         'requests >= 2.18.4',
         'xlrd >= 1.1.0',
@@ -40,7 +40,7 @@ setup(
     extras_require={
         ':python_version<"3"': ['subprocess32'],
         'dev': [
-            'pip>=8.1.2',
+            'pip>=10.0.0',
             'bumpversion>=0.5.3',
             'wheel>=0.29.0',
             'flake8>=2.6.0',

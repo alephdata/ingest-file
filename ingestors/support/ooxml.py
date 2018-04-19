@@ -1,4 +1,5 @@
 import logging
+import zipfile
 from lxml import etree
 from datetime import datetime
 from zipfile import ZipFile, BadZipfile
@@ -58,3 +59,16 @@ class OOXMLSupport(object):
 
         # from pprint import pprint
         # pprint(self.result.to_dict())
+
+    @classmethod
+    def inspect_ooxml_manifest(cls, file_path):
+        if not zipfile.is_zipfile(file_path):
+            return False
+        try:
+            with zipfile.ZipFile(file_path, 'r') as zf:
+                manifest = zf.open('[Content_Types].xml').read()
+                for mime_type in cls.MIME_TYPES:
+                    if mime_type in manifest:
+                        return True
+        except Exception:
+            return False

@@ -82,3 +82,12 @@ class ImageIngestor(Ingestor, OCRSupport, PlainTextSupport):
 
         text = self.extract_text_from_image(data, image=image)
         self.extract_plain_text_content(text)
+
+    @classmethod
+    def match(cls, file_path, result=None):
+        score = super(ImageIngestor, cls).match(file_path, result=result)
+        if score <= 0:
+            if result.mime_type is not None:
+                if result.mime_type.startswith('image/'):
+                    score = cls.SCORE - 1
+        return score

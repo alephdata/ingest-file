@@ -44,7 +44,7 @@ class UnoconvSupport(object):
                     files = {'file': (file_name, fh, DEFAULT)}
                     res = self.unoconv.post(self.get_unoconv_url(),
                                             files=files,
-                                            timeout=600,
+                                            timeout=3600,
                                             stream=True)
 
                 # check for busy signal

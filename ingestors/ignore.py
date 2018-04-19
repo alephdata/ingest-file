@@ -20,6 +20,7 @@ class IgnoreIngestor(Ingestor):
         'application/x-sharedlib',
         'application/x-dosexec',
         'application/x-java-keystore',
+        'application/java-archive',
         'application/font-sfnt',
         'application/vnd.ms-office.vbaproject',
         'application/x-x509-ca-cert',

@@ -14,14 +14,16 @@ class PlainTextIngestor(Ingestor, EncodingSupport, PlainTextSupport):
     MIME_TYPES = [
         'text/plain',
         'text/x-c',
-        'text/x-diff',
         'text/x-c++',
+        'text/x-diff',
         'text/x-python',
         'text/x-shellscript',
         'text/x-java',
         'text/x-php',
         'text/troff',
         'text/x-ruby',
+        'text/x-pascal',
+        'text/x-msdos-batch',
         'text/x-yaml',
         'text/x-makefile',
         'text/x-perl',  # %^&%*^&%*%^

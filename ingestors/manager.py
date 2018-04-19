@@ -3,7 +3,7 @@ import magic
 import logging
 import hashlib
 from normality import stringify
-from celestial import normalize_mimetype
+from celestial import normalize_mimetype, useful_mimetype
 from pkg_resources import iter_entry_points
 
 from ingestors.result import Result
@@ -50,7 +50,7 @@ class Manager(object):
             result.mime_type = DirectoryIngestor.MIME_TYPE
             return DirectoryIngestor
 
-        if result.mime_type is None:
+        if not useful_mimetype(result.mime_type):
             mime_type = self.MAGIC.from_file(file_path)
             result.mime_type = normalize_mimetype(mime_type)
 

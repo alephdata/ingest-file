@@ -44,3 +44,10 @@ class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
                 self.csv_child_iter(rows, name)
         finally:
             book.close()
+
+    @classmethod
+    def match(cls, file_path, result=None):
+        score = super(ExcelXMLIngestor, cls).match(file_path, result=result)  # noqa
+        if score <= 0 and cls.inspect_ooxml_manifest(file_path):
+            score = cls.SCORE * 2
+        return score
