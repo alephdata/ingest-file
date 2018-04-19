@@ -44,6 +44,7 @@ class Result(object):
         self.emails = kwargs.get('emails') or []
         self.entities = kwargs.get('entities') or []
         self.languages = kwargs.get('languages') or []
+        self.ocr_languages = kwargs.get('ocr_languages', self.languages)
         self.headers = kwargs.get('headers')
         self.error_message = None
         self.pages = []

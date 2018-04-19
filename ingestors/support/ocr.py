@@ -3,7 +3,6 @@ from hashlib import sha1
 from tesserocr import PyTessBaseAPI, PSM  # noqa
 
 from ingestors.ocr.tesseract import tesseract_image
-# from ingestors.ocr.vision import vision_available, vision_data
 from ingestors.support.image import ImageSupport
 
 log = logging.getLogger(__name__)
@@ -20,12 +19,8 @@ class OCRSupport(ImageSupport):
             log.info('[%s] OCR: %s chars cached', self.result, len(text))
             return text
 
-        # if vision_available():
-        #     text = vision_data(data)
-        # else:
         image = image or self.parse_image(data)
-        defaults = self.manager.config.get('OCR_DEFAULTS', [])
-        text = tesseract_image(image, self.result.languages, defaults)
+        text = tesseract_image(image, self.result.ocr_languages)
         if text is None:
             return
 

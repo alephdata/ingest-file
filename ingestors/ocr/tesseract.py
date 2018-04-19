@@ -25,23 +25,19 @@ def normalize_language(language):
     return matches
 
 
-def get_languages(codes, defaults):
+def get_languages(codes):
     """Turn some ISO2 language codes into ISO3 codes."""
     languages = set([])
     for lang in ensure_list(codes):
         languages.update(normalize_language(lang))
 
-    if not len(languages):
-        for lang in defaults:
-            languages.update(normalize_language(lang))
-
     languages.add('eng')
     return '+'.join(sorted(set(languages)))
 
 
-def tesseract_image(image, languages, defaults):
+def tesseract_image(image, languages):
     """Extract text from a binary string of data."""
-    languages = get_languages(languages, defaults)
+    languages = get_languages(languages)
 
     if not hasattr(thread, 'api'):
         thread.api = PyTessBaseAPI(lang=languages,
