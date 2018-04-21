@@ -15,7 +15,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'six >= 1.11.0',
-        'banal >= 0.1',
+        'banal >= 0.3.4',
         'normality >= 0.5.11',
         'celestial >= 0.2.2',
         'urllib3 >= 1.21',
