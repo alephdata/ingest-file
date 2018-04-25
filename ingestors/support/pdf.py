@@ -3,6 +3,7 @@ import glob
 import uuid
 
 from normality import collapse_spaces  # noqa
+from pdflib import Document
 
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.shell import ShellSupport
@@ -21,7 +22,8 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
 
     def pdf_alternative_extract(self, pdf_path):
         self.result.emit_pdf_alternative(pdf_path)
-        self.pdf_extract(pdf_path)
+        pdf = Document(pdf_path)
+        self.pdf_extract(pdf)
 
     def pdf_extract_page(self, temp_dir, page):
         """Extract the contents of a single PDF page, using OCR if need be."""
