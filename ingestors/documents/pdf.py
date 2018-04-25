@@ -19,37 +19,27 @@ class PDFIngestor(Ingestor, PDFSupport):
     SCORE = 5
 
     def extract_xmp_metadata(self, pdf):
-        pass
-        # try:
-        #     xmp = pdf.xmp_metadata
-        #     if xmp is None:
-        #         return
-        #     self.update('message_id', xmp.xmpmm_documentId)
-        #     for lang, title in xmp.dc_title.items():
-        #         self.update('title', title)
-        #         self.result.emit_language(lang)
-        #     self.update('generator', xmp.pdf_producer)
-        #     self.result.emit_language(xmp.dc_language)
-        #     try:
-        #         self.update('created_at', xmp.xmp_createDate)
-        #     except Exception:
-        #         pass
-        #     try:
-        #         self.update('modified_at', xmp.xmp_modifyDate)
-        #     except Exception:
-        #         pass
-        # except Exception as ex:
-        #     log.warning("Error reading XMP: %r", ex)
+        try:
+            xmp = pdf.xmp_metadata
+            if xmp is None:
+                return
+            self.update('message_id', xmp['xmpmm'].get('documentid'))
+            self.update('title', xmp['dc'].get('title'))
+            self.update('generator', xmp['pdf'].get('producer'))
+            self.result.emit_language(xmp['dc'].get('language'))
+            self.update('created_at', xmp['xmp'].get('createdate'))
+            self.update('modified_at', xmp['xmp'].get('modifydate'))
+        except Exception as ex:
+            log.warning("Error reading XMP: %r", ex)
 
     def extract_metadata(self, pdf):
         meta = pdf.metadata
         if meta is not None:
-            self.update('title', meta.get("Title"))
-            self.update('author', meta.get("Author"))
-            self.update('generator', meta.get("Creator"))
-            self.update('generator', meta.get("Producer"))
-            if meta.get("Subject"):
-                self.result.emit_keyword(meta.get("Subject"))
+            self.update('title', meta.get("title"))
+            self.update('author', meta.get("author"))
+            self.update('generator', meta.get("creator"))
+            self.update('generator', meta.get("producer"))
+            self.result.emit_keyword(meta.get("subject"))
 
         self.extract_xmp_metadata(pdf)
         # from pprint import pprint
