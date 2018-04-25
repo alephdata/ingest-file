@@ -19,6 +19,10 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
         for page in pdf:
             self.pdf_extract_page(temp_dir, page)
 
+    def pdf_alternative_extract(self, pdf_path):
+        self.result.emit_pdf_alternative(pdf_path)
+        self.pdf_extract(pdf_path)
+
     def pdf_extract_page(self, temp_dir, page):
         """Extract the contents of a single PDF page, using OCR if need be."""
         pagenum = page.page_no
