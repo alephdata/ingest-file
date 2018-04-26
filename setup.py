@@ -35,7 +35,7 @@ setup(
         'flanker >= 0.4.38, <= 0.8.4',
         'imapclient >= 1.0.2',
         'dbf >= 0.96.8',
-        'pdflib >= 0.1.2',
+        'pdflib >= 0.1.5',
         # 'google-cloud-vision'
     ],
     extras_require={
