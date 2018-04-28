@@ -42,7 +42,7 @@ class PDFIngestorTest(TestCase):
 
         self.assertEqual(len(result.pages), 588)
         self.assertIn(
-            'ALGEBRA \nABSTRACT \nAND \nCONCRETE \nE \nDITION \n2.6',
+            'ALGEBRA \nABSTRACT \nAND \nCONCRETE \nE DITION 2.6',
             result.pages[0]['text']
         )
 
