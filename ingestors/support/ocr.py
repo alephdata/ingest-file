@@ -16,7 +16,8 @@ class OCRSupport(ImageSupport):
         key = sha1(data).hexdigest()
         text = self.manager.get_cache(key)
         if text is not None:
-            log.info('[%s] OCR: %s chars cached', self.result, len(text))
+            if len(text):
+                log.info('[%s] OCR: %s chars cached', self.result, len(text))
             return text
 
         image = image or self.parse_image(data)
@@ -24,6 +25,7 @@ class OCRSupport(ImageSupport):
         if text is None:
             return
 
-        log.info('[%s] OCR: %s chars recognized', self.result, len(text))
+        if len(text):
+            log.info('[%s] OCR: %s chars recognized', self.result, len(text))
         self.manager.set_cache(key, text)
         return text
