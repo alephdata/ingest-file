@@ -18,7 +18,7 @@ class TIFFIngestor(Ingestor, PDFSupport):
         'tif',
         'tiff'
     ]
-    SCORE = 6
+    SCORE = 11
 
     def ingest(self, file_path):
         self.result.flag(self.result.FLAG_PDF)
