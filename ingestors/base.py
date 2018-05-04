@@ -1,8 +1,7 @@
 import logging
 from tempfile import mkdtemp
 from datetime import date, datetime
-from celestial import normalize_mimetype
-from ingestors.util import normalize_extension
+from celestial import normalize_mimetype, normalize_extension
 from ingestors.util import safe_string, remove_directory
 
 log = logging.getLogger(__name__)

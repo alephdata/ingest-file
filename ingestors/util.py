@@ -3,7 +3,7 @@ import six
 import shutil
 
 from banal import decode_path
-from normality import stringify, slugify
+from normality import stringify
 
 
 def safe_string(data, encoding_default='utf-8', encoding=None):
@@ -32,21 +32,6 @@ def safe_dict(data):
 
     if len(safe):
         return safe
-
-
-def normalize_extension(extension):
-    extension = decode_path(extension)
-    if extension is None:
-        return
-    if extension.startswith('.'):
-        extension = extension[1:]
-    if '.' in extension:
-        _, extension = os.path.splitext(extension)
-    extension = slugify(extension, sep='')
-    if extension is None:
-        return
-    if len(extension):
-        return extension
 
 
 def join_path(*args):
