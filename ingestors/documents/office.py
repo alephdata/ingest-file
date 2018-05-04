@@ -155,7 +155,7 @@ class DocumentIngestor(Ingestor, LibreOfficeSupport, OLESupport):
         'xlm',  # MS Excel 95
         'xls',  # MS Excel 95
         'xlw',  # MS Excel 95
-        'xml',  # OpenDocument Drawing Flat XML
+        # 'xml',  # OpenDocument Drawing Flat XML
         'zabw',  # AbiWord
         # 'zip',  # FictionBook 2
         'zmf',  # ZMF Document
