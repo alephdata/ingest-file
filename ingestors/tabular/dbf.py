@@ -18,7 +18,7 @@ class DBFIngestor(Ingestor):
         'application/x-dbf'
     ]
     EXTENSIONS = ['dbf']
-    BASE_SCORE = 7
+    BASE_SCORE = 8
 
     def generate_rows(self, table):
         headers = [safe_string(h) for h in table.field_names]

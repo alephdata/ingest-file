@@ -21,7 +21,7 @@ class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
         'xltx',
         'xltm'
     ]
-    SCORE = 6
+    SCORE = 7
 
     def generate_csv(self, sheet):
         for row in sheet.rows:

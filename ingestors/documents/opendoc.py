@@ -21,7 +21,9 @@ class OpenDocumentIngestor(Ingestor, LibreOfficeSupport, OpenDocumentSupport):
         'application/vnd.oasis.opendocument.text-template',
         'application/vnd.oasis.opendocument.presentation',
         'application/vnd.oasis.opendocument.graphics',
-        'application/vnd.oasis.opendocument.graphics-template',
+        'application/vnd.oasis.opendocument.graphics-flat-xml',
+        'application/vnd.oasis.opendocument.graphics-template'
+        'application/vnd.oasis.opendocument.presentation-flat-xml',
         'application/vnd.oasis.opendocument.presentation-template',
         'application/vnd.oasis.opendocument.chart',
         'application/vnd.oasis.opendocument.chart-template',
@@ -29,6 +31,7 @@ class OpenDocumentIngestor(Ingestor, LibreOfficeSupport, OpenDocumentSupport):
         'application/vnd.oasis.opendocument.image-template',
         'application/vnd.oasis.opendocument.formula',
         'application/vnd.oasis.opendocument.formula-template',
+        'application/vnd.oasis.opendocument.text-flat-xml',
         'application/vnd.oasis.opendocument.text-master',
         'application/vnd.oasis.opendocument.text-web',
     ]
@@ -37,7 +40,7 @@ class OpenDocumentIngestor(Ingestor, LibreOfficeSupport, OpenDocumentSupport):
         'odp',
         'otp'
     ]
-    SCORE = 5
+    SCORE = 7
 
     def ingest(self, file_path):
         """Ingestor implementation."""

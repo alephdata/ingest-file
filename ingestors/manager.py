@@ -39,10 +39,7 @@ class Manager(object):
         if not hasattr(self, '_ingestors'):
             self._ingestors = []
             for ep in iter_entry_points('ingestors'):
-                try:
-                    self._ingestors.append(ep.load())
-                except Exception:
-                    log.exception("Cannot load: %s", ep.name)
+                self._ingestors.append(ep.load())
         return self._ingestors
 
     def auction(self, file_path, result):
@@ -56,6 +53,7 @@ class Manager(object):
 
         best_score, best_cls = 0, None
         for cls in self.ingestors:
+            result.manager = self
             score = cls.match(file_path, result=result)
             if score > best_score:
                 best_score = score
@@ -120,10 +118,9 @@ class Manager(object):
         self.checksum_file(result, file_path)
         self.before(result)
         result.status = Result.STATUS_PENDING
+        ingestor_class = self.auction(file_path, result)
+        log.debug("Ingestor [%s]: %s", result, ingestor_class.__name__)
         try:
-            ingestor_class = self.auction(file_path, result)
-            log.debug("Ingestor [%s, %s]: %s", result,
-                      result.mime_type, ingestor_class.__name__)
             self.delegate(ingestor_class, result, file_path,
                           work_path=work_path)
             result.status = Result.STATUS_SUCCESS

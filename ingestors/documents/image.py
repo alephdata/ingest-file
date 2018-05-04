@@ -37,7 +37,7 @@ class ImageIngestor(Ingestor, OCRSupport, PlainTextSupport):
         'gif',
         'bmp'
     ]
-    SCORE = 5
+    SCORE = 10
 
     def parse_exif_date(self, date):
         try:

@@ -11,9 +11,10 @@ class HTMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
     ]
     EXTENSIONS = [
         'htm',
-        'html'
+        'html',
+        'xhtml',
     ]
-    SCORE = 4
+    SCORE = 6
 
     def ingest(self, file_path):
         """Ingestor implementation."""

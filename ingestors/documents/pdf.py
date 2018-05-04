@@ -16,7 +16,7 @@ class PDFIngestor(Ingestor, PDFSupport):
     MAGIC = '%PDF-1.'
     MIME_TYPES = ['application/pdf']
     EXTENSIONS = ['pdf']
-    SCORE = 5
+    SCORE = 6
 
     def extract_xmp_metadata(self, pdf):
         try:

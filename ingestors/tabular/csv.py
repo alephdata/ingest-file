@@ -24,7 +24,7 @@ class CSVIngestor(Ingestor, EncodingSupport):
         'text/tab-separated-values'
     ]
     EXTENSIONS = ['csv', 'tsv']
-    SCORE = 6
+    SCORE = 7
 
     def generate_rows(self, reader, has_header=False):
         headers = next(reader) if has_header else []

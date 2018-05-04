@@ -25,7 +25,7 @@ class ExcelIngestor(Ingestor, CSVEmitterSupport, OLESupport):
         'xlt',
         'xla'
     ]
-    SCORE = 6
+    SCORE = 7
 
     def convert_cell(self, cell, sheet):
         value = cell.value

@@ -23,7 +23,7 @@ class OfficeOpenXMLIngestor(Ingestor, LibreOfficeSupport, OOXMLSupport):
         'docx', 'docm', 'dotx', 'dotm',
         'potx', 'pptx', 'ppsx', 'pptm', 'ppsm', 'potm'
     ]
-    SCORE = 5
+    SCORE = 7
 
     def ingest(self, file_path):
         """Ingestor implementation."""

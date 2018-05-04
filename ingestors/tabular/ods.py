@@ -19,7 +19,7 @@ class OpenOfficeSpreadsheetIngestor(Ingestor, CSVEmitterSupport,
         'application/vnd.oasis.opendocument.spreadsheet-template'
     ]
     EXTENSIONS = ['ods', 'ots']
-    SCORE = 6
+    SCORE = 7
     VALUE_FIELDS = [
         'date-value',
         'time-value',

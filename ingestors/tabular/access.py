@@ -19,7 +19,7 @@ class AccessIngestor(Ingestor, ShellSupport):
         'application/x-mdb'
     ]
     EXTENSIONS = ['mdb']
-    SCORE = 7
+    SCORE = 8
 
     def get_tables(self, local_path):
         mdb_tables = self.find_command('mdb-tables')
