@@ -97,6 +97,7 @@ setup(
             'msg = ingestors.email.msg:RFC822Ingestor',
             'csv = ingestors.tabular.csv:CSVIngestor',
             'access = ingestors.tabular.access:AccessIngestor',
+            'sqlite = ingestors.tabular.sqlite:SQLiteIngestor',
             'xls = ingestors.tabular.xls:ExcelIngestor',
             'xlsx = ingestors.tabular.xlsx:ExcelXMLIngestor',
             'ods = ingestors.tabular.ods:OpenOfficeSpreadsheetIngestor',
