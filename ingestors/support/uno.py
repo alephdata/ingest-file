@@ -29,7 +29,7 @@ class UnoconvSupport(object):
             self._unoconv_client.session = requests.Session()
         return self._unoconv_client.session
 
-    def unoconv_to_pdf(self, file_path, retry=5):
+    def unoconv_to_pdf(self, file_path, retry=5, timeout=300):
         """Converts an office document to PDF."""
         if not self.is_unoconv_available():
             raise ConfigurationException("UNOSERVICE_URL is missing.")
@@ -43,10 +43,12 @@ class UnoconvSupport(object):
         while attempt <= retry:
             fh = open(file_path, 'rb')
             try:
+                params = {'timeout': timeout}
                 files = {'file': (file_name, fh, mime_type)}
                 res = self.unoconv.post(self.get_unoconv_url(),
                                         files=files,
-                                        timeout=3600,
+                                        params=params,
+                                        timeout=(5, timeout),
                                         stream=True)
             except RequestException:
                 log.exception("unoservice connection error")
@@ -69,4 +71,5 @@ class UnoconvSupport(object):
                 for chunk in res.iter_content(chunk_size=None):
                     fh.write(chunk)
             return out_path
+
         raise ProcessingException("Document could not be converted to PDF.")
