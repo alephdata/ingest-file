@@ -1,7 +1,4 @@
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+from io import BytesIO
 from PIL import Image
 from PIL.Image import DecompressionBombError as DBE
 from PIL.Image import DecompressionBombWarning as DBW
@@ -15,7 +12,7 @@ class ImageSupport(object):
     def parse_image(self, data):
         """Parse an image file into PIL."""
         try:
-            image = Image.open(StringIO(data))
+            image = Image.open(BytesIO(data))
             image.load()
             return image
         except (DBE, DBW) as dce:

@@ -46,7 +46,7 @@ class ExcelIngestor(Ingestor, CSVEmitterSupport, OLESupport):
         return safe_string(value)
 
     def generate_csv(self, sheet):
-        for row_index in xrange(0, sheet.nrows):
+        for row_index in range(0, sheet.nrows):
             yield [self.convert_cell(c, sheet) for c in sheet.row(row_index)]
 
     def ingest(self, file_path):

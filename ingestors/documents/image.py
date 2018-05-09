@@ -74,7 +74,7 @@ class ImageIngestor(Ingestor, OCRSupport, PlainTextSupport):
 
     def ingest(self, file_path):
         self.result.flag(self.result.FLAG_IMAGE)
-        with open(file_path, 'r') as fh:
+        with open(file_path, 'rb') as fh:
             data = fh.read()
 
         image = self.parse_image(data)

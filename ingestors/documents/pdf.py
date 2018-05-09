@@ -48,7 +48,7 @@ class PDFIngestor(Ingestor, PDFSupport):
     def ingest(self, file_path):
         """Ingestor implementation."""
         try:
-            pdf = Document(file_path)
+            pdf = Document(file_path.encode('utf-8'))
             self.extract_metadata(pdf)
             self.pdf_extract(pdf)
         except Exception:
@@ -58,7 +58,7 @@ class PDFIngestor(Ingestor, PDFSupport):
     def match(cls, file_path, result=None):
         score = super(PDFIngestor, cls).match(file_path, result=result)
         if score <= 0:
-            with open(file_path, 'r') as fh:
+            with open(file_path, 'rb') as fh:
                 if fh.read(len(cls.MAGIC)) == cls.MAGIC:
                     return cls.SCORE * 2
         return score

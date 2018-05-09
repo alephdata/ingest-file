@@ -1,3 +1,4 @@
+import email
 import mailbox
 
 from ingestors.email.msg import RFC822Ingestor
@@ -21,7 +22,14 @@ class MboxFileIngestor(RFC822Ingestor):
         for i, msg in enumerate(mbox, 1):
             msg_path = join_path(self.work_path, '%s.eml' % i)
             with open(msg_path, 'wb') as fh:
-                fh.write(msg.as_string())
+                # Work around for https://bugs.python.org/issue27321.
+                try:
+                    msg_text = email.message.Message.as_string(msg)
+                except KeyError:
+                    msg_text = email.message.Message.as_bytes(msg).decode(
+                        'utf-8', 'replace'
+                    )
+                fh.write(msg_text.encode('utf-8'))
 
             child_id = join_path(self.result.id, str(i))
             self.manager.handle_child(self.result,
@@ -35,7 +43,7 @@ class MboxFileIngestor(RFC822Ingestor):
         if score < 0:
             # this was added because a lot of mbox files are just called
             # 'inbox' or 'new', without a file suffix.
-            with open(file_path, 'r') as fh:
+            with open(file_path, 'rb') as fh:
                 if fh.read(len(cls.MAGIC)) == cls.MAGIC:
                     mbox = mailbox.mbox(file_path)
                     for msg in mbox:

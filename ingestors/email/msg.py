@@ -69,7 +69,7 @@ class RFC822Ingestor(Ingestor, EmailSupport):
             # Disposition headers can have multiple filename declarations,
             # flanker decides to concatenate.
             if file_name is not None and len(file_name) > 4:
-                half = len(file_name)/2
+                half = len(file_name)//2
                 if file_name[:half] == file_name[half:]:
                     file_name = file_name[:half]
 

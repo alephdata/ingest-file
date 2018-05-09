@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import re
 import six
-import rfc822
+import email
 import logging
 from time import mktime
 from datetime import datetime
@@ -94,7 +94,7 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
 
             if field == 'date':
                 try:
-                    date = rfc822.parsedate(value)
+                    date = email.utils.parsedate(value)
                     date = datetime.fromtimestamp(mktime(date))
                     self.update('created_at', date)
                 except Exception as ex:
