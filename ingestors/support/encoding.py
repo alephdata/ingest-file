@@ -23,8 +23,10 @@ class EncodingSupport(object):
     def detect_list_encoding(self, items, default=DEFAULT_ENCODING):
         detector = chardet.UniversalDetector()
         for text in items:
-            if not isinstance(text, six.binary_type):
+            if not isinstance(text, (six.string_types, six.binary_type)):
                 continue
+            if not isinstance(text, six.binary_type):
+                text = text.encode('utf-8')
             detector.feed(text)
             if detector.done:
                 break

@@ -22,7 +22,7 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
 
     def pdf_alternative_extract(self, pdf_path):
         self.result.emit_pdf_alternative(pdf_path)
-        pdf = Document(pdf_path)
+        pdf = Document(pdf_path.encode('utf-8'))
         self.pdf_extract(pdf)
 
     def pdf_extract_page(self, temp_dir, page):
@@ -31,7 +31,7 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
         texts = page.lines
 
         image_path = os.path.join(temp_dir, str(uuid.uuid4()))
-        page.extract_images(path=image_path, prefix='img')
+        page.extract_images(path=image_path.encode('utf-8'), prefix=b'img')
         for image_file in glob.glob(os.path.join(image_path, "*.png")):
             with open(image_file, 'rb') as fh:
                 text = self.extract_text_from_image(fh.read())

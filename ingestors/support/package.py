@@ -38,7 +38,7 @@ class PackageSupport(TempFileSupport, EncodingSupport):
         file_name = os.path.basename(out_path)
         try:
             log.debug("Unpack: %s -> %s", self.result, file_name)
-            with open(out_path, 'w') as out_fh:
+            with open(out_path, 'wb') as out_fh:
                 shutil.copyfileobj(fh, out_fh)
         finally:
             fh.close()

@@ -12,7 +12,7 @@ from ingestors.exc import ProcessingException
 class HTMLSupport(object):
     """Provides helpers for HTML file context extraction."""
     # this is from lxml/apihelpers.pxi
-    RE_XML_ENCODING = re.compile(ur'^(<\?xml[^>]+)\s+encoding\s*=\s*["\'][^"\']*["\'](\s*\?>|)', re.U)  # noqa
+    RE_XML_ENCODING = re.compile(r'^(<\?xml[^>]+)\s+encoding\s*=\s*["\'][^"\']*["\'](\s*\?>|)', re.U)  # noqa
 
     cleaner = Cleaner(
         page_structure=True,

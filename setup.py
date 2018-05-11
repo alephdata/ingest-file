@@ -13,6 +13,9 @@ setup(
     packages=find_packages(exclude=['tests']),
     package_dir={'ingestors': 'ingestors'},
     include_package_data=True,
+    # This doesn't work. pip gets the package from PyPI anyway.
+    # Same as https://github.com/pypa/setuptools/issues/987
+    dependency_links=['git+https://github.com/mailgun/flanker.git@ce552940497d10a167aa5ee25c0ef8a89f3e080f#egg=flanker'],
     install_requires=[
         'six >= 1.11.0',
         'banal >= 0.3.4',
@@ -32,7 +35,7 @@ setup(
         'python-magic >= 0.4.12',
         'pypdf2 >= 1.26.0',
         'rarfile >= 3.0',
-        'flanker >= 0.4.38, <= 0.8.4',
+        'flanker',
         'imapclient >= 1.0.2',
         'dbf >= 0.96.8',
         'pdflib >= 0.1.5',

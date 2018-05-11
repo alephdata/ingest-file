@@ -52,9 +52,8 @@ class Ingestor(object):
         if mime_type in cls._MIME_TYPES:
             return cls.SCORE
 
-        if not hasattr(cls, '_EXTENSIONS'):
-            cls._EXTENSIONS = [normalize_extension(e) for e in cls.EXTENSIONS]
-            cls._EXTENSIONS = [e for e in cls._EXTENSIONS if e is not None]
+        cls._EXTENSIONS = [normalize_extension(e) for e in cls.EXTENSIONS]
+        cls._EXTENSIONS = [e for e in cls._EXTENSIONS if e is not None]
 
         extension = normalize_extension(result.file_name)
         if extension in cls._EXTENSIONS:

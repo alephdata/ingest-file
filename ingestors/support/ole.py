@@ -8,7 +8,7 @@ class OLESupport(object):
     """Provides helpers for Microsoft OLE files."""
 
     def extract_ole_metadata(self, file_path):
-        with open(file_path, 'r') as fh:
+        with open(file_path, 'rb') as fh:
             if not isOleFile(fh):
                 return
             fh.seek(0)
