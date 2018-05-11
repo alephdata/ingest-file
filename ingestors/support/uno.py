@@ -67,7 +67,7 @@ class UnoconvSupport(object):
             if res.status_code == 400:
                 raise ProcessingException(res.text)
 
-            with open(out_path, 'w') as fh:
+            with open(out_path, 'wb') as fh:
                 for chunk in res.iter_content(chunk_size=None):
                     fh.write(chunk)
             return out_path
