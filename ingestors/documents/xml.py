@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import os
+import six
 from lxml import etree, html
 from lxml.etree import ParseError, ParserError
 
@@ -13,12 +14,8 @@ from ingestors.exc import ProcessingException
 class XMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
     "XML file ingestor class. Generates a tabular HTML representation."
 
-    MIME_TYPES = [
-        'text/xml'
-    ]
-    EXTENSIONS = [
-        'xml'
-    ]
+    MIME_TYPES = ['text/xml']
+    EXTENSIONS = ['xml']
     SCORE = 1
     MAX_SIZE = 4 * 1024 * 1024
     XSLT = etree.XML(b"""<?xml version="1.0" encoding="UTF-8"?>
@@ -74,7 +71,7 @@ class XMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
         transform = etree.XSLT(self.XSLT)
         html_doc = transform(doc)
         html_body = html.tostring(html_doc,
-                                  encoding='unicode',
+                                  encoding=six.text_type,
                                   pretty_print=True)
         self.result.flag(self.result.FLAG_HTML)
         self.result.emit_html_body(html_body, text)

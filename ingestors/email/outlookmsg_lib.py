@@ -5,7 +5,7 @@ ExtractMsg:
 
 https://github.com/mattgwwalker/msg-extractor
 """
-import sys
+import six
 import string
 import olefile as OleFile
 from normality import guess_encoding
@@ -159,10 +159,7 @@ properties = {
 def windowsUnicode(string):  # pragma: no cover
     if string is None:
         return None
-    if sys.version_info[0] >= 3:  # Python 3
-        return str(string, 'utf_16_le')
-    else:  # Python 2
-        return unicode(string, 'utf_16_le')
+    return six.text_type(string, 'utf_16_le')
 
 
 class Attachment:  # pragma: no cover
