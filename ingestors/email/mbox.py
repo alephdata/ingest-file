@@ -8,9 +8,7 @@ from ingestors.util import join_path
 class MboxFileIngestor(RFC822Ingestor):
     DEFAULT_MIME = 'application/mbox'
     MIME_TYPES = [DEFAULT_MIME]
-    EXTENSIONS = [
-        'mbox'
-    ]
+    EXTENSIONS = ['mbox']
     MAGIC = 'From '
     SCORE = 6
 
@@ -19,17 +17,21 @@ class MboxFileIngestor(RFC822Ingestor):
         self.result.mime_type = self.DEFAULT_MIME
         self.result.flag(self.result.FLAG_PACKAGE)
 
-        for i, msg in enumerate(mbox, 1):
+        for i, msg in enumerate(mbox.itervalues(), 1):
+            # print(dir(msg))
+            # print(type(msg))
+            # assert False
             msg_path = join_path(self.work_path, '%s.eml' % i)
             with open(msg_path, 'wb') as fh:
                 # Work around for https://bugs.python.org/issue27321.
-                try:
-                    msg_text = email.message.Message.as_string(msg)
-                except KeyError:
-                    msg_text = email.message.Message.as_bytes(msg).decode(
-                        'utf-8', 'replace'
-                    )
-                fh.write(msg_text.encode('utf-8'))
+                fh.write(msg.as_bytes())
+                # try:
+                #     msg_text = email.message.Message.as_string(msg)
+                # except KeyError:
+                #     msg_text = email.message.Message.as_bytes(msg).decode(
+                #         'utf-8', 'replace'
+                #     )
+                # fh.write(msg_text.encode('utf-8'))
 
             child_id = join_path(self.result.id, str(i))
             self.manager.handle_child(self.result,

@@ -1,9 +1,6 @@
 import six
 import logging
-try:
-    import cchardet as chardet
-except ImportError:
-    import chardet
+import chardet
 from normality.encoding import guess_file_encoding, normalize_result
 
 from ingestors.exc import ProcessingException
@@ -23,10 +20,8 @@ class EncodingSupport(object):
     def detect_list_encoding(self, items, default=DEFAULT_ENCODING):
         detector = chardet.UniversalDetector()
         for text in items:
-            if not isinstance(text, (six.string_types, six.binary_type)):
-                continue
             if not isinstance(text, six.binary_type):
-                text = text.encode('utf-8')
+                continue
             detector.feed(text)
             if detector.done:
                 break
@@ -37,16 +32,16 @@ class EncodingSupport(object):
     def read_file_decoded(self, file_path):
         encoding = self.result.encoding
         with open(file_path, 'rb') as fh:
-            if encoding is None:
-                encoding = self.detect_stream_encoding(fh)
             body = fh.read()
+            if encoding is None:
+                result = chardet.detect(body)
+                encoding = normalize_result(result, self.DEFAULT_ENCODING)
 
         try:
             body = body.decode(encoding)
             if encoding != self.DEFAULT_ENCODING:
                 log.info("Decoding [%s] as: %s", self.result, encoding)
-            # self.result.encoding = encoding
             return body
         except UnicodeDecodeError as ude:
-            raise ProcessingException('Error decoding file  as %s: %s' %
+            raise ProcessingException('Error decoding file as %s: %s' %
                                       (encoding, ude))

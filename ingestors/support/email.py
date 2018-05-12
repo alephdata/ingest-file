@@ -33,7 +33,7 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
         foreign_id = join_path(self.result.id, name)
 
         file_path = join_path(self.work_path, file_name)
-        with open(file_path, 'w') as fh:
+        with open(file_path, 'wb') as fh:
             if isinstance(body, six.text_type):
                 body = body.encode('utf-8')
             if body is not None:

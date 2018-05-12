@@ -60,6 +60,8 @@ class Manager(object):
                 best_cls = cls
 
         if best_cls is None:
+            log.error("Failed auction [%s]: %s %s",
+                      result, result.file_name, result.mime_type)
             raise ProcessingException("Format not supported: %s" %
                                       result.mime_type)
         return best_cls
@@ -118,9 +120,9 @@ class Manager(object):
         self.checksum_file(result, file_path)
         self.before(result)
         result.status = Result.STATUS_PENDING
-        ingestor_class = self.auction(file_path, result)
-        log.debug("Ingestor [%s]: %s", result, ingestor_class.__name__)
         try:
+            ingestor_class = self.auction(file_path, result)
+            log.debug("Ingestor [%s]: %s", result, ingestor_class.__name__)
             self.delegate(ingestor_class, result, file_path,
                           work_path=work_path)
             result.status = Result.STATUS_SUCCESS
