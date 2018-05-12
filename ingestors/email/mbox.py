@@ -1,4 +1,3 @@
-import email
 import mailbox
 
 from ingestors.email.msg import RFC822Ingestor
@@ -18,20 +17,10 @@ class MboxFileIngestor(RFC822Ingestor):
         self.result.flag(self.result.FLAG_PACKAGE)
 
         for i, msg in enumerate(mbox.itervalues(), 1):
-            # print(dir(msg))
-            # print(type(msg))
-            # assert False
             msg_path = join_path(self.work_path, '%s.eml' % i)
             with open(msg_path, 'wb') as fh:
-                # Work around for https://bugs.python.org/issue27321.
+                # Is there a risk of https://bugs.python.org/issue27321 ?
                 fh.write(msg.as_bytes())
-                # try:
-                #     msg_text = email.message.Message.as_string(msg)
-                # except KeyError:
-                #     msg_text = email.message.Message.as_bytes(msg).decode(
-                #         'utf-8', 'replace'
-                #     )
-                # fh.write(msg_text.encode('utf-8'))
 
             child_id = join_path(self.result.id, str(i))
             self.manager.handle_child(self.result,
