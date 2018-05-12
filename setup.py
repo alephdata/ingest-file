@@ -82,9 +82,6 @@ setup(
             'office = ingestors.documents.office:DocumentIngestor',
             'opendoc = ingestors.documents.opendoc:OpenDocumentIngestor',
             'ooxml = ingestors.documents.ooxml:OfficeOpenXMLIngestor',
-            'image = ingestors.documents.image:ImageIngestor',
-            'tiff = ingestors.documents.tiff:TIFFIngestor',
-            'svg = ingestors.documents.svg:SVGIngestor',
             'djvu = ingestors.documents.djvu:DjVuIngestor',
             'pdf = ingestors.documents.pdf:PDFIngestor',
             'rar = ingestors.packages.rar:RARIngestor',
@@ -106,6 +103,11 @@ setup(
             'ods = ingestors.tabular.ods:OpenOfficeSpreadsheetIngestor',
             'mbox = ingestors.email.mbox:MboxFileIngestor',
             'dbf = ingestors.tabular.dbf:DBFIngestor',
+            'image = ingestors.media.image:ImageIngestor',
+            'tiff = ingestors.media.tiff:TIFFIngestor',
+            'svg = ingestors.media.svg:SVGIngestor',
+            'audio = ingestors.media.audio:AudioIngestor',
+            'video = ingestors.media.video:VideoIngestor'
         ]
     }
 )

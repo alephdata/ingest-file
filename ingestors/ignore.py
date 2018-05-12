@@ -25,14 +25,6 @@ class IgnoreIngestor(Ingestor):
         'application/vnd.ms-office.vbaproject',
         'application/x-x509-ca-cert',
         'text/calendar',
-        'video/quicktime',
-        'video/mp4',
-        'video/x-flv',
-        'audio/mpeg',
-        'audio/mp3',  # TODO: ID3
-        'audio/x-m4a',
-        'audio/x-hx-aac-adts',
-        'audio/x-wav',
         'text/css',
         'application/vnd.ms-opentype',
         'application/x-font-ttf',
@@ -47,10 +39,6 @@ class IgnoreIngestor(Ingestor):
         'psd',  # adobe photoshop
         'indd',  # adobe indesign
         'sql',
-        'avi',
-        'mpg',
-        'mpeg',
-        'mkv',
         'dat',
         'log',
         'pbl',

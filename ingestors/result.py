@@ -17,6 +17,8 @@ class Result(object):
     FLAG_TABULAR = 'tabular'
     FLAG_WORKBOOK = 'workbook'
     FLAG_IMAGE = 'image'
+    FLAG_AUDIO = 'audio'
+    FLAG_VIDEO = 'video'
     FLAG_EMAIL = 'email'
     FLAG_PDF = 'pdf'
     FLAG_HTML = 'html'
