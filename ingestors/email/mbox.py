@@ -1,7 +1,10 @@
+import logging
 import mailbox
 
 from ingestors.email.msg import RFC822Ingestor
 from ingestors.util import join_path
+
+log = logging.getLogger(__name__)
 
 
 class MboxFileIngestor(RFC822Ingestor):
@@ -17,10 +20,15 @@ class MboxFileIngestor(RFC822Ingestor):
         self.result.flag(self.result.FLAG_PACKAGE)
 
         for i, msg in enumerate(mbox.itervalues(), 1):
+            # Is there a risk of https://bugs.python.org/issue27321 ?
             msg_path = join_path(self.work_path, '%s.eml' % i)
-            with open(msg_path, 'wb') as fh:
-                # Is there a risk of https://bugs.python.org/issue27321 ?
-                fh.write(msg.as_bytes())
+            try:
+                with open(msg_path, 'wb') as fh:
+                    fh.write(msg.as_bytes())
+            except Exception:
+                log.exception("[%s] Cannot extract message %s",
+                              self.result, i)
+                continue
 
             child_id = join_path(self.result.id, str(i))
             self.manager.handle_child(self.result,
