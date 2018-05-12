@@ -1,8 +1,7 @@
 language: python
 sudo: required 
 python:
-  - "2.7"
-  # - "3.6"
+  - "3.6"
 
 services:
   - docker
@@ -14,12 +13,12 @@ before_install:
 
 # command to run tests, e.g. python setup.py test
 script:
-  - docker exec ingestors /bin/bash -c "cd /srv; python3 -m 'nose' -v --with-coverage --cover-package=ingestors;"
+  - docker exec ingestors /bin/bash -c "cd /srv; python -m 'nose' -v --with-coverage --cover-package=ingestors;"
 
 after_success:
   - if [[ $TRAVIS_TAG = $TRAVIS_BRANCH ]]; then
-      pip3 install --upgrade six ;
-      pip3 install twine ;
-      python3 setup.py sdist bdist_wheel ;
+      pip install --upgrade six ;
+      pip install twine ;
+      python setup.py sdist bdist_wheel ;
       twine upload dist/* ;
     fi
