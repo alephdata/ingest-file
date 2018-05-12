@@ -56,7 +56,7 @@ class Result(object):
 
     @property
     def label(self):
-        return self.file_name
+        return safe_string(self.file_name) or self.checksum or '<result>'
 
     def flag(self, value):
         self.flags.add(value)
@@ -138,8 +138,8 @@ class Result(object):
             'children': [c.to_dict() for c in self.children]
         }
 
-    def __unicode__(self):
-        return safe_string(self.file_name) or self.checksum
+    def __str__(self):
+        return self.label
 
     def __repr__(self):
         return '<Result(%s,%s)>' % (self.label, self.mime_type)
