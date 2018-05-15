@@ -29,11 +29,13 @@ class SQLiteIngestor(Ingestor, CSVEmitterSupport):
         cur.execute("SELECT * FROM %s;" % table)
         yield [i[0] for i in cur.description]
         while True:
-            rows = cur.fetchmany()
-            if not len(rows):
-                return
-            for row in rows:
+            try:
+                row = cur.one()
+                if row is None:
+                    return
                 yield list(row)
+            except sqlite3.OperationalError as oe:
+                log.warning("SQLite error: %s", oe)
 
     def ingest(self, file_path):
         self.result.flag(self.result.FLAG_WORKBOOK)
