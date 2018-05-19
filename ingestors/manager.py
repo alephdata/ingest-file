@@ -20,6 +20,7 @@ class Manager(object):
 
     RESULT_CLASS = Result
     MAGIC = magic.Magic(mime=True)
+    INGESTORS = []
 
     def __init__(self, config):
         self.config = config
@@ -36,11 +37,10 @@ class Manager(object):
 
     @property
     def ingestors(self):
-        if not hasattr(self, '_ingestors'):
-            self._ingestors = []
+        if not len(self.INGESTORS):
             for ep in iter_entry_points('ingestors'):
-                self._ingestors.append(ep.load())
-        return self._ingestors
+                self.INGESTORS.append(ep.load())
+        return self.INGESTORS
 
     def auction(self, file_path, result):
         if not is_file(file_path):
@@ -60,8 +60,6 @@ class Manager(object):
                 best_cls = cls
 
         if best_cls is None:
-            log.error("Failed auction [%s]: %s %s",
-                      result, result.file_name, result.mime_type)
             raise ProcessingException("Format not supported: %s" %
                                       result.mime_type)
         return best_cls
