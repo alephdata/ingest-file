@@ -4,6 +4,7 @@ import shutil
 
 from banal import decode_path
 from normality import stringify
+from normality.cleaning import remove_unsafe_chars
 
 
 def safe_string(data, encoding_default='utf-8', encoding=None):
@@ -11,6 +12,9 @@ def safe_string(data, encoding_default='utf-8', encoding=None):
     data = stringify(data,
                      encoding_default=encoding_default,
                      encoding=encoding)
+    if data is None:
+        return
+    data = remove_unsafe_chars(data)
     if isinstance(data, six.text_type):
         data = data.encode(encoding_default, 'replace')
         data = data.decode(encoding_default)
