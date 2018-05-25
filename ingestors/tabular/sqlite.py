@@ -30,7 +30,7 @@ class SQLiteIngestor(Ingestor, CSVEmitterSupport):
         yield [i[0] for i in cur.description]
         while True:
             try:
-                row = cur.one()
+                row = cur.fetchone()
                 if row is None:
                     return
                 yield list(row)
