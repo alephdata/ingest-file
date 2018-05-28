@@ -80,7 +80,7 @@ class ImageIngestor(Ingestor, OCRSupport, PlainTextSupport):
         image = self.parse_image(data)
         self.extract_exif(image)
 
-        text = self.extract_text_from_image(data, image=image)
+        text = self.extract_text_from_image(data)
         self.extract_plain_text_content(text)
 
     @classmethod

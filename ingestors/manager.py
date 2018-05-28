@@ -8,6 +8,7 @@ from pkg_resources import iter_entry_points
 
 from ingestors.result import Result
 from ingestors.directory import DirectoryIngestor
+from ingestors.services.tesseract import TesseractService
 from ingestors.exc import ProcessingException
 from ingestors.util import is_file, safe_string
 
@@ -22,8 +23,9 @@ class Manager(object):
     MAGIC = magic.Magic(mime=True)
     INGESTORS = []
 
-    def __init__(self, config):
+    def __init__(self, config, ocr_service=None):
         self.config = config
+        self._ocr_service = ocr_service
 
     def get_env(self, name, default=None):
         """Get configuration from local config or environment."""
@@ -41,6 +43,12 @@ class Manager(object):
             for ep in iter_entry_points('ingestors'):
                 self.INGESTORS.append(ep.load())
         return self.INGESTORS
+
+    @property
+    def ocr_service(self):
+        if self._ocr_service is None:
+            self._ocr_service = TesseractService()
+        return self._ocr_service
 
     def auction(self, file_path, result):
         if not is_file(file_path):
