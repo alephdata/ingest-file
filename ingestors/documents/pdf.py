@@ -3,6 +3,7 @@ from pdflib import Document
 
 from ingestors.base import Ingestor
 from ingestors.support.pdf import PDFSupport
+from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
@@ -52,7 +53,7 @@ class PDFIngestor(Ingestor, PDFSupport):
             self.extract_metadata(pdf)
             self.pdf_extract(pdf)
         except Exception:
-            log.warning('Cannot read PDF: %s', file_path)
+            raise ProcessingException("Could not extract PDF file.")
 
     @classmethod
     def match(cls, file_path, result=None):
