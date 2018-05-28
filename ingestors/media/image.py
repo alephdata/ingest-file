@@ -4,12 +4,13 @@ from PIL import ExifTags
 
 from ingestors.base import Ingestor
 from ingestors.support.ocr import OCRSupport
+from ingestors.support.image import ImageSupport
 from ingestors.support.plain import PlainTextSupport
 
 log = logging.getLogger(__name__)
 
 
-class ImageIngestor(Ingestor, OCRSupport, PlainTextSupport):
+class ImageIngestor(Ingestor, OCRSupport, ImageSupport, PlainTextSupport):
     """Image file ingestor class.
 
     Extracts the text from images using OCR.
