@@ -1,4 +1,5 @@
 import logging
+import subprocess
 from normality import safe_filename
 
 from ingestors.base import Ingestor
@@ -24,7 +25,7 @@ class AccessIngestor(Ingestor, ShellSupport):
     def get_tables(self, local_path):
         mdb_tables = self.find_command('mdb-tables')
         try:
-            output = self.subprocess.check_output([mdb_tables, local_path])
+            output = subprocess.check_output([mdb_tables, local_path])
             return [
                 t.strip().decode('utf-8')
                 for t in output.split(b' ') if len(t.strip())

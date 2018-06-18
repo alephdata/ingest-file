@@ -36,7 +36,7 @@ class TarIngestor(PackageSupport, Ingestor):
                     except Exception as ex:
                         # TODO: should this be a fatal error?
                         log.debug("Failed to unpack [%r]: %s", name, ex)
-        except (tarfile.TarError, IOError) as err:
+        except (tarfile.TarError, IOError, EOFError) as err:
             raise ProcessingException('Invalid Tar file: %s' % err)
 
     @classmethod

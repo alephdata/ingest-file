@@ -1,5 +1,4 @@
 import os
-import six
 import shutil
 import logging
 
@@ -14,7 +13,7 @@ log = logging.getLogger(__name__)
 class PackageSupport(TempFileSupport, EncodingSupport):
 
     def ensure_path(self, base_dir, name, encoding='utf-8'):
-        if isinstance(name, six.binary_type):
+        if isinstance(name, bytes):
             name = name.decode(encoding, 'ignore')
 
         out_path = join_path(base_dir, name)

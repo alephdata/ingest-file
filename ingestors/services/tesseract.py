@@ -5,8 +5,6 @@ from PIL import Image
 from threading import local
 from banal import ensure_list
 from tesserocr import PyTessBaseAPI, PSM  # noqa
-from PIL.Image import DecompressionBombError as DBE
-from PIL.Image import DecompressionBombWarning as DBW
 
 from ingestors.services.interfaces import OCRService
 
@@ -155,8 +153,8 @@ class TesseractService(OCRService):
             image = Image.open(BytesIO(data))
             api.SetImage(image)
             return api.GetUTF8Text()
-        except (DBE, DBW, IOError, RuntimeError, SyntaxError) as re:
-            log.exception("Failed to OCR: %s", languages)
+        except Exception as ex:
+            log.warning("Failed to OCR: %s", ex)
             return None
         finally:
             api.Clear()

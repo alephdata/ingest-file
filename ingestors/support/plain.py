@@ -1,4 +1,3 @@
-import six
 from normality import stringify
 
 from ingestors.exc import ProcessingException
@@ -10,7 +9,7 @@ class PlainTextSupport(object):
     def extract_plain_text_content(self, text):
         """Ingestor implementation."""
         try:
-            if not isinstance(text, six.text_type):
+            if not isinstance(text, str):
                 text = stringify(text)
             if text is not None:
                 text.encode('utf-8')

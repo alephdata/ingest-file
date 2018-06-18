@@ -1,4 +1,3 @@
-import six
 import logging
 import chardet
 from normality.encoding import guess_file_encoding, normalize_result
@@ -20,7 +19,7 @@ class EncodingSupport(object):
     def detect_list_encoding(self, items, default=DEFAULT_ENCODING):
         detector = chardet.UniversalDetector()
         for text in items:
-            if not isinstance(text, six.binary_type):
+            if not isinstance(text, bytes):
                 continue
             detector.feed(text)
             if detector.done:

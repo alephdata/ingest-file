@@ -16,7 +16,6 @@ setup(
     # This doesn't work. pip gets the package from PyPI anyway.
     # Same as https://github.com/pypa/setuptools/issues/987
     install_requires=[
-        'six >= 1.11.0',
         'banal >= 0.3.4',
         'normality >= 0.5.11',
         'celestial >= 0.2.3',
@@ -25,7 +24,6 @@ setup(
         'xlrd >= 1.1.0',
         'openpyxl >= 2.4.9',
         'odfpy >= 1.3.5',
-        'backports.csv >= 1.0.5',
         'cchardet >= 2.1.1',
         'lxml >= 4.2.1',
         'pillow >= 5.1.0',
@@ -42,7 +40,6 @@ setup(
         # 'google-cloud-vision'
     ],
     extras_require={
-        ':python_version<"3"': ['subprocess32'],
         'dev': [
             'pip>=10.0.0',
             'bumpversion>=0.5.3',
@@ -64,9 +61,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',

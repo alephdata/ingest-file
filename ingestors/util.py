@@ -1,5 +1,4 @@
 import os
-import six
 import shutil
 
 from banal import decode_path
@@ -15,7 +14,7 @@ def safe_string(data, encoding_default='utf-8', encoding=None):
     if data is None:
         return
     data = remove_unsafe_chars(data)
-    if isinstance(data, six.text_type):
+    if isinstance(data, str):
         data = data.encode(encoding_default, 'replace')
         data = data.decode(encoding_default)
     return data

@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import re
-import six
 import email
 import logging
 from time import mktime
@@ -34,7 +33,7 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
 
         file_path = join_path(self.work_path, file_name)
         with open(file_path, 'wb') as fh:
-            if isinstance(body, six.text_type):
+            if isinstance(body, str):
                 body = body.encode('utf-8')
             if body is not None:
                 fh.write(body)

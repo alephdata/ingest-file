@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-import six
 import logging
 from collections import defaultdict
 from flanker import mime
@@ -41,13 +40,13 @@ class RFC822Ingestor(Ingestor, EmailSupport):
 
         try:
             if msg.subject:
-                self.update('title', six.text_type(msg.subject))
+                self.update('title', str(msg.subject))
         except DecodingError as derr:
             log.warning("Decoding subject: %s", derr)
 
         try:
             if msg.message_id:
-                self.update('message_id', six.text_type(msg.message_id))
+                self.update('message_id', str(msg.message_id))
         except DecodingError as derr:
             log.warning("Decoding message ID: %s", derr)
 
@@ -73,7 +72,7 @@ class RFC822Ingestor(Ingestor, EmailSupport):
                 if file_name[:half] == file_name[half:]:
                     file_name = file_name[:half]
 
-            mime_type = six.text_type(part.detected_content_type)
+            mime_type = str(part.detected_content_type)
             mime_type = normalize_mimetype(mime_type)
 
             if part.is_attachment():

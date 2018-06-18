@@ -1,7 +1,5 @@
 from io import BytesIO
 from PIL import Image
-from PIL.Image import DecompressionBombError as DBE
-from PIL.Image import DecompressionBombWarning as DBW
 
 from ingestors.exc import ProcessingException
 
@@ -15,9 +13,5 @@ class ImageSupport(object):
             image = Image.open(BytesIO(data))
             image.load()
             return image
-        except (DBE, DBW) as dce:
-            raise ProcessingException("Image too large: %r" % dce)
-        except IOError as ioe:
-            raise ProcessingException("Unknown image format: %r" % ioe)
-        except (RuntimeError, SyntaxError) as err:
+        except Exception as err:
             raise ProcessingException("Failed to load image: %r" % err)

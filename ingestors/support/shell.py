@@ -1,13 +1,8 @@
 import os
-import six
 import logging
+import subprocess
 from distutils.spawn import find_executable
 from ingestors.exc import SystemException, ProcessingException
-
-if six.PY2:
-    import subprocess32 as subprocess  # noqa
-else:
-    import subprocess  # noqa
 
 log = logging.getLogger(__name__)
 
@@ -17,8 +12,6 @@ class ShellSupport(object):
 
     #: Convertion time before the job gets cancelled.
     COMMAND_TIMEOUT = 10 * 60
-
-    subprocess = subprocess
 
     def find_command(self, name):
         config_name = '%s_bin' % name

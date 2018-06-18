@@ -1,6 +1,6 @@
-import shutil
-import gzip
 import bz2
+import gzip
+import shutil
 import tarfile
 
 from ingestors.base import Ingestor

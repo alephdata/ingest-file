@@ -1,4 +1,3 @@
-import six
 import logging
 from datetime import datetime
 from odf.opendocument import load
@@ -24,7 +23,7 @@ class OpenDocumentSupport(object):
             raise ProcessingException("Cannot open document.")
 
         for child in doc.meta.childNodes:
-            value = six.text_type(child)
+            value = str(child)
             if child.tagName == 'dc:title':
                 self.update('title', value)
             if child.tagName == 'dc:description':

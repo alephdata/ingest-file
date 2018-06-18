@@ -1,8 +1,8 @@
 from __future__ import unicode_literals
 
 import io
+import csv
 import logging
-from backports import csv
 from collections import OrderedDict
 
 from ingestors.base import Ingestor

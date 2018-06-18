@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import os
-import six
 from lxml import etree, html
 from lxml.etree import ParseError, ParserError
 
@@ -70,8 +69,6 @@ class XMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
         text = self.extract_html_text(doc.getroot())
         transform = etree.XSLT(self.XSLT)
         html_doc = transform(doc)
-        html_body = html.tostring(html_doc,
-                                  encoding=six.text_type,
-                                  pretty_print=True)
+        html_body = html.tostring(html_doc, encoding=str, pretty_print=True)
         self.result.flag(self.result.FLAG_HTML)
         self.result.emit_html_body(html_body, text)
