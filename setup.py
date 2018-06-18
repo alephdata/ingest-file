@@ -32,7 +32,7 @@ setup(
         'python-magic >= 0.4.12',
         'pypdf2 >= 1.26.0',
         'rarfile >= 3.0',
-        'flanker >= 0.9.2',
+        'flanker >= 0.9.0',
         'ply == 3.10',
         'imapclient >= 1.0.2',
         'dbf >= 0.96.8',
