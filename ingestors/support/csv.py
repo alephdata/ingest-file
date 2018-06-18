@@ -1,6 +1,6 @@
 import io
+import csv
 import logging
-from backports import csv
 from normality import safe_filename, stringify
 
 from ingestors.util import join_path
