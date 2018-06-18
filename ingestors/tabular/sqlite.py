@@ -3,6 +3,7 @@ import sqlite3
 
 from ingestors.base import Ingestor
 from ingestors.support.csv import CSVEmitterSupport
+from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +27,12 @@ class SQLiteIngestor(Ingestor, CSVEmitterSupport):
     def generate_rows(self, conn, table):
         cur = conn.cursor()
         # FIXME make this a parameter somehow.
-        cur.execute("SELECT * FROM %s;" % table)
+        try:
+            cur.execute("SELECT * FROM %s;" % table)
+        except sqlite3.OperationalError as oe:
+            log.warning("SQLite error: %s", oe)
+            raise ProcessingException("Cannot query table: %s" % table)
+
         yield [i[0] for i in cur.description]
         while True:
             try:

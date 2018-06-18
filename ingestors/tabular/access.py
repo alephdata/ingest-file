@@ -38,7 +38,7 @@ class AccessIngestor(Ingestor, ShellSupport):
         mdb_export = self.find_command('mdb-export')
         args = [mdb_export, '-b', 'strip', file_path, table_name]
         with open(csv_path, 'w') as fh:
-            self.subprocess.call(args, stdout=fh)
+            subprocess.call(args, stdout=fh)
         return csv_path
 
     def ingest(self, file_path):

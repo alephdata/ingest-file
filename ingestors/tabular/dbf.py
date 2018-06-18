@@ -1,11 +1,12 @@
 from __future__ import absolute_import
 
 import logging
-from dbf import Table
+from dbf import Table, DbfError
 from collections import OrderedDict
 
 from ingestors.base import Ingestor
 from ingestors.util import safe_string
+from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
@@ -32,6 +33,9 @@ class DBFIngestor(Ingestor):
                 log.warning("Cannot decode DBF row: %s", ex)
 
     def ingest(self, file_path):
-        table = Table(file_path).open()
         self.result.flag(self.result.FLAG_TABULAR)
-        self.result.emit_rows(self.generate_rows(table))
+        try:
+            table = Table(file_path).open()
+            self.result.emit_rows(self.generate_rows(table))
+        except DbfError as err:
+            raise ProcessingException('Cannot open DBF file: %s' % err)
