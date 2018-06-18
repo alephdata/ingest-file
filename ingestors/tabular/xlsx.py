@@ -43,6 +43,8 @@ class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
             for name in book.sheetnames:
                 rows = self.generate_csv(book[name])
                 self.csv_child_iter(rows, name)
+        except Exception as err:
+            raise ProcessingException('Cannot read Excel file: %s' % err)
         finally:
             book.close()
 
