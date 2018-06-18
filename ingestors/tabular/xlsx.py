@@ -1,5 +1,6 @@
 import logging
 from openpyxl import load_workbook
+from xml.etree.ElementTree import ParseError
 
 from ingestors.base import Ingestor
 from ingestors.support.csv import CSVEmitterSupport
@@ -27,7 +28,7 @@ class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
         for row in sheet.rows:
             try:
                 yield [safe_string(c.value) for c in row]
-            except (ValueError, OverflowError) as ve:
+            except (ValueError, OverflowError, ParseError) as ve:
                 log.warning("Failed to read Excel row: %s", ve)
 
     def ingest(self, file_path):
