@@ -1,4 +1,5 @@
 import logging
+import datetime
 
 from pymediainfo import MediaInfo
 
@@ -33,10 +34,18 @@ class VideoIngestor(Ingestor):
             self.update('generator', track.writing_application)
             self.update('generator', track.writing_library)
             self.update('generator', track.publisher)
-            self.update('created_at', track.encoded_date)
-            self.update('created_at', track.tagged_date)
-            self.update('created_at', track.recorded_date)
-            self.update('modified_at', track.file_last_modification_date)
+            for val in (
+                track.encoded_date, track.tagged_date, track.recorded_date
+            ):
+                if val:
+                    date = datetime.datetime.strptime(val, "%Z %Y-%m-%d %H:%M:%S")
+                    self.update('created_at', date)
+                    break
+            if track.file_last_modification_date:
+                date = datetime.datetime.strptime(
+                    track.file_last_modification_date, "%Z %Y-%m-%d %H:%M:%S"
+                )
+                self.update('modified_at', date)
             self.update('duration', track.duration)
 
     @classmethod
