@@ -13,8 +13,6 @@ setup(
     packages=find_packages(exclude=['tests']),
     package_dir={'ingestors': 'ingestors'},
     include_package_data=True,
-    # This doesn't work. pip gets the package from PyPI anyway.
-    # Same as https://github.com/pypa/setuptools/issues/987
     install_requires=[
         'banal >= 0.3.4',
         'normality >= 0.5.11',
@@ -37,6 +35,7 @@ setup(
         'imapclient >= 1.0.2',
         'dbf >= 0.96.8',
         'pdflib >= 0.1.5',
+        'pymediainfo >= 2.3.0',
         # 'google-cloud-vision'
     ],
     extras_require={

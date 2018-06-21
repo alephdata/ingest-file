@@ -55,6 +55,8 @@ class Result(object):
         self.rows = []
         self.children = []
         self.pdf_path = None
+        self.duration = None
+        self.sampling_rate = None
 
     @property
     def label(self):
@@ -137,6 +139,8 @@ class Result(object):
             'rows': self.rows,
             'body_text': self.body_text,
             'body_html': self.body_html,
+            'duration': self.duration, # in ms
+            'sampling_rate': self.sampling_rate, # in khz
             'children': [c.to_dict() for c in self.children]
         }
 
