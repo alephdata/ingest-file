@@ -1,4 +1,4 @@
-FROM alephdata/platform:2.1.0
+FROM alephdata/platform:2.1.5
 
 RUN apt-get -qq -y update \
     && apt-get -qq -y install libreoffice
