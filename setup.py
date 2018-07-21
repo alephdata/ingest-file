@@ -20,7 +20,7 @@ setup(
         'urllib3 >= 1.21',
         'requests >= 2.18.4',
         'xlrd >= 1.1.0',
-        'openpyxl >= 2.4.9',
+        'openpyxl >= 2.5.3',
         'odfpy >= 1.3.5',
         'cchardet >= 2.1.1',
         'lxml >= 4.2.1',

@@ -43,7 +43,7 @@ class CSVIngestor(Ingestor, EncodingSupport):
             encoding = self.detect_stream_encoding(fh)
             log.debug("Detected encoding [%s]: %s", self.result, encoding)
 
-        fh = io.open(file_path, 'r', newline='', encoding=encoding)
+        fh = io.open(file_path, 'r', encoding=encoding, errors='replace')
         try:
             sample = fh.read(4096 * 10)
             fh.seek(0)
