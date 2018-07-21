@@ -8,17 +8,14 @@ services:
 
 before_install:
   - docker build -t alephdata/ingestors .
-  - docker run -di --rm -v $TRAVIS_BUILD_DIR:/srv --name ingestors alephdata/ingestors /bin/bash
-  - docker ps | grep -q ingestors
 
 # command to run tests, e.g. python setup.py test
 script:
-  - docker exec ingestors /bin/bash -c "cd /srv; python -m 'nose' -v --with-coverage --cover-package=ingestors;"
+  - make tests
 
 after_success:
+  - docker push alephdata/ingestors
   - if [[ $TRAVIS_TAG = $TRAVIS_BRANCH ]]; then
-      pip install --upgrade six ;
-      pip install twine ;
-      python setup.py sdist bdist_wheel ;
+      make dist ;
       twine upload dist/* ;
     fi

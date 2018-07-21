@@ -40,16 +40,11 @@ setup(
     ],
     extras_require={
         'dev': [
-            'pip>=10.0.0',
             'bumpversion>=0.5.3',
             'wheel>=0.29.0',
             'flake8>=2.6.0',
             'nose',
-            'coverage>=4.1',
-            'Sphinx>=1.5.3',
-            'sphinx-autoapi>=0.4.0',
-            'sphinx_rtd_theme>=0.1.9',
-            'recommonmark>=0.4.0'
+            'coverage>=4.1'
         ]
     },
     license="MIT",
