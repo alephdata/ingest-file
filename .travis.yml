@@ -15,6 +15,7 @@ script:
   - make test
 
 after_success:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker push alephdata/ingestors
   - if [[ $TRAVIS_TAG = $TRAVIS_BRANCH ]]; then
       make dist ;
