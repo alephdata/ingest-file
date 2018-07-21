@@ -6,7 +6,7 @@ python:
 services:
   - docker
 
-before_install:
+install:
   - docker pull alephdata/ingestors
   - docker build --cache-from alephdata/ingestors -t alephdata/ingestors .
 

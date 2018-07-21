@@ -1,7 +1,8 @@
 DOCKER=docker run -v $(PWD)/dist:/ingestors/dist -ti alephdata/ingestors
 
 build:
-	docker build -t alephdata/ingestors .
+	# docker pull alephdata/ingestors
+	docker build --cache-from alephdata/ingestors -t alephdata/ingestors .
 
 shell:
 	$(DOCKER) bash
