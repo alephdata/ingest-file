@@ -7,8 +7,8 @@ services:
   - docker
 
 before_install:
-  # - docker build --cache-from alephdata/ingestors -t alephdata/ingestors .
-  - docker build -t alephdata/ingestors .
+  - docker pull alephdata/ingestors
+  - docker build --cache-from alephdata/ingestors -t alephdata/ingestors .
 
 # command to run tests, e.g. python setup.py test
 script:

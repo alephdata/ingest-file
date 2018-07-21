@@ -26,7 +26,6 @@ setup(
         'lxml >= 4.2.1',
         'pillow >= 5.1.0',
         'olefile >= 0.44',
-        'tesserocr >= 2.2.2',
         'python-magic >= 0.4.12',
         'pypdf2 >= 1.26.0',
         'rarfile >= 3.0',
@@ -36,7 +35,6 @@ setup(
         'dbf >= 0.96.8',
         'pdflib >= 0.1.5',
         'pymediainfo >= 2.3.0',
-        # 'google-cloud-vision'
     ],
     extras_require={
         'dev': [
@@ -45,6 +43,12 @@ setup(
             'flake8>=2.6.0',
             'nose',
             'coverage>=4.1'
+        ],
+        'tesseract': [
+            'tesserocr >= 2.2.2',
+        ],
+        'googlevision': [
+            'google-cloud-vision',
         ]
     },
     license="MIT",
