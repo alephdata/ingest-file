@@ -6,7 +6,7 @@ RUN echo "deb http://http.us.debian.org/debian stretch non-free" >/etc/apt/sourc
 RUN apt-get -q -y update \
     && apt-get -q -y install build-essential apt-utils locales \
         # python deps (mostly to install their dependencies)
-        python3-pip python3-dev python3-pil libboost-python-dev \
+        python3-pip python3-dev python3-pil \
         # libraries
         libxslt1-dev libgsf-1-dev zlib1g-dev libicu-dev libxml2-dev \
         # package tools
