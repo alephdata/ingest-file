@@ -1,6 +1,5 @@
 import logging
 from hashlib import sha1
-from tesserocr import PyTessBaseAPI, PSM  # noqa
 
 log = logging.getLogger(__name__)
 

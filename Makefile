@@ -18,3 +18,5 @@ dist: ## builds source and wheel package
 
 clean: 
 	rm -fr dist/
+
+.PHONY: dist build test shell clean

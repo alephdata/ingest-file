@@ -8,7 +8,6 @@ from pkg_resources import iter_entry_points
 
 from ingestors.result import Result
 from ingestors.directory import DirectoryIngestor
-from ingestors.services.tesseract import TesseractService
 from ingestors.exc import ProcessingException
 from ingestors.util import is_file, safe_string
 
@@ -47,7 +46,11 @@ class Manager(object):
     @property
     def ocr_service(self):
         if self._ocr_service is None:
-            self._ocr_service = TesseractService()
+            try:
+                from ingestors.services.tesseract import TesseractService
+                self._ocr_service = TesseractService()
+            except ImportError:
+                log.info("Cannot load tesseract OCR service.")
         return self._ocr_service
 
     def auction(self, file_path, result):
