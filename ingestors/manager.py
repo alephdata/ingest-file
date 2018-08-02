@@ -83,14 +83,6 @@ class Manager(object):
         """Callback called after the processing starts."""
         pass
 
-    def get_cache(self, key):
-        """Stub handler for results memoization."""
-        return None
-
-    def set_cache(self, key, value):
-        """Stub handler for results memoization."""
-        pass
-
     def handle_child(self, parent, file_path, **kwargs):
         result = self.RESULT_CLASS(file_path=file_path, **kwargs)
         parent.children.append(result)
