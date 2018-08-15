@@ -1,5 +1,5 @@
 import logging
-import datetime
+from datetime import datetime
 
 from pymediainfo import MediaInfo
 
@@ -36,6 +36,13 @@ class AudioIngestor(Ingestor):
     ]
     SCORE = 3
 
+    def parse_date(self, text):
+        try:
+            return datetime.strptime(text, "%Z %Y-%m-%d %H:%M:%S")
+        except Exception:
+            log.warning("Cannot parse date: %s", text)
+            return None
+
     def ingest(self, file_path):
         self.result.flag(self.result.FLAG_AUDIO)
         log.info("[%s] flagged as audio.", self.result)
@@ -45,18 +52,11 @@ class AudioIngestor(Ingestor):
             self.update('generator', track.writing_application)
             self.update('generator', track.writing_library)
             self.update('generator', track.publisher)
-            for val in (
-                track.encoded_date, track.tagged_date, track.recorded_date
-            ):
-                if val:
-                    date = datetime.datetime.strptime(val, "%Z %Y-%m-%d %H:%M:%S")
-                    self.update('created_at', date)
-                    break
-            if track.file_last_modification_date:
-                date = datetime.datetime.strptime(
-                    track.file_last_modification_date, "%Z %Y-%m-%d %H:%M:%S"
-                )
-                self.update('modified_at', date)
+            self.update('created_at', self.parse_date(track.recorded_date))
+            self.update('created_at', self.parse_date(track.tagged_date))
+            self.update('created_at', self.parse_date(track.encoded_date))
+            modified_at = self.parse_date(track.file_last_modification_date)
+            self.update('modified_at', modified_at)
             if track.sampling_rate:
                 self.update('sampling_rate', str(track.sampling_rate/1000.0))
             self.update('duration', track.duration)
