@@ -6,11 +6,12 @@ from google.cloud.vision import ImageAnnotatorClient
 from google.cloud.vision import types
 
 from ingestors.services.interfaces import OCRService
+from ingestors.services.util import OCRUtils
 
 log = logging.getLogger(__name__)
 
 
-class GoogleVisionService(OCRService):
+class GoogleVisionService(OCRService, OCRUtils):
 
     def __init__(self):
         credentials, project_id = google.auth.default()
@@ -27,7 +28,9 @@ class GoogleVisionService(OCRService):
     def extract_text_from_image(self, data, languages=None):
         # TODO: downsample very large images, or make them
         # grayscale before sending into gRPC.
-        image = types.Image(content=data)
-        res = self.client.document_text_detection(image)
-        ann = res.full_text_annotation
-        return ann.text
+        data = self.ensure_size(data)
+        if data is not None:
+            image = types.Image(content=data)
+            res = self.client.document_text_detection(image)
+            ann = res.full_text_annotation
+            return ann.text

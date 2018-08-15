@@ -7,11 +7,12 @@ from languagecodes import list_to_alpha3
 from tesserocr import get_languages, PyTessBaseAPI, PSM  # noqa
 
 from ingestors.services.interfaces import OCRService
+from ingestors.services.util import OCRUtils
 
 log = logging.getLogger(__name__)
 
 
-class TesseractService(OCRService):
+class TesseractService(OCRService, OCRUtils):
 
     def __init__(self, prefix=None):
         self.prefix = '/usr/share/tesseract-ocr/'
@@ -42,10 +43,11 @@ class TesseractService(OCRService):
         try:
             # TODO: play with contrast and sharpening the images.
             image = Image.open(BytesIO(data))
+            if not self.image_size_ok(image):
+                return
             api.SetImage(image)
             return api.GetUTF8Text()
         except Exception as ex:
             log.warning("Failed to OCR: %s", ex)
-            return None
         finally:
             api.Clear()
