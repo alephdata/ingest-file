@@ -12,10 +12,10 @@ class OCRUtils(object):
 
     def image_size_ok(self, image):
         if image.width <= self.MIN_WIDTH:
-            return True
+            return False
         if image.height <= self.MIN_HEIGHT:
-            return True
-        return False
+            return False
+        return True
 
     def ensure_size(self, data):
         """This is a utility to scale images submitted to OCR such that

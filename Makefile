@@ -10,11 +10,11 @@ shell:
 lint: ## check style with flake8
 	$(DOCKER) flake8 ingestors tests
 
-test: ## run tests quickly with the default Python
+test: build ## run tests quickly with the default Python
 	$(DOCKER) nosetests --with-coverage --cover-package=ingestors
 
 dist: ## builds source and wheel package
-	$(DOCKER) python setup.py sdist bdist_wheel
+	$(DOCKER) python3 setup.py sdist bdist_wheel
 
 clean: 
 	rm -fr dist/

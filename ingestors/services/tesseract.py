@@ -1,4 +1,3 @@
-import os
 import logging
 from io import BytesIO
 from PIL import Image
@@ -14,16 +13,13 @@ log = logging.getLogger(__name__)
 
 class TesseractService(OCRService, OCRUtils):
 
-    def __init__(self, prefix=None):
-        self.prefix = '/usr/share/tesseract-ocr/'
-        self.prefix = os.environ.get('TESSDATA_PREFIX', self.prefix)
-        self.prefix = prefix or self.prefix
+    def __init__(self):
         self.thread = local()
         _, self.supported_languages = get_languages()
 
     def get_api(self, languages):
         if not hasattr(self.thread, 'api'):
-            api = PyTessBaseAPI(path=self.prefix, lang=languages)
+            api = PyTessBaseAPI(lang=languages)
             api.SetPageSegMode(PSM.AUTO_OSD)
             self.thread.api = api
         return self.thread.api
@@ -38,7 +34,7 @@ class TesseractService(OCRService, OCRUtils):
         api = self.get_api(languages)
 
         if languages != api.GetInitLanguagesAsString():
-            api.Init(path=self.prefix, lang=languages)
+            api.Init(lang=languages)
 
         try:
             # TODO: play with contrast and sharpening the images.
