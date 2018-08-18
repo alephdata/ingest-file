@@ -9,5 +9,4 @@ class OCRSupport(object):
     def extract_text_from_image(self, data):
         """Extract text from a binary string of data."""
         languages = self.result.ocr_languages
-        text = self.manager.ocr_service.extract_text(data, languages)
-        return text
+        return self.manager.ocr_service.extract_text(data, languages)

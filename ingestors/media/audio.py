@@ -1,14 +1,13 @@
 import logging
-from datetime import datetime
-
 from pymediainfo import MediaInfo
 
 from ingestors.base import Ingestor
+from ingestors.media.util import MediaInfoDateMixIn
 
 log = logging.getLogger(__name__)
 
 
-class AudioIngestor(Ingestor):
+class AudioIngestor(Ingestor, MediaInfoDateMixIn):
     MIME_TYPES = [
         'audio/mpeg',
         'audio/mp3',
@@ -35,13 +34,6 @@ class AudioIngestor(Ingestor):
         'wma',
     ]
     SCORE = 3
-
-    def parse_date(self, text):
-        try:
-            return datetime.strptime(text, "%Z %Y-%m-%d %H:%M:%S")
-        except Exception:
-            log.warning("Cannot parse date: %s", text)
-            return None
 
     def ingest(self, file_path):
         self.result.flag(self.result.FLAG_AUDIO)
