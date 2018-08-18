@@ -2,11 +2,12 @@ import logging
 from pymediainfo import MediaInfo
 
 from ingestors.base import Ingestor
+from ingestors.media.util import MediaInfoDateMixIn
 
 log = logging.getLogger(__name__)
 
 
-class VideoIngestor(Ingestor):
+class VideoIngestor(Ingestor, MediaInfoDateMixIn):
     MIME_TYPES = [
         'application/x-shockwave-flash',
         'video/quicktime',
