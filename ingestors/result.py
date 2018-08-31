@@ -32,6 +32,7 @@ class Result(object):
         self.file_name = decode_path(kwargs.get('file_name'))
         self.id = kwargs.get('id')
         self.message_id = kwargs.get('message_id')
+        self.in_reply_to = kwargs.get('in_reply_to') or []
         self.title = kwargs.get('title')
         self.summary = kwargs.get('summary')
         self.mime_type = kwargs.get('mime_type')
@@ -91,6 +92,13 @@ class Result(object):
             return
         self.emails.append(text)
 
+    def emit_in_reply_to(self, text):
+        text = safe_string(text)
+        if text is None:
+            return
+        if text not in self.in_reply_to:
+            self.in_reply_to.append(text)
+
     def emit_name(self, text):
         text = safe_string(text)
         if text is None:
@@ -141,7 +149,8 @@ class Result(object):
             'body_html': self.body_html,
             'duration': self.duration, # in ms
             'sampling_rate': self.sampling_rate, # in khz
-            'children': [c.to_dict() for c in self.children]
+            'children': [c.to_dict() for c in self.children],
+            'in_reply_to': self.in_reply_to
         }
 
     def __str__(self):
