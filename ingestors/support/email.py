@@ -97,8 +97,8 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
             if field == 'in-reply-to':
                 self.result.emit_in_reply_to(value)
             if field == 'references':
-                for email in value.split():
-                    self.result.emit_in_reply_to(email)
+                for email_addr in value.split():
+                    self.result.emit_in_reply_to(email_addr)
 
             if field == 'date':
                 date = value
