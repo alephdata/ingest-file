@@ -38,6 +38,9 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
             if body is not None:
                 fh.write(body)
 
+        if isinstance(mime_type, bytes):
+            mime_type = mime_type.decode('utf-8')
+
         self.manager.handle_child(self.result, file_path,
                                   id=foreign_id,
                                   file_name=name,
@@ -91,9 +94,16 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
             if field == 'message-id':
                 self.update('message_id', value)
 
+            if field == 'in-reply-to':
+                self.result.emit_in_reply_to(value)
+            if field == 'references':
+                for email_addr in value.split():
+                    self.result.emit_in_reply_to(email_addr)
+
             if field == 'date':
+                date = value
                 try:
-                    date = email.utils.parsedate(value)
+                    date = email.utils.parsedate(date)
                     date = datetime.fromtimestamp(mktime(date))
                     self.update('created_at', date)
                 except Exception as ex:
