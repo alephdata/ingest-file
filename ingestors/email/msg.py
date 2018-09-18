@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 class RFC822Ingestor(Ingestor, EmailSupport):
     MIME_TYPES = [
         'multipart/mixed',
+        'multipart/alternative',
         'message/rfc822'
     ]
     EXTENSIONS = [

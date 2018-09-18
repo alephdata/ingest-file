@@ -2,7 +2,7 @@ import os
 import shutil
 
 from banal import decode_path
-from normality import stringify
+from normality import stringify, safe_filename
 from normality.cleaning import remove_unsafe_chars
 
 
@@ -66,3 +66,7 @@ def remove_directory(file_path):
         shutil.rmtree(file_path, True)
     except Exception:
         pass
+
+
+def safe_path(filename):
+    return filename.replace('/', ':')

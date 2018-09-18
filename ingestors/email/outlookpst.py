@@ -1,11 +1,21 @@
+import logging
+import os
+
+import pypff
+
 from ingestors.base import Ingestor
 from ingestors.support.temp import TempFileSupport
-from ingestors.support.shell import ShellSupport
+from ingestors.support.outlookpst import OutlookPSTSupport
 from ingestors.support.ole import OLESupport
 from ingestors.directory import DirectoryIngestor
+from ingestors.util import join_path
 
 
-class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport, OLESupport):
+log = logging.getLogger(__name__)
+
+
+class OutlookPSTIngestor(Ingestor, TempFileSupport,
+                         OutlookPSTSupport, OLESupport):
     MIME_DEFAULT = 'application/vnd.ms-outlook'
     MIME_TYPES = [MIME_DEFAULT]
     EXTENSIONS = ['pst', 'ost', 'pab']
@@ -17,15 +27,13 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport, ShellSupport, OLESupport):
         self.result.flag(self.result.FLAG_PACKAGE)
         temp_dir = self.make_empty_directory()
         try:
-            self.exec_command('readpst',
-                              '-e',  # make subfolders, files per message
-                              '-D',  # include deleted
-                              '-r',  # recursive structure
-                              '-8',  # utf-8 where possible
-                              '-b',
-                              '-q',  # quiet
-                              '-o', temp_dir,
-                              file_path)
+            pst_file = pypff.open(file_path)
+            root = pst_file.get_root_folder()
+            root_folder_name = root.name or os.path.basename(file_path)
+            root_folder_path = os.path.join(temp_dir, root_folder_name)
+            os.makedirs(root_folder_path)
+            self.folder_traverse(root, root_folder_path)
+            self.check_for_messages(root, root_folder_path)
             self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
         except Exception:
             # Handle partially extracted archives.
