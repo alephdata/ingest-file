@@ -30,7 +30,7 @@ class AccessIngestor(Ingestor, ShellSupport):
                 t.strip().decode('utf-8')
                 for t in output.split(b' ') if len(t.strip())
             ]
-        except self.subprocess.CalledProcessError as cpe:
+        except subprocess.CalledProcessError as cpe:
             log.warning("Failed to open MDB: %s", cpe)
             raise ProcessingException("Failed to extract Access database.")
 
