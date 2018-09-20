@@ -20,7 +20,6 @@ class OutlookPSTSupport(object):
             if not folder.name:
                 continue
             new_path = os.path.join(parent_path, safe_path(folder.name))
-            os.makedirs(new_path)
             if folder.number_of_sub_folders:
                 self.folder_traverse(folder, new_path)
             self.check_for_messages(folder, new_path)
@@ -31,7 +30,9 @@ class OutlookPSTSupport(object):
         )
         msg = EmailMessage()
         if message.plain_text_body:
-            msg.set_content(message.plain_text_body)
+            msg.set_content(
+                message.plain_text_body, maintype='text', subtype='plain'
+            )
         if message.html_body:
             msg.add_alternative(
                 message.html_body, maintype='text', subtype='html'
@@ -50,12 +51,16 @@ class OutlookPSTSupport(object):
             msg.add_attachment(
                 attachment_buffer, maintype=maintype,
                 subtype=subtype, filename=name)
+        if not os.path.isdir(folder_path):
+            os.makedirs(folder_path)
         with open(file_path, 'wb') as fp:
             fp.write(msg.as_bytes(policy=policy.default))
 
 
     def handle_text_message(self, message, folder_path):
         file_path = os.path.join(folder_path, safe_path(message.subject))
+        if not os.path.isdir(folder_path):
+            os.makedirs(folder_path)
         with open(file_path, 'wb') as fp:
             if message.html_body:
                 fp.write(message.html_body)
