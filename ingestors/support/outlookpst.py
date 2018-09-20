@@ -4,10 +4,9 @@ from email.message import EmailMessage
 from email.parser import Parser
 from email import policy
 
-import pypff
 import magic
 
-from ingestors.util import join_path, safe_path
+from ingestors.util import safe_path
 
 log = logging.getLogger(__name__)
 

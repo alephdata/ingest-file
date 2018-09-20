@@ -1,8 +1,6 @@
 import logging
 import os
 
-import pypff
-
 from ingestors.base import Ingestor
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.outlookpst import OutlookPSTSupport
@@ -27,6 +25,8 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport,
         self.result.flag(self.result.FLAG_PACKAGE)
         temp_dir = self.make_empty_directory()
         try:
+            # if installed with pip, pypff may not be available
+            import pypff
             pst_file = pypff.open(file_path)
             root = pst_file.get_root_folder()
             root_folder_name = root.name or os.path.basename(file_path)
