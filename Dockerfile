@@ -23,6 +23,8 @@ RUN apt-get -qq -y update \
         poppler-utils poppler-data pst-utils \
         # document processing
         libreoffice \
+        # libpff build tools
+        git autoconf automake autopoint libtool pkg-config \
     && apt-get -qq -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -36,6 +38,9 @@ ENV LANG='en_US.UTF-8' \
     LC_ALL='en_US.UTF-8'
 
 RUN pip3 install -q --upgrade pip setuptools six wheel
+RUN curl -SL "https://github.com/sunu/libpff/archive/master.tar.gz" | tar -xz -C /tmp/ && cd /tmp/libpff-master \
+    && ./synclibs.sh && ./autogen.sh && ./configure --enable-python \
+    && cd /tmp/libpff-master && python3 setup.py install
 RUN pip3 install -q banal>=0.3.4 \
                    normality>=0.5.11 \
                    celestial>=0.2.3 \
