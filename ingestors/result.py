@@ -68,7 +68,7 @@ class Result(object):
 
     def emit_html_body(self, html, text):
         self.body_html = safe_string(html)
-        self.body_text = safe_string(text)
+        self.emit_text_body(text)
 
     def emit_text_body(self, text):
         self.body_text = safe_string(text)
@@ -147,8 +147,8 @@ class Result(object):
             'rows': self.rows,
             'body_text': self.body_text,
             'body_html': self.body_html,
-            'duration': self.duration, # in ms
-            'sampling_rate': self.sampling_rate, # in khz
+            'duration': self.duration,  # in ms
+            'sampling_rate': self.sampling_rate,  # in khz
             'children': [c.to_dict() for c in self.children],
             'in_reply_to': self.in_reply_to
         }

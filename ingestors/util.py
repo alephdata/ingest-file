@@ -11,12 +11,11 @@ def safe_string(data, encoding_default='utf-8', encoding=None):
     data = stringify(data,
                      encoding_default=encoding_default,
                      encoding=encoding)
+    data = remove_unsafe_chars(data)
     if data is None:
         return
-    data = remove_unsafe_chars(data)
-    if isinstance(data, str):
-        data = data.encode(encoding_default, 'replace')
-        data = data.decode(encoding_default)
+    data = data.encode(encoding_default, 'replace')
+    data = data.decode(encoding_default, 'strict')
     return data
 
 
