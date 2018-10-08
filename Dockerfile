@@ -17,6 +17,7 @@ RUN apt-get -qq -y update \
         # image processing, djvu
         imagemagick-common imagemagick mdbtools djvulibre-bin \
         libtiff5-dev libjpeg-dev libfreetype6-dev libwebp-dev \
+        libtiff-tools ghostscript librsvg2-bin \
         # tesseract
         libtesseract-dev tesseract-ocr-eng libleptonica-dev \
         # pdf processing toolkit
