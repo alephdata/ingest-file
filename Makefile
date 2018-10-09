@@ -1,4 +1,7 @@
-DOCKER=docker run -v $(PWD)/dist:/ingestors/dist -ti alephdata/ingestors
+DOCKER=docker run -v $(PWD)/dist:/ingestors/dist \
+									-v $(PWD)/ingestors:/ingestors/ingestors \
+									-v $(PWD)/tests:/ingestors/tests \
+									-ti alephdata/ingestors
 
 build:
 	# docker pull alephdata/ingestors

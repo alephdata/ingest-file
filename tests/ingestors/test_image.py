@@ -14,7 +14,7 @@ class ImageIngestorTest(TestCase):
         result = self.manager.ingest(fixture_path)
         # print result.to_dict()
 
-        self.assertIn(u'Testing inge', result.pages[0]['text'])
+        self.assertIn(u'TEST', result.body_text)
         # self.assertIn(u'1..2..3..', result.pages[0]['text'])
         self.assertEqual(result.status, Result.STATUS_SUCCESS)
 
