@@ -4,7 +4,7 @@ import os
 from lxml import etree, html
 from lxml.etree import ParseError, ParserError
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.html import HTMLSupport
 from ingestors.support.encoding import EncodingSupport
 from ingestors.exc import ProcessingException

@@ -1,6 +1,6 @@
 import logging
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.pdf import PDFSupport
 from ingestors.util import join_path
 

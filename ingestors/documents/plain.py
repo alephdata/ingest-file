@@ -1,6 +1,6 @@
 import os
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.encoding import EncodingSupport
 from ingestors.support.plain import PlainTextSupport
 from ingestors.exc import ProcessingException

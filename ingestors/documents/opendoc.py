@@ -1,4 +1,4 @@
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.soffice import LibreOfficeSupport
 from ingestors.support.opendoc import OpenDocumentSupport
 

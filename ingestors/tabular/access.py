@@ -2,7 +2,7 @@ import logging
 import subprocess
 from normality import safe_filename
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.shell import ShellSupport
 from ingestors.exc import ProcessingException
 from ingestors.util import join_path

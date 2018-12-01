@@ -4,7 +4,7 @@ from odf.table import TableRow, TableCell, Table
 from odf.text import P
 from odf.namespaces import OFFICENS
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.csv import CSVEmitterSupport
 from ingestors.support.opendoc import OpenDocumentSupport
 from ingestors.util import safe_string

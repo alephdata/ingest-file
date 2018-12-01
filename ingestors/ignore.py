@@ -1,6 +1,6 @@
 import logging
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 
 log = logging.getLogger(__name__)
 

@@ -10,7 +10,7 @@ from email import utils
 from datetime import datetime
 from normality import safe_filename
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.email import EmailSupport
 from ingestors.support.temp import TempFileSupport
 from ingestors.exc import ProcessingException

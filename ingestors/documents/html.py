@@ -1,4 +1,4 @@
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.html import HTMLSupport
 from ingestors.support.encoding import EncodingSupport
 
