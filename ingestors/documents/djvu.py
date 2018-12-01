@@ -12,7 +12,7 @@ class DjVuIngestor(Ingestor, PDFSupport):
         'image/djvu',
     ]  # noqa
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         """Ingestor implementation."""
         self.result.flag(self.result.FLAG_PDF)
         pdf_path = join_path(self.work_path, 'page.pdf')

@@ -42,7 +42,7 @@ class PackageSupport(TempFileSupport, EncodingSupport):
         finally:
             fh.close()
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         self.result.flag(self.result.FLAG_PACKAGE)
         temp_dir = self.make_empty_directory()
         self.unpack(file_path, temp_dir)

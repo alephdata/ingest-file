@@ -46,7 +46,7 @@ class PDFIngestor(Ingestor, PDFSupport):
         # from pprint import pprint
         # pprint(self.result.to_dict())
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         """Ingestor implementation."""
         try:
             pdf = Document(file_path.encode('utf-8'))

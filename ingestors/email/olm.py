@@ -108,7 +108,7 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
         finally:
             remove_directory(message_dir)
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         self._hierarchy = {}
         self.result.flag(self.result.FLAG_PACKAGE)
         try:
@@ -158,7 +158,7 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
             if name is not None:
                 return name
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         self.result.flag(self.result.FLAG_EMAIL)
         try:
             doc = self.parse_xml(file_path)

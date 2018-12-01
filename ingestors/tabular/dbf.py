@@ -32,7 +32,7 @@ class DBFIngestor(Ingestor):
             except Exception as ex:
                 log.warning("Cannot decode DBF row: %s", ex)
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         self.result.flag(self.result.FLAG_TABULAR)
         try:
             table = Table(file_path).open()

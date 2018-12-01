@@ -14,7 +14,7 @@ class MboxFileIngestor(RFC822Ingestor):
     MAGIC = 'From '
     SCORE = 6
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         mbox = mailbox.mbox(file_path)
         self.result.mime_type = self.DEFAULT_MIME
         self.result.flag(self.result.FLAG_PACKAGE)

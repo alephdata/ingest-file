@@ -5,7 +5,7 @@ from ingestors.cli import cli
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level='DEBUG')
+    logging.basicConfig(level=logging.DEBUG)
 
     if sys.argv[1:]:
         cli(''.join(sys.argv[1:]))

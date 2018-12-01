@@ -25,7 +25,7 @@ class OfficeOpenXMLIngestor(Ingestor, OOXMLSupport, PDFSupport):
     ]
     SCORE = 7
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         """Ingestor implementation."""
         self.result.flag(self.result.FLAG_PDF)
         self.ooxml_extract_metadata(file_path)

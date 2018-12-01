@@ -28,19 +28,20 @@ class EncodingSupport(object):
         detector.close()
         return normalize_result(detector.result, default)
 
-    def read_file_decoded(self, file_path):
-        encoding = self.result.encoding
+    def read_file_decoded(self, entity, file_path):
         with open(file_path, 'rb') as fh:
             body = fh.read()
-            if encoding is None:
+            if not entity.has('encoding'):
                 result = chardet.detect(body)
                 encoding = normalize_result(result, self.DEFAULT_ENCODING)
+                entity.set('encoding', encoding)
 
-        try:
-            body = body.decode(encoding)
-            if encoding != self.DEFAULT_ENCODING:
-                log.info("Decoding [%s] as: %s", self.result, encoding)
-            return body
-        except UnicodeDecodeError as ude:
-            raise ProcessingException('Error decoding file as %s: %s' %
-                                      (encoding, ude))
+        for encoding in entity.get('encoding'):
+            try:
+                body = body.decode(encoding)
+                if encoding != self.DEFAULT_ENCODING:
+                    log.info("Decoding [%s] as: %s", entity, encoding)
+                return body
+            except UnicodeDecodeError as ude:
+                raise ProcessingException('Error decoding file as %s: %s' %
+                                          (encoding, ude))

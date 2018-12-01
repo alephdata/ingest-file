@@ -14,7 +14,7 @@ class SVGIngestor(Ingestor, EncodingSupport, HTMLSupport):
     EXTENSIONS = ['svg']
     SCORE = 20
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         html_body = self.read_file_decoded(file_path)
         self.result.flag(self.result.FLAG_HTML)
         self.extract_html_content(html_body)

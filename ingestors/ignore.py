@@ -54,8 +54,8 @@ class IgnoreIngestor(Ingestor):
     ]
     SCORE = 2
 
-    def ingest(self, file_path):
-        log.info("[%s] will be ignored but stored.", self.result)
+    def ingest(self, file_path, entity):
+        log.info("[%s] will be ignored but stored.", entity)
 
     @classmethod
     def match(cls, file_path, entity):

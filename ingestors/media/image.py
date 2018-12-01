@@ -73,7 +73,7 @@ class ImageIngestor(Ingestor, ImageSupport, PlainTextSupport):
         generator = ' '.join((make, model))
         self.update('generator', generator.strip())
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         self.result.flag(self.result.FLAG_IMAGE)
         with open(file_path, 'rb') as fh:
             data = fh.read()

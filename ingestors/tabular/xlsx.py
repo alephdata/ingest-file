@@ -31,7 +31,7 @@ class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
             except (ValueError, OverflowError, ParseError) as ve:
                 log.warning("Failed to read Excel row: %s", ve)
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         self.ooxml_extract_metadata(file_path)
         try:
             book = load_workbook(file_path, read_only=True)

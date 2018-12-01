@@ -1,4 +1,3 @@
-import json
 import decimal
 import datetime
 
@@ -16,6 +15,4 @@ def json_default(obj):
 
 def cli(file_path):
     """CLI main method."""
-    result = ingest(file_path)
-    print(json.dumps(result.to_dict(), sort_keys=True, indent=2,
-                     default=json_default))
+    ingest(file_path)

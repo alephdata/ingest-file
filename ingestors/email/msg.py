@@ -24,11 +24,11 @@ class RFC822Ingestor(Ingestor, EmailSupport):
     ]
     SCORE = 7
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         with open(file_path, 'rb') as fh:
-            self.ingest_message(fh.read())
+            self.ingest_message(fh.read(), entity)
 
-    def ingest_message(self, data):
+    def ingest_message(self, data, entity):
         try:
             msg = mime.from_string(data)
             if msg.headers is not None:

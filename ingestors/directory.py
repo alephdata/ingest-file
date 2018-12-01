@@ -32,5 +32,5 @@ class DirectoryIngestor(Ingestor):
             child = self.manager.make_entity('Document')
             child.make_id(entity.id, name)
             child.add('fileName', name)
-            child.add('parent', entity)
+            child.set('parent', entity)
             self.manager.handle_child(sub_path, child)

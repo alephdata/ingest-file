@@ -43,7 +43,7 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
             'Message-ID': message.getField('1035'),
         })
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         message = Message(file_path)
         self._parse_headers(message)
         self.extract_plain_text_content(message.getField('1000'))

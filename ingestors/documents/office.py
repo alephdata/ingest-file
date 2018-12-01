@@ -162,7 +162,7 @@ class DocumentIngestor(Ingestor, OLESupport, PDFSupport):
     ]
     SCORE = 6
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         """Ingestor implementation."""
         self.result.flag(self.result.FLAG_PDF)
         self.extract_ole_metadata(file_path)
