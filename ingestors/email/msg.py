@@ -4,7 +4,7 @@ from flanker import mime
 from flanker.mime.message.errors import DecodingError
 from pantomime import normalize_mimetype
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.email import EmailSupport
 from ingestors.exc import ProcessingException
 

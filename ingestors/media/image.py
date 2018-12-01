@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from PIL import ExifTags
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.ocr import OCRSupport
 from ingestors.support.image import ImageSupport
 from ingestors.support.plain import PlainTextSupport

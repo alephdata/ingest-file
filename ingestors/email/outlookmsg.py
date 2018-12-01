@@ -4,7 +4,7 @@ import logging
 from olefile import isOleFile
 from email.parser import Parser
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.email import EmailSupport
 from ingestors.support.ole import OLESupport
 from ingestors.email.outlookmsg_lib import Message

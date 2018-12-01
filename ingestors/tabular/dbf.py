@@ -4,7 +4,7 @@ import logging
 from dbf import Table, DbfError
 from collections import OrderedDict
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.util import safe_string
 from ingestors.exc import ProcessingException
 

@@ -1,7 +1,7 @@
 import logging
 import sqlite3
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.csv import CSVEmitterSupport
 from ingestors.exc import ProcessingException
 

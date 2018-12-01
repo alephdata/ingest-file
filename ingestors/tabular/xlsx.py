@@ -2,7 +2,7 @@ import logging
 from openpyxl import load_workbook
 from xml.etree.ElementTree import ParseError
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.csv import CSVEmitterSupport
 from ingestors.support.ooxml import OOXMLSupport
 from ingestors.exc import ProcessingException

@@ -1,4 +1,4 @@
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.shell import ShellSupport
 from ingestors.support.ole import OLESupport

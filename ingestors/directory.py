@@ -1,6 +1,6 @@
 import os
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.util import join_path, decode_path
 
 

@@ -1,7 +1,7 @@
 import logging
 from pdflib import Document
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.pdf import PDFSupport
 from ingestors.exc import ProcessingException
 

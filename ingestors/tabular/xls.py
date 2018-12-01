@@ -4,7 +4,7 @@ from time import time
 from datetime import datetime
 from xlrd.biffh import XLRDError
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.csv import CSVEmitterSupport
 from ingestors.support.ole import OLESupport
 from ingestors.exc import ProcessingException

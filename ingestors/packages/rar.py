@@ -1,7 +1,7 @@
 import logging
 import rarfile
 
-from ingestors.base import Ingestor
+from ingestors.ingestor import Ingestor
 from ingestors.support.package import PackageSupport
 from ingestors.exc import ProcessingException
 
