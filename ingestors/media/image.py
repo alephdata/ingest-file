@@ -85,10 +85,10 @@ class ImageIngestor(Ingestor, OCRSupport, ImageSupport, PlainTextSupport):
         self.extract_plain_text_content(text)
 
     @classmethod
-    def match(cls, file_path, result=None):
-        score = super(ImageIngestor, cls).match(file_path, result=result)
+    def match(cls, file_path, entity):
+        score = super(ImageIngestor, cls).match(file_path, entity)
         if score <= 0:
-            if result.mime_type is not None:
-                if result.mime_type.startswith('image/'):
+            for mime_type in entity.get('mimeType'):
+                if mime_type.startswith('image/'):
                     score = cls.SCORE - 1
         return score

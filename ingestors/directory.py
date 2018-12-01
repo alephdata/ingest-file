@@ -1,4 +1,5 @@
 import os
+from followthemoney import model
 
 from ingestors.ingestor import Ingestor
 from ingestors.util import join_path, decode_path
@@ -15,9 +16,9 @@ class DirectoryIngestor(Ingestor):
         '.gitignore'
     ]
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         """Ingestor implementation."""
-        self.result.flag(self.result.FLAG_DIRECTORY)
+        entity.schema = model.get('Folder')
         file_path = decode_path(file_path)
 
         if file_path is None or not os.path.isdir(file_path):
@@ -28,8 +29,8 @@ class DirectoryIngestor(Ingestor):
             if name in self.SKIP_ENTRIES:
                 continue
             sub_path = join_path(file_path, name)
-            child_id = join_path(self.result.id, name)
-            self.manager.handle_child(self.result,
-                                      sub_path,
-                                      file_name=name,
-                                      id=child_id)
+            child = self.manager.make_entity('Document')
+            child.make_id(entity.id, name)
+            child.add('fileName', name)
+            child.add('parent', entity)
+            self.manager.handle_child(sub_path, child)

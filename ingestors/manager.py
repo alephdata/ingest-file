@@ -3,10 +3,10 @@ import magic
 import logging
 import hashlib
 from normality import stringify
-from pantomime import normalize_mimetype, useful_mimetype
+from followthemoney import model
+# from followthemoney.types import registry
 from pkg_resources import iter_entry_points
 
-from ingestors.result import Result
 from ingestors.directory import DirectoryIngestor
 from ingestors.exc import ProcessingException
 from ingestors.util import is_file, safe_string
@@ -18,12 +18,20 @@ class Manager(object):
     """Handles the lifecycle of an ingestor. This can be subclassed to embed it
     into a larger processing framework."""
 
-    RESULT_CLASS = Result
+    STATUS_PENDING = u'pending'
+    #: Indicates that during the processing no errors or failures occured.
+    STATUS_SUCCESS = u'success'
+    #: Indicates occurance of errors during the processing.
+    STATUS_FAILURE = u'failure'
+    #: Indicates a complete ingestor stop due to system issue.
+    STATUS_STOPPED = u'stopped'
+
     MAGIC = magic.Magic(mime=True)
     INGESTORS = []
 
-    def __init__(self, config, ocr_service=None):
+    def __init__(self, config, key_prefix=None, ocr_service=None):
         self.config = config
+        self.key_prefix = key_prefix
         self._ocr_service = ocr_service
 
     def get_env(self, name, default=None):
@@ -53,48 +61,42 @@ class Manager(object):
                 log.info("Cannot load tesseract OCR service.")
         return self._ocr_service
 
-    def auction(self, file_path, result):
+    def make_entity(self, schema):
+        schema = model.get(schema)
+        return model.make_entity(schema, key_prefix=self.key_prefix)
+
+    def emit_entity(self, entity):
+        from pprint import pprint
+        pprint(entity.to_dict())
+
+    def auction(self, file_path, entity):
         if not is_file(file_path):
-            result.mime_type = DirectoryIngestor.MIME_TYPE
+            entity.add('mimeType', DirectoryIngestor.MIME_TYPE)
             return DirectoryIngestor
 
-        if not useful_mimetype(result.mime_type):
-            mime_type = self.MAGIC.from_file(file_path)
-            result.mime_type = normalize_mimetype(mime_type)
+        if not entity.has('mimeType'):
+            entity.add('mimeType', self.MAGIC.from_file(file_path))
 
         best_score, best_cls = 0, None
         for cls in self.ingestors:
-            result.manager = self
-            score = cls.match(file_path, result=result)
+            score = cls.match(file_path, entity)
             if score > best_score:
                 best_score = score
                 best_cls = cls
 
         if best_cls is None:
-            raise ProcessingException("Format not supported: %s" %
-                                      result.mime_type)
+            raise ProcessingException("Format not supported")
         return best_cls
 
-    def before(self, result):
-        """Callback called before the processing starts."""
-        pass
+    def handle_child(self, file_path, child):
+        self.ingest(file_path, child)
 
-    def after(self, result):
-        """Callback called after the processing starts."""
-        pass
-
-    def handle_child(self, parent, file_path, **kwargs):
-        result = self.RESULT_CLASS(file_path=file_path, **kwargs)
-        parent.children.append(result)
-        self.ingest(file_path, result=result)
-        return result
-
-    def checksum_file(self, result, file_path):
+    def checksum_file(self, entity, file_path):
         "Generate a hash and file size for a given file name."
         if not is_file(file_path):
             return
 
-        if result.checksum is None:
+        if not entity.has('contentHash'):
             checksum = hashlib.sha1()
             size = 0
             with open(file_path, 'rb') as fh:
@@ -105,42 +107,39 @@ class Manager(object):
                     size += len(block)
                     checksum.update(block)
 
-            result.checksum = checksum.hexdigest()
-            result.size = size
+            entity.add('contentHash', checksum.hexdigest())
+            entity.add('fileSize', size)
 
-        if result.size is None:
-            result.size = os.path.getsize(file_path)
+        if not entity.has('fileSize'):
+            entity.add('fileSize', os.path.getsize(file_path))
 
-    def ingest(self, file_path, result=None, work_path=None):
+    def ingest(self, file_path, entity=None, work_path=None):
         """Main execution step of an ingestor."""
-        if result is None:
+        if entity is None:
+            entity = self.make_entity('Document')
             file_name = os.path.basename(file_path) if file_path else None
-            result = self.RESULT_CLASS(file_path=file_path,
-                                       file_name=file_name)
+            entity.set('fileName', file_name)
 
-        self.checksum_file(result, file_path)
-        self.before(result)
-        result.status = Result.STATUS_PENDING
+        self.checksum_file(entity, file_path)
+        entity.set('processingStatus', self.STATUS_PENDING)
         try:
-            ingestor_class = self.auction(file_path, result)
-            log.debug("Ingestor [%s]: %s", result, ingestor_class.__name__)
-            self.delegate(ingestor_class, result, file_path,
+            ingestor_class = self.auction(file_path, entity)
+            log.debug("Ingestor [%s]: %s", entity, ingestor_class.__name__)
+            self.delegate(ingestor_class, file_path, entity,
                           work_path=work_path)
-            result.status = Result.STATUS_SUCCESS
+            entity.set('processingStatus', self.STATUS_SUCCESS)
         except ProcessingException as pexc:
-            result.error_message = safe_string(pexc)
-            result.status = Result.STATUS_FAILURE
-            log.warning("Failed [%s]: %s", result, result.error_message)
+            entity.set('processingStatus', self.STATUS_FAILURE)
+            entity.set('processingError', safe_string(pexc))
+            log.warning("Failed [%s]: %s", entity, pexc)
         finally:
-            if result.status == Result.STATUS_PENDING:
-                result.status = Result.STATUS_STOPPED
-            self.after(result)
+            if self.STATUS_PENDING in entity.get('processingStatus'):
+                entity.set('processingStatus', self.STATUS_SUCCESS)
+        return entity
 
-        return result
-
-    def delegate(self, ingestor_class, result, file_path, work_path=None):
-        ingestor = ingestor_class(self, result, work_path=work_path)
+    def delegate(self, ingestor_class, file_path, entity, work_path=None):
+        ingestor = ingestor_class(self, work_path=work_path)
         try:
-            ingestor.ingest(file_path)
+            ingestor.ingest(file_path, entity)
         finally:
             ingestor.cleanup()

@@ -14,8 +14,7 @@ setup(
     package_dir={'ingestors': 'ingestors'},
     include_package_data=True,
     install_requires=[
-        'banal >= 0.3.4',
-        'normality >= 0.5.11',
+        'followthemoney >= 1.3.0',
         'pantomime >= 0.3.0',
         'urllib3 >= 1.21',
         'requests >= 2.18.4',
@@ -35,7 +34,6 @@ setup(
         'dbf >= 0.96.8',
         'pdflib >= 0.1.5',
         'pymediainfo >= 2.3.0',
-        'languagecodes >= 1.0.4',
     ],
     extras_require={
         'dev': [

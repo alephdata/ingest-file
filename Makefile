@@ -1,6 +1,5 @@
-DOCKER=docker run -v $(PWD)/dist:/ingestors/dist \
-									-v $(PWD)/ingestors:/ingestors/ingestors \
-									-v $(PWD)/tests:/ingestors/tests \
+DOCKER=docker run -v $(PWD):/ingestors \
+									-v /:/host \
 									-ti alephdata/ingestors
 
 build:

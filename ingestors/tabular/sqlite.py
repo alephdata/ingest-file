@@ -54,8 +54,8 @@ class SQLiteIngestor(Ingestor, CSVEmitterSupport):
             conn.close()
 
     @classmethod
-    def match(cls, file_path, result=None):
-        score = super(SQLiteIngestor, cls).match(file_path, result=result)  # noqa
+    def match(cls, file_path, entity):
+        score = super(SQLiteIngestor, cls).match(file_path, entity)
         if score > 0:
             try:
                 conn = sqlite3.connect(file_path)

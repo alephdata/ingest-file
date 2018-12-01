@@ -56,8 +56,8 @@ class PDFIngestor(Ingestor, PDFSupport):
             raise ProcessingException("Could not extract PDF file.")
 
     @classmethod
-    def match(cls, file_path, result=None):
-        score = super(PDFIngestor, cls).match(file_path, result=result)
+    def match(cls, file_path, entity):
+        score = super(PDFIngestor, cls).match(file_path, entity)
         if score <= 0:
             with open(file_path, 'rb') as fh:
                 if fh.read(len(cls.MAGIC)) == cls.MAGIC:

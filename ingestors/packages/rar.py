@@ -40,7 +40,7 @@ class RARIngestor(PackageSupport, Ingestor):
             raise ProcessingException('Invalid RAR file: %s' % err)
 
     @classmethod
-    def match(cls, file_path, result=None):
+    def match(cls, file_path, entity):
         if rarfile.is_rarfile(file_path):
             return cls.SCORE
-        return super(RARIngestor, cls).match(file_path, result=result)
+        return super(RARIngestor, cls).match(file_path, entity)

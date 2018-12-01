@@ -41,9 +41,10 @@ class VideoIngestor(Ingestor, MediaInfoDateMixIn):
             self.update('duration', track.duration)
 
     @classmethod
-    def match(cls, file_path, result=None):
-        score = super(VideoIngestor, cls).match(file_path, result=result)
+    def match(cls, file_path, entity):
+        score = super(VideoIngestor, cls).match(file_path, entity)
         if score <= 0:
-            if result.mime_type.startswith('video/'):
+            for mime_type in entity.get('mimeType'):
+                if mime_type.startswith('video/'):
                     return cls.SCORE * 2
         return score

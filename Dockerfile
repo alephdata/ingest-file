@@ -37,9 +37,8 @@ ENV LANG='en_US.UTF-8' \
     LC_ALL='en_US.UTF-8'
 
 RUN pip3 install -q --upgrade pip setuptools six wheel
-RUN pip3 install -q banal>=0.3.4 \
-                   normality>=0.5.11 \
-                   celestial>=0.2.3 \
+RUN pip3 install -q followthemoney>=1.3.0 \
+                   pantomime>=0.3.2 \
                    urllib3>=1.21 \
                    requests>=2.18.4 \
                    xlrd>=1.1.0 \
