@@ -3,16 +3,17 @@ from odf.teletype import extractText
 from odf.table import TableRow, TableCell, Table
 from odf.text import P
 from odf.namespaces import OFFICENS
+from followthemoney import model
 
 from ingestors.ingestor import Ingestor
-from ingestors.support.csv import CSVEmitterSupport
+from ingestors.support.table import TableSupport
 from ingestors.support.opendoc import OpenDocumentSupport
 from ingestors.util import safe_string
 
 log = logging.getLogger(__name__)
 
 
-class OpenOfficeSpreadsheetIngestor(Ingestor, CSVEmitterSupport,
+class OpenOfficeSpreadsheetIngestor(Ingestor, TableSupport,
                                     OpenDocumentSupport):
     MIME_TYPES = [
         'application/vnd.oasis.opendocument.spreadsheet',
@@ -63,9 +64,13 @@ class OpenOfficeSpreadsheetIngestor(Ingestor, CSVEmitterSupport,
             yield values
 
     def ingest(self, file_path, entity):
-        doc = self.parse_opendocument(file_path)
-        self.result.flag(self.result.FLAG_WORKBOOK)
-        for table in doc.spreadsheet.getElementsByType(Table):
-            name = table.getAttribute('name')
-            rows = self.generate_csv(table)
-            self.csv_child_iter(rows, name)
+        doc = self.parse_opendocument(file_path, entity)
+        entity.schema = model.get('Workbook')
+        for sheet in doc.spreadsheet.getElementsByType(Table):
+            name = sheet.getAttribute('name')
+            table = self.manager.make_entity('Table')
+            table.make_id(entity, name)
+            table.set('title', name)
+            table.add('parent', entity)
+            self.emit_row_tuples(table, self.generate_csv(sheet))
+            self.manager.emit_entity(table)

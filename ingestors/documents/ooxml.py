@@ -1,3 +1,5 @@
+from followthemoney import model
+
 from ingestors.ingestor import Ingestor
 from ingestors.support.pdf import PDFSupport
 from ingestors.support.ooxml import OOXMLSupport
@@ -27,10 +29,10 @@ class OfficeOpenXMLIngestor(Ingestor, OOXMLSupport, PDFSupport):
 
     def ingest(self, file_path, entity):
         """Ingestor implementation."""
-        self.result.flag(self.result.FLAG_PDF)
-        self.ooxml_extract_metadata(file_path)
+        entity.schema = model.get('Pages')
+        self.ooxml_extract_metadata(file_path, entity)
         pdf_path = self.document_to_pdf(file_path)
-        self.pdf_alternative_extract(pdf_path)
+        self.pdf_alternative_extract(entity, pdf_path)
 
     @classmethod
     def match(cls, file_path, entity):

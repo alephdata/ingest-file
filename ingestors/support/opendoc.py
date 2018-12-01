@@ -16,7 +16,7 @@ class OpenDocumentSupport(object):
         except ValueError:
             return None
 
-    def parse_opendocument(self, file_path):
+    def parse_opendocument(self, file_path, entity):
         try:
             doc = load(file_path)
         except Exception:
@@ -25,17 +25,17 @@ class OpenDocumentSupport(object):
         for child in doc.meta.childNodes:
             value = str(child)
             if child.tagName == 'dc:title':
-                self.update('title', value)
+                entity.add('title', value)
             if child.tagName == 'dc:description':
-                self.update('summary', value)
+                entity.add('summary', value)
             if child.tagName == 'dc:creator':
-                self.update('author', value)
+                entity.add('author', value)
             if child.tagName == 'dc:date':
-                self.update('date', self.parse_odf_date(value))
+                entity.add('date', self.parse_odf_date(value))
             if child.tagName == 'meta:creation-date':
-                self.update('created_at', self.parse_odf_date(value))
+                entity.add('authoredAt', self.parse_odf_date(value))
             if child.tagName == 'meta:generator':
-                self.update('generator', value)
+                entity.add('generator', value)
 
         # from pprint import pprint
         # pprint(self.result.to_dict())

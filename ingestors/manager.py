@@ -31,10 +31,13 @@ class Manager(object):
     MAGIC = magic.Magic(mime=True)
     INGESTORS = []
 
-    def __init__(self, config, key_prefix=None, ocr_service=None):
+    def __init__(self, config, key_prefix=None,
+                 ocr_service=None,
+                 ocr_languages=None):
         self.config = config
         self.key_prefix = key_prefix
         self._ocr_service = ocr_service
+        self.ocr_languages = ocr_languages or []
         self.entities = []
 
     def get_env(self, name, default=None):

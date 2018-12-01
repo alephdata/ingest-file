@@ -18,35 +18,31 @@ class OLESupport(object):
             except (RuntimeError, IOError):
                 # OLE reading can go fully recursive, at which point it's OK
                 # to just eat this runtime error quietly.
-                log.warning("Failed to read OLE data: %s", self.result)
+                log.warning("Failed to read OLE data: %s", entity)
             except Exception:
-                log.exception("Failed to read OLE data: %s", self.result)
+                log.exception("Failed to read OLE data: %s", entity)
 
     def extract_olefileio_metadata(self, ole, entity):
         try:
-            self.update('created_at', ole.root.getctime())
+            entity.add('authoredAt', ole.root.getctime())
         except Exception:
             log.warning("Failed to parse OLE ctime.")
         try:
-            self.update('modified_at', ole.root.getmtime())
+            entity.add('modifiedAt', ole.root.getmtime())
         except Exception:
             log.warning("Failed to parse OLE mtime.")
 
         try:
             meta = ole.get_metadata()
-            self.update('title', meta.title)
-            self.update('author', meta.author)
-            self.update('author', meta.last_saved_by)
-            self.update('summary', meta.notes)
-            self.update('generator', meta.creating_application)
-            self.update('created_at', meta.create_time)
-            self.update('modified_at', meta.last_saved_time)
-            self.result.emit_name(meta.company)
-            self.result.emit_language(meta.language)
-            # self.result.emit_keyword(meta.keywords)
+            entity.add('title', meta.title)
+            entity.add('author', meta.author)
+            entity.add('author', meta.last_saved_by)
+            entity.add('summary', meta.notes)
+            entity.add('generator', meta.creating_application)
+            entity.add('authoredAt', meta.create_time)
+            entity.add('modifiedAt', meta.last_saved_time)
+            entity.add('language', meta.language)
+            # self.result.emit_name(meta.company)
 
         except Exception:
             log.exception("OLE parsing error.")
-
-        # from pprint import pprint
-        # pprint(self.result.to_dict())

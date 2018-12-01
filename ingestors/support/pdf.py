@@ -1,6 +1,8 @@
 import os
 import glob
 import uuid
+from followthemoney import model
+from normality import collapse_spaces  # noqa
 from pdflib import Document
 from normality import stringify
 
@@ -12,16 +14,17 @@ from ingestors.support.shell import ShellSupport
 class PDFSupport(ShellSupport, TempFileSupport):
     """Provides helpers for PDF file context extraction."""
 
-    def pdf_extract(self, pdf):
+    def pdf_extract(self, entity, pdf):
         """Extract pages and page text from a PDF file."""
-        self.result.flag(self.result.FLAG_PDF)
+        entity.schema = model.get('Pages')
         temp_dir = self.make_empty_directory()
         for page in pdf:
-            self.pdf_extract_page(temp_dir, page)
+            self.pdf_extract_page(entity, temp_dir, page)
 
-    def pdf_alternative_extract(self, pdf_path):
+    def pdf_alternative_extract(self, entity, pdf_path):
+        # self.result.emit_pdf_alternative(pdf_path)
         pdf = Document(pdf_path.encode('utf-8'))
-        self.pdf_extract(pdf)
+        self.pdf_extract(entity, pdf)
 
     def document_to_pdf(self, file_path):
         """Convert an office document into a PDF file."""
@@ -31,11 +34,14 @@ class PDFSupport(ShellSupport, TempFileSupport):
                                          self.work_path,
                                          self.manager.archive)
 
-    def pdf_extract_page(self, temp_dir, page):
+    def pdf_extract_page(self, document, temp_dir, page):
         """Extract the contents of a single PDF page, using OCR if need be."""
-        pagenum = page.page_no
-        texts = page.lines
+        entity = self.manager.make_entity('Page')
+        entity.make_id(document.id, page.page_no)
+        entity.set('document', document)
+        entity.set('index', page.page_no)
 
+        texts = page.lines
         image_path = os.path.join(temp_dir, str(uuid.uuid4()))
         page.extract_images(path=image_path.encode('utf-8'), prefix=b'img')
         ocr = get_ocr()
@@ -45,8 +51,10 @@ class PDFSupport(ShellSupport, TempFileSupport):
                 data = fh.read()
                 text = ocr.extract_text(data, languages=languages)
                 text = stringify(text)
+                # text = collapse_spaces(text)
                 if text is not None:
                     texts.append(text)
 
         text = ' \n'.join(texts).strip()
-        self.result.emit_page(int(pagenum), text)
+        entity.set('bodyText', text)
+        self.manager.emit_entity(entity)

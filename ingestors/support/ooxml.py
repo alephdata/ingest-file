@@ -36,7 +36,7 @@ class OOXMLSupport(object):
             log.warning("Cannot read OOXML metadata: %s", file_path)
             return None
 
-    def ooxml_extract_metadata(self, file_path):
+    def ooxml_extract_metadata(self, file_path, entity):
         doc = self.parse_ooxml_core(file_path)
         if doc is None:
             # TODO: should this trigger a ProcessingExc on the whole doc?
@@ -45,17 +45,16 @@ class OOXMLSupport(object):
         def get(ns, name):
             return doc.findtext('.//%s%s' % (ns, name))
 
-        self.update('title', get(self.DC_NS, 'title'))
-        # self.update('title', get(self.DC_NS, 'subject'))
-        self.update('summary', get(self.DC_NS, 'description'))
-        self.update('author', get(self.DC_NS, 'creator'))
-        self.update('author', get(self.CP_NS, 'lastModifiedBy'))
+        entity.add('title', get(self.DC_NS, 'title'))
+        entity.add('summary', get(self.DC_NS, 'description'))
+        entity.add('author', get(self.DC_NS, 'creator'))
+        entity.add('author', get(self.CP_NS, 'lastModifiedBy'))
 
         created_at = self.parse_ooxml_date(get(self.DCT_NS, 'created'))
-        self.update('created_at', created_at)
+        entity.add('authoredAt', created_at)
 
         modified_at = self.parse_ooxml_date(get(self.DCT_NS, 'modified'))
-        self.update('modified_at', modified_at)
+        entity.add('modifiedAt', modified_at)
 
         # from pprint import pprint
         # pprint(self.result.to_dict())
