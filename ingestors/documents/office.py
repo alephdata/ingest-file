@@ -1,3 +1,5 @@
+from followthemoney import model
+
 from ingestors.ingestor import Ingestor
 from ingestors.support.soffice import LibreOfficeSupport
 from ingestors.support.ole import OLESupport
@@ -164,7 +166,7 @@ class DocumentIngestor(Ingestor, LibreOfficeSupport, OLESupport):
 
     def ingest(self, file_path, entity):
         """Ingestor implementation."""
-        self.result.flag(self.result.FLAG_PDF)
-        self.extract_ole_metadata(file_path)
+        entity.schema = model.get('Pages')
+        self.extract_ole_metadata(file_path, entity)
         pdf_path = self.document_to_pdf(file_path)
-        self.pdf_alternative_extract(pdf_path)
+        self.pdf_alternative_extract(entity, pdf_path)

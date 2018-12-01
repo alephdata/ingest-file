@@ -6,7 +6,7 @@ from xlrd.biffh import XLRDError
 from followthemoney import model
 
 from ingestors.ingestor import Ingestor
-from ingestors.support.csv import CSVEmitterSupport
+from ingestors.support.table import TableSupport
 from ingestors.support.ole import OLESupport
 from ingestors.exc import ProcessingException
 from ingestors.util import safe_string
@@ -14,7 +14,7 @@ from ingestors.util import safe_string
 log = logging.getLogger(__name__)
 
 
-class ExcelIngestor(Ingestor, CSVEmitterSupport, OLESupport):
+class ExcelIngestor(Ingestor, TableSupport, OLESupport):
     MIME_TYPES = [
         'application/excel',
         'application/x-excel',
@@ -60,8 +60,12 @@ class ExcelIngestor(Ingestor, CSVEmitterSupport, OLESupport):
 
         try:
             for sheet in book.sheets():
-                rows = self.generate_csv(sheet)
-                self.csv_child_iter(rows, sheet.name)
+                table = self.manager.make_entity('Table')
+                table.make_id(entity, sheet.name)
+                table.set('title', sheet.name)
+                table.add('parent', entity)
+                self.emit_row_tuples(table, self.generate_csv(sheet))
+                self.manager.emit_entity(table)
         except XLRDError as err:
             raise ProcessingException('Invalid Excel file: %s' % err)
         finally:

@@ -19,7 +19,7 @@ class LibreOfficeSupport(PDFSupport, UnoconvSupport):
 
         instance_dir = make_directory(self.work_path, 'soffice_instance')
         out_dir = make_directory(self.work_path, 'soffice_output')
-        log.info('Converting [%s] to PDF...', self.result)
+        log.info('Converting [%s] to PDF...', file_path)
         instance_dir = '-env:UserInstallation=file://{}'.format(instance_dir)
         self.exec_command('soffice',
                           instance_dir,

@@ -81,7 +81,7 @@ class ImageIngestor(Ingestor, OCRSupport, ImageSupport, PlainTextSupport):
         image = self.parse_image(data)
         self.extract_exif(image)
 
-        text = self.extract_text_from_image(data)
+        text = self.extract_text_from_image(entity, data)
         self.extract_plain_text_content(text)
 
     @classmethod

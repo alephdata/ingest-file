@@ -1,9 +1,10 @@
 import logging
+from followthemoney import model
 from openpyxl import load_workbook
 from xml.etree.ElementTree import ParseError
 
 from ingestors.ingestor import Ingestor
-from ingestors.support.csv import CSVEmitterSupport
+from ingestors.support.table import TableSupport
 from ingestors.support.ooxml import OOXMLSupport
 from ingestors.exc import ProcessingException
 from ingestors.util import safe_string
@@ -11,7 +12,7 @@ from ingestors.util import safe_string
 log = logging.getLogger(__name__)
 
 
-class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
+class ExcelXMLIngestor(Ingestor, TableSupport, OOXMLSupport):
     MIME_TYPES = [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',  # noqa
         'application/vnd.openxmlformats-officedocument.spreadsheetml.template',  # noqa
@@ -24,7 +25,7 @@ class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
     ]
     SCORE = 7
 
-    def generate_csv(self, sheet):
+    def generate_rows(self, sheet):
         for row in sheet.rows:
             try:
                 yield [safe_string(c.value) for c in row]
@@ -32,17 +33,21 @@ class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
                 log.warning("Failed to read Excel row: %s", ve)
 
     def ingest(self, file_path, entity):
-        self.ooxml_extract_metadata(file_path)
+        entity.schema = model.get('Workbook')
+        self.ooxml_extract_metadata(file_path, entity)
         try:
             book = load_workbook(file_path, read_only=True)
         except Exception as err:
             raise ProcessingException('Invalid Excel file: %s' % err)
 
-        self.result.flag(self.result.FLAG_WORKBOOK)
         try:
             for name in book.sheetnames:
-                rows = self.generate_csv(book[name])
-                self.csv_child_iter(rows, name)
+                table = self.manager.make_entity('Table')
+                table.make_id(entity, name)
+                table.set('title', name)
+                table.add('parent', entity)
+                self.emit_row_tuples(table, self.generate_rows(book[name]))
+                self.manager.emit_entity(table)
         except Exception as err:
             raise ProcessingException('Cannot read Excel file: %s' % err)
         finally:

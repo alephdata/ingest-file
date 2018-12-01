@@ -1,4 +1,5 @@
 import logging
+from followthemoney import model
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.pdf import PDFSupport
@@ -21,7 +22,7 @@ class TIFFIngestor(Ingestor, PDFSupport):
     SCORE = 11
 
     def ingest(self, file_path, entity):
-        self.result.flag(self.result.FLAG_PDF)
+        entity.schema = model.get('Pages')
         pdf_path = join_path(self.work_path, 'tiff.pdf')
         self.exec_command('tiff2pdf',
                           file_path,
@@ -29,4 +30,4 @@ class TIFFIngestor(Ingestor, PDFSupport):
                           '-y', '300',
                           '-o', pdf_path)
         self.assert_outfile(pdf_path)
-        self.pdf_alternative_extract(pdf_path)
+        self.pdf_alternative_extract(entity, pdf_path)
