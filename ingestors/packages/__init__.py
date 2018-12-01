@@ -44,11 +44,10 @@ class SingleFilePackageIngestor(PackageSupport, Ingestor):
         self.unpack_file(file_path, temp_file)
 
     @classmethod
-    def match(cls, file_path, result=None):
+    def match(cls, file_path, entity):
         if tarfile.is_tarfile(file_path):
             return -1
-        return super(SingleFilePackageIngestor, cls).match(file_path,
-                                                           result=result)
+        return super(SingleFilePackageIngestor, cls).match(file_path, entity)
 
 
 class GzipIngestor(SingleFilePackageIngestor):

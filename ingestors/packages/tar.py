@@ -40,7 +40,7 @@ class TarIngestor(PackageSupport, Ingestor):
             raise ProcessingException('Invalid Tar file: %s' % err)
 
     @classmethod
-    def match(cls, file_path, result=None):
+    def match(cls, file_path, entity):
         if tarfile.is_tarfile(file_path):
             return cls.SCORE
-        return super(TarIngestor, cls).match(file_path, result=result)
+        return super(TarIngestor, cls).match(file_path, entity)

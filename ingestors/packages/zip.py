@@ -39,7 +39,7 @@ class ZipIngestor(PackageSupport, Ingestor):
             raise ProcessingException('Invalid ZIP file: %s' % bzfe)
 
     @classmethod
-    def match(cls, file_path, result=None):
+    def match(cls, file_path, entity):
         if zipfile.is_zipfile(file_path):
             return cls.SCORE
-        return super(ZipIngestor, cls).match(file_path, result=result)
+        return super(ZipIngestor, cls).match(file_path, entity)

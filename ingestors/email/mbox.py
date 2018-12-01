@@ -37,8 +37,8 @@ class MboxFileIngestor(RFC822Ingestor):
                                       mime_type='message/rfc822')
 
     @classmethod
-    def match(cls, file_path, result=None):
-        score = super(MboxFileIngestor, cls).match(file_path, result=result)
+    def match(cls, file_path, entity):
+        score = super(MboxFileIngestor, cls).match(file_path, entity)
         if score < 0:
             # this was added because a lot of mbox files are just called
             # 'inbox' or 'new', without a file suffix.

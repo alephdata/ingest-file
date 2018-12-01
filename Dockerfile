@@ -42,6 +42,7 @@ RUN pip3 install --no-cache-dir -q -U banal>=0.3.4 \
                    pantomime>=0.3.2 \
                    requests[security]>=2.18.4 \
                    cryptography>=2.5 \
+                   followthemoney>=1.3.0 \
                    xlrd>=1.1.0 \
                    pyicu>=2.0.3 \
                    openpyxl>=2.5.3 \

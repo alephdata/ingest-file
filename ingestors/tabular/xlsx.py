@@ -49,8 +49,8 @@ class ExcelXMLIngestor(Ingestor, CSVEmitterSupport, OOXMLSupport):
             book.close()
 
     @classmethod
-    def match(cls, file_path, result=None):
-        score = super(ExcelXMLIngestor, cls).match(file_path, result=result)  # noqa
+    def match(cls, file_path, entity):
+        score = super(ExcelXMLIngestor, cls).match(file_path, entity)
         if score <= 0 and cls.inspect_ooxml_manifest(file_path):
             score = cls.SCORE * 2
         return score

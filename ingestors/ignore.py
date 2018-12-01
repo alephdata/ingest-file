@@ -58,9 +58,11 @@ class IgnoreIngestor(Ingestor):
         log.info("[%s] will be ignored but stored.", self.result)
 
     @classmethod
-    def match(cls, file_path, result=None):
-        if result.size is not None and result.size == 0:
-            return cls.SCORE * 100
-        if result.file_name in cls.NAMES:
-            return cls.SCORE
-        return super(IgnoreIngestor, cls).match(file_path, result=result)
+    def match(cls, file_path, entity):
+        for file_size in entity.get('fileSize'):
+            if int(file_size) == 0:
+                return cls.SCORE * 100
+        for file_name in entity.get('fileName'):
+            if file_name in cls.NAMES:
+                return cls.SCORE
+        return super(IgnoreIngestor, cls).match(file_path, entity)

@@ -54,9 +54,10 @@ class AudioIngestor(Ingestor, MediaInfoDateMixIn):
             self.update('duration', track.duration)
 
     @classmethod
-    def match(cls, file_path, result=None):
-        score = super(AudioIngestor, cls).match(file_path, result=result)
+    def match(cls, file_path, entity):
+        score = super(AudioIngestor, cls).match(file_path, entity)
         if score <= 0:
-            if result.mime_type.startswith('audio/'):
+            for mime_type in entity.get('mimeType'):
+                if mime_type.startswith('audio/'):
                     return cls.SCORE * 2
         return score

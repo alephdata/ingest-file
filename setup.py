@@ -21,6 +21,7 @@ setup(
         'requests[security] >= 2.21.0',
         'xlrd >= 1.2.0',
         'openpyxl >= 2.5.14',
+        'followthemoney >= 1.3.0',
         'odfpy >= 1.3.5',
         'cchardet >= 2.1.1',
         'lxml >= 4.2.1',
@@ -35,7 +36,6 @@ setup(
         'dbf >= 0.96.8',
         'pdflib >= 0.1.5',
         'pymediainfo >= 2.3.0',
-        'languagecodes >= 1.0.4',
     ],
     extras_require={
         'dev': [

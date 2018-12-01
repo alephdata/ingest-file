@@ -74,8 +74,7 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
                                    attachment.data)
 
     @classmethod
-    def match(cls, file_path, result=None):
+    def match(cls, file_path, entity):
         if isOleFile(file_path):
-            return super(OutlookMsgIngestor, cls).match(file_path,
-                                                        result=result)
+            return super(OutlookMsgIngestor, cls).match(file_path, entity)
         return -1
