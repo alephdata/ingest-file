@@ -20,7 +20,7 @@ class TIFFIngestor(Ingestor, PDFSupport):
     ]
     SCORE = 11
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         self.result.flag(self.result.FLAG_PDF)
         pdf_path = join_path(self.work_path, 'tiff.pdf')
         self.exec_command('tiff2pdf',

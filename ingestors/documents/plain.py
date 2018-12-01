@@ -1,4 +1,4 @@
-import os
+from followthemoney import model
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.encoding import EncodingSupport
@@ -38,15 +38,15 @@ class PlainTextIngestor(Ingestor, EncodingSupport, PlainTextSupport):
     MAX_SIZE = 4 * 1024 * 1024
     SCORE = 1
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         """Ingestor implementation."""
-        file_size = self.result.size or os.path.getsize(file_path)
-        if file_size > self.MAX_SIZE:
-            raise ProcessingException("Text file is too large.")
+        entity.schema = model.get('PlainText')
+        for file_size in entity.get('fileSize'):
+            if int(file_size) > self.MAX_SIZE:
+                raise ProcessingException("Text file is too large.")
 
-        text = self.read_file_decoded(file_path)
+        text = self.read_file_decoded(entity, file_path)
         if text is None:
             raise ProcessingException("Document could not be decoded.")
 
-        self.result.flag(self.result.FLAG_PLAINTEXT)
-        self.extract_plain_text_content(text)
+        self.extract_plain_text_content(entity, text)

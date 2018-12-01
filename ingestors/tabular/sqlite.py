@@ -43,7 +43,7 @@ class SQLiteIngestor(Ingestor, CSVEmitterSupport):
             except sqlite3.OperationalError as oe:
                 log.warning("SQLite error: %s", oe)
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         self.result.flag(self.result.FLAG_WORKBOOK)
         conn = sqlite3.connect(file_path)
         try:

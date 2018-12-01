@@ -42,7 +42,7 @@ class OpenDocumentIngestor(Ingestor, LibreOfficeSupport, OpenDocumentSupport):
     ]
     SCORE = 7
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         """Ingestor implementation."""
         self.result.flag(self.result.FLAG_PDF)
         self.parse_opendocument(file_path)

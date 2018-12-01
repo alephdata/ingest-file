@@ -1,8 +1,6 @@
-from __future__ import unicode_literals
-
-import os
 from lxml import etree, html
 from lxml.etree import ParseError, ParserError
+from followthemoney import model
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.html import HTMLSupport
@@ -55,11 +53,11 @@ class XMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
 
         </xsl:stylesheet>""")
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         """Ingestor implementation."""
-        file_size = self.result.size or os.path.getsize(file_path)
-        if file_size > self.MAX_SIZE:
-            raise ProcessingException("XML file is too large.")
+        for file_size in entity.get('fileSize'):
+            if int(file_size) > self.MAX_SIZE:
+                raise ProcessingException("XML file is too large.")
 
         try:
             doc = etree.parse(file_path)
@@ -67,8 +65,9 @@ class XMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
             raise ProcessingException("XML could not be parsed.")
 
         text = self.extract_html_text(doc.getroot())
+        entity.schema = model.get('HyperText')
+        entity.set('bodyText', text)
         transform = etree.XSLT(self.XSLT)
         html_doc = transform(doc)
         html_body = html.tostring(html_doc, encoding=str, pretty_print=True)
-        self.result.flag(self.result.FLAG_HTML)
-        self.result.emit_html_body(html_body, text)
+        entity.set('bodyHtml', html_body)

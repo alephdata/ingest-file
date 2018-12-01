@@ -3,6 +3,7 @@ import logging
 from time import time
 from datetime import datetime
 from xlrd.biffh import XLRDError
+from followthemoney import model
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.csv import CSVEmitterSupport
@@ -49,14 +50,14 @@ class ExcelIngestor(Ingestor, CSVEmitterSupport, OLESupport):
         for row_index in range(0, sheet.nrows):
             yield [self.convert_cell(c, sheet) for c in sheet.row(row_index)]
 
-    def ingest(self, file_path):
-        self.extract_ole_metadata(file_path)
+    def ingest(self, file_path, entity):
+        entity.schema = model.get('Workbook')
+        self.extract_ole_metadata(file_path, entity)
         try:
             book = xlrd.open_workbook(file_path, formatting_info=False)
         except Exception as err:
             raise ProcessingException('Invalid Excel file: %s' % err)
 
-        self.result.flag(self.result.FLAG_WORKBOOK)
         try:
             for sheet in book.sheets():
                 rows = self.generate_csv(sheet)

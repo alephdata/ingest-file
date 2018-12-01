@@ -33,6 +33,7 @@ class Manager(object):
         self.config = config
         self.key_prefix = key_prefix
         self._ocr_service = ocr_service
+        self.entities = []
 
     def get_env(self, name, default=None):
         """Get configuration from local config or environment."""
@@ -68,6 +69,7 @@ class Manager(object):
     def emit_entity(self, entity):
         from pprint import pprint
         pprint(entity.to_dict())
+        self.entities.append(entity)
 
     def auction(self, file_path, entity):
         if not is_file(file_path):
@@ -135,7 +137,8 @@ class Manager(object):
         finally:
             if self.STATUS_PENDING in entity.get('processingStatus'):
                 entity.set('processingStatus', self.STATUS_SUCCESS)
-        return entity
+
+        self.emit_entity(entity)
 
     def delegate(self, ingestor_class, file_path, entity, work_path=None):
         ingestor = ingestor_class(self, work_path=work_path)

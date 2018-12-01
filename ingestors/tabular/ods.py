@@ -62,7 +62,7 @@ class OpenOfficeSpreadsheetIngestor(Ingestor, CSVEmitterSupport,
                     values.append(value)
             yield values
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         doc = self.parse_opendocument(file_path)
         self.result.flag(self.result.FLAG_WORKBOOK)
         for table in doc.spreadsheet.getElementsByType(Table):

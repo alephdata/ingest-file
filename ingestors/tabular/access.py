@@ -41,7 +41,7 @@ class AccessIngestor(Ingestor, ShellSupport):
             subprocess.call(args, stdout=fh)
         return csv_path
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         self.result.flag(self.result.FLAG_WORKBOOK)
         for table_name in self.get_tables(file_path):
             csv_name = safe_filename(table_name, extension='csv')

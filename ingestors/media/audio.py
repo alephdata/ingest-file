@@ -35,7 +35,7 @@ class AudioIngestor(Ingestor, MediaInfoDateMixIn):
     ]
     SCORE = 3
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         self.result.flag(self.result.FLAG_AUDIO)
         log.info("[%s] flagged as audio.", self.result)
         metadata = MediaInfo.parse(file_path)

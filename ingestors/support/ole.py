@@ -7,14 +7,14 @@ log = logging.getLogger(__name__)
 class OLESupport(object):
     """Provides helpers for Microsoft OLE files."""
 
-    def extract_ole_metadata(self, file_path):
+    def extract_ole_metadata(self, file_path, entity):
         with open(file_path, 'rb') as fh:
             if not isOleFile(fh):
                 return
             fh.seek(0)
             try:
                 ole = OleFileIO(fh)
-                self.extract_olefileio_metadata(ole)
+                self.extract_olefileio_metadata(ole, entity)
             except (RuntimeError, IOError):
                 # OLE reading can go fully recursive, at which point it's OK
                 # to just eat this runtime error quietly.
@@ -22,7 +22,7 @@ class OLESupport(object):
             except Exception:
                 log.exception("Failed to read OLE data: %s", self.result)
 
-    def extract_olefileio_metadata(self, ole):
+    def extract_olefileio_metadata(self, ole, entity):
         try:
             self.update('created_at', ole.root.getctime())
         except Exception:

@@ -35,24 +35,22 @@ class HTMLSupport(object):
                 if content is not None and len(content):
                     return content
 
-    def extract_html_header(self, doc):
+    def extract_html_header(self, entity, doc):
         """Get metadata from the HTML head element."""
-        self.update('title', self.get_meta(doc, 'og:title'))
-        self.update('title', doc.findtext('.//title'))
-        self.update('summary', self.get_meta(doc, 'og:description'))
-        self.update('summary', self.get_meta(doc, 'description'))
-        self.update('author', self.get_meta(doc, 'author'))
-        self.update('author', self.get_meta(doc, 'og:site_name'))
-        self.update('published_at', self.get_meta(doc, 'artcile:published_time'))  # noqa
-        self.update('modified_at', self.get_meta(doc, 'artcile:modified_time'))
+        entity.add('title', self.get_meta(doc, 'og:title'))
+        entity.add('title', doc.findtext('.//title'))
+        entity.add('summary', self.get_meta(doc, 'og:description'))
+        entity.add('summary', self.get_meta(doc, 'description'))
+        entity.add('author', self.get_meta(doc, 'author'))
+        entity.add('author', self.get_meta(doc, 'og:site_name'))
+        entity.add('publishedAt', self.get_meta(doc, 'artcile:published_time'))  # noqa
+        entity.add('modifiedAt', self.get_meta(doc, 'artcile:modified_time'))
 
         for field in ['keywords', 'news_keywords']:
             content = self.get_meta(doc, field)
             if content is not None:
                 for keyword in content.split(','):
-                    keyword = collapse_spaces(keyword)
-                    if len(keyword):
-                        self.result.emit_keyword(keyword)
+                    entity.add('keywords', collapse_spaces(keyword))
 
     def extract_html_text(self, doc):
         """Get all text from a DOM, also used by the XML parser."""
@@ -68,7 +66,7 @@ class HTMLSupport(object):
                 yield text
         yield el.tail or ' '
 
-    def extract_html_content(self, html_body, fix_html=True):
+    def extract_html_content(self, entity, html_body, fix_html=True):
         """Ingestor implementation."""
         if html_body is None:
             return
@@ -83,8 +81,8 @@ class HTMLSupport(object):
         except (ParserError, ParseError, ValueError):
             raise ProcessingException("HTML could not be parsed.")
 
-        self.extract_html_header(doc)
+        self.extract_html_header(entity, doc)
         self.cleaner(doc)
         text = self.extract_html_text(doc)
-        self.result.flag(self.result.FLAG_HTML)
-        self.result.emit_html_body(html_body, text)
+        entity.set('bodyText', text)
+        entity.set('bodyHtml', html_body)
