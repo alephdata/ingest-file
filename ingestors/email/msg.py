@@ -2,7 +2,7 @@ import logging
 from collections import defaultdict
 from flanker import mime
 from flanker.mime.message.errors import DecodingError
-from celestial import normalize_mimetype
+from pantomime import normalize_mimetype
 
 from ingestors.base import Ingestor
 from ingestors.support.email import EmailSupport

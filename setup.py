@@ -16,7 +16,7 @@ setup(
     install_requires=[
         'banal >= 0.3.4',
         'normality >= 0.5.11',
-        'celestial >= 0.2.3',
+        'pantomime >= 0.3.0',
         'urllib3 >= 1.21',
         'requests >= 2.18.4',
         'xlrd >= 1.1.0',

@@ -3,7 +3,7 @@ import magic
 import logging
 import hashlib
 from normality import stringify
-from celestial import normalize_mimetype, useful_mimetype
+from pantomime import normalize_mimetype, useful_mimetype
 from pkg_resources import iter_entry_points
 
 from ingestors.result import Result
