@@ -1,4 +1,5 @@
 import logging
+from followthemoney import model
 from pymediainfo import MediaInfo
 
 from ingestors.ingestor import Ingestor
@@ -36,22 +37,22 @@ class AudioIngestor(Ingestor, MediaInfoDateMixIn):
     SCORE = 3
 
     def ingest(self, file_path, entity):
-        self.result.flag(self.result.FLAG_AUDIO)
-        log.info("[%s] flagged as audio.", self.result)
+        entity.schema = model.get('Audio')
+        log.info("[%r] flagged as audio.", entity)
         metadata = MediaInfo.parse(file_path)
         for track in metadata.tracks:
-            self.update('title', track.title)
-            self.update('generator', track.writing_application)
-            self.update('generator', track.writing_library)
-            self.update('generator', track.publisher)
-            self.update('created_at', self.parse_date(track.recorded_date))
-            self.update('created_at', self.parse_date(track.tagged_date))
-            self.update('created_at', self.parse_date(track.encoded_date))
+            entity.add('title', track.title)
+            entity.add('generator', track.writing_application)
+            entity.add('generator', track.writing_library)
+            entity.add('generator', track.publisher)
+            entity.add('authoredAt', self.parse_date(track.recorded_date))
+            entity.add('authoredAt', self.parse_date(track.tagged_date))
+            entity.add('authoredAt', self.parse_date(track.encoded_date))
             modified_at = self.parse_date(track.file_last_modification_date)
-            self.update('modified_at', modified_at)
+            entity.add('modifiedAt', modified_at)
             if track.sampling_rate:
-                self.update('sampling_rate', str(track.sampling_rate/1000.0))
-            self.update('duration', track.duration)
+                entity.add('samplingRate', str(track.sampling_rate/1000.0))
+            entity.add('duration', track.duration)
 
     @classmethod
     def match(cls, file_path, entity):

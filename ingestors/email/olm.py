@@ -203,8 +203,8 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
 
         has_html = '1E0' == props.pop('OPFMessageGetHasHTML', None)
         if has_html and safe_string(html):
-            self.extract_html_content(html)
+            self.extract_html_content(entity, html)
             self.result.flag(self.result.FLAG_HTML)
         else:
-            self.extract_plain_text_content(body)
+            self.extract_plain_text_content(entity, body)
             self.result.flag(self.result.FLAG_PLAINTEXT)

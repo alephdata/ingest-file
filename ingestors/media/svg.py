@@ -1,4 +1,5 @@
 import logging
+from followthemoney import model
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.html import HTMLSupport
@@ -15,6 +16,6 @@ class SVGIngestor(Ingestor, EncodingSupport, HTMLSupport):
     SCORE = 20
 
     def ingest(self, file_path, entity):
+        entity.schema = model.get('HyperText')
         html_body = self.read_file_decoded(file_path)
-        self.result.flag(self.result.FLAG_HTML)
-        self.extract_html_content(html_body)
+        self.extract_html_content(entity, html_body)

@@ -40,7 +40,7 @@ class EncodingSupport(object):
             try:
                 body = body.decode(encoding)
                 if encoding != self.DEFAULT_ENCODING:
-                    log.info("Decoding [%s] as: %s", entity, encoding)
+                    log.info("Decoding [%r] as: %s", entity, encoding)
                 return body
             except UnicodeDecodeError as ude:
                 raise ProcessingException('Error decoding file as %s: %s' %

@@ -70,9 +70,10 @@ class Manager(object):
         return model.make_entity(schema, key_prefix=self.key_prefix)
 
     def emit_entity(self, entity):
-        from pprint import pprint
-        pprint(entity.to_dict())
-        self.entities.append(entity)
+        # from pprint import pprint
+        # pprint(entity.to_dict())
+        # self.entities.append(entity)
+        pass
 
     def auction(self, file_path, entity):
         if not is_file(file_path):
@@ -112,8 +113,8 @@ class Manager(object):
                     size += len(block)
                     checksum.update(block)
 
-            entity.add('contentHash', checksum.hexdigest())
-            entity.add('fileSize', size)
+            entity.set('contentHash', checksum.hexdigest())
+            entity.set('fileSize', size)
 
         if not entity.has('fileSize'):
             entity.add('fileSize', os.path.getsize(file_path))
@@ -129,14 +130,14 @@ class Manager(object):
         entity.set('processingStatus', self.STATUS_PENDING)
         try:
             ingestor_class = self.auction(file_path, entity)
-            log.debug("Ingestor [%s]: %s", entity, ingestor_class.__name__)
+            log.debug("Ingestor [%r]: %s", entity, ingestor_class.__name__)
             self.delegate(ingestor_class, file_path, entity,
                           work_path=work_path)
             entity.set('processingStatus', self.STATUS_SUCCESS)
         except ProcessingException as pexc:
             entity.set('processingStatus', self.STATUS_FAILURE)
             entity.set('processingError', safe_string(pexc))
-            log.warning("Failed [%s]: %s", entity, pexc)
+            log.warning("Failed [%r]: %s", entity, pexc)
         finally:
             if self.STATUS_PENDING in entity.get('processingStatus'):
                 entity.set('processingStatus', self.STATUS_SUCCESS)

@@ -55,6 +55,7 @@ class XMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
 
     def ingest(self, file_path, entity):
         """Ingestor implementation."""
+        entity.schema = model.get('HyperText')
         for file_size in entity.get('fileSize'):
             if int(file_size) > self.MAX_SIZE:
                 raise ProcessingException("XML file is too large.")
@@ -65,7 +66,6 @@ class XMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
             raise ProcessingException("XML could not be parsed.")
 
         text = self.extract_html_text(doc.getroot())
-        entity.schema = model.get('HyperText')
         entity.set('bodyText', text)
         transform = etree.XSLT(self.XSLT)
         html_doc = transform(doc)

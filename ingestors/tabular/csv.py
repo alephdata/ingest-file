@@ -42,7 +42,7 @@ class CSVIngestor(Ingestor, EncodingSupport, TableSupport):
         entity.schema = model.get('Table')
         with io.open(file_path, 'rb') as fh:
             encoding = self.detect_stream_encoding(fh)
-            log.debug("Detected encoding [%s]: %s", entity, encoding)
+            log.debug("Detected encoding [%r]: %s", entity, encoding)
 
         fh = io.open(file_path, 'r', encoding=encoding, errors='replace')
         try:
@@ -57,7 +57,7 @@ class CSVIngestor(Ingestor, EncodingSupport, TableSupport):
             rows = self.generate_rows(reader, has_header=has_header)
             self.emit_row_dicts(entity, rows)
         except UnicodeDecodeError as ude:
-            log.warning("Encoding error: %s", self.result)
+            log.warning("Encoding error: %r", entity)
             raise ProcessingException("Could not decode CSV (%s)" % encoding)
         except Exception as err:
             log.exception("CSV error: %s", err)

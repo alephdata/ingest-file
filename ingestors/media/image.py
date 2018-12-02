@@ -1,6 +1,7 @@
 import logging
-from datetime import datetime
 from PIL import ExifTags
+from datetime import datetime
+from followthemoney import model
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.ocr import OCRSupport
@@ -74,7 +75,7 @@ class ImageIngestor(Ingestor, OCRSupport, ImageSupport, PlainTextSupport):
         self.update('generator', generator.strip())
 
     def ingest(self, file_path, entity):
-        self.result.flag(self.result.FLAG_IMAGE)
+        entity.schema = model.get('Image')
         with open(file_path, 'rb') as fh:
             data = fh.read()
 
