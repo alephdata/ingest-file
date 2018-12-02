@@ -22,6 +22,8 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
 
     def pdf_alternative_extract(self, entity, pdf_path):
         # self.result.emit_pdf_alternative(pdf_path)
+        # TODO: HOW TO GET A STORAGE SHA??
+        entity.set('')
         pdf = Document(pdf_path.encode('utf-8'))
         self.pdf_extract(entity, pdf)
 

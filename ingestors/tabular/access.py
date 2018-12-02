@@ -1,16 +1,21 @@
+import os
+import io
+import csv
 import logging
 import subprocess
-from normality import safe_filename
+from collections import OrderedDict
+from followthemoney import model
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.shell import ShellSupport
+from ingestors.support.table import TableSupport
 from ingestors.exc import ProcessingException
-from ingestors.util import join_path
+from ingestors.util import safe_string
 
 log = logging.getLogger(__name__)
 
 
-class AccessIngestor(Ingestor, ShellSupport):
+class AccessIngestor(Ingestor, ShellSupport, TableSupport):
     MIME_TYPES = [
         'application/msaccess',
         'application/x-msaccess',
@@ -34,22 +39,29 @@ class AccessIngestor(Ingestor, ShellSupport):
             log.warning("Failed to open MDB: %s", cpe)
             raise ProcessingException("Failed to extract Access database.")
 
-    def dump_table(self, file_path, table_name, csv_path):
+    def generate_rows(self, file_path, table_name):
         mdb_export = self.find_command('mdb-export')
         args = [mdb_export, '-b', 'strip', file_path, table_name]
-        with open(csv_path, 'w') as fh:
-            subprocess.call(args, stdout=fh)
-        return csv_path
+        proc = subprocess.Popen(args, stdout=subprocess.PIPE)
+        output = io.TextIOWrapper(proc.stdout, newline=os.linesep)
+        rows = csv.reader((line for line in output), delimiter=",")
+        headers = None
+        for row in rows:
+            if headers is None:
+                headers = row
+                continue
+            data = OrderedDict()
+            for header, value in zip(headers, row):
+                data[header] = safe_string(value)
+            yield data
 
     def ingest(self, file_path, entity):
-        self.result.flag(self.result.FLAG_WORKBOOK)
+        entity.schema = model.get('Workbook')
         for table_name in self.get_tables(file_path):
-            csv_name = safe_filename(table_name, extension='csv')
-            csv_path = join_path(self.work_path, csv_name)
-            self.dump_table(file_path, table_name, csv_path)
-            child_id = join_path(self.result.id, table_name)
-            self.manager.handle_child(self.result, csv_path,
-                                      id=child_id,
-                                      title=table_name,
-                                      file_name=csv_name,
-                                      mime_type='text/csv')
+            table = self.manager.make_entity('Table')
+            table.make_id(entity, table_name)
+            table.set('title', table_name)
+            table.add('parent', entity)
+            rows = self.generate_rows(file_path, table_name)
+            self.emit_row_dicts(table, rows)
+            self.manager.emit_entity(table)
