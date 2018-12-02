@@ -18,9 +18,9 @@ class OLESupport(object):
             except (RuntimeError, IOError):
                 # OLE reading can go fully recursive, at which point it's OK
                 # to just eat this runtime error quietly.
-                log.warning("Failed to read OLE data: %s", entity)
+                log.warning("Failed to read OLE data: %r", entity)
             except Exception:
-                log.exception("Failed to read OLE data: %s", entity)
+                log.exception("Failed to read OLE data: %r", entity)
 
     def extract_olefileio_metadata(self, ole, entity):
         try:

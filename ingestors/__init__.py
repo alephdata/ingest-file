@@ -2,7 +2,6 @@
 import logging
 
 from ingestors.manager import Manager
-from ingestors.result import Result  # noqa
 
 __version__ = '0.13.0'
 

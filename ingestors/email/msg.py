@@ -82,9 +82,9 @@ class RFC822Ingestor(Ingestor, EmailSupport):
                 bodies[mime_type].append(part.body)
 
         if 'text/html' in bodies:
-            self.extract_html_content('\n\n'.join(bodies['text/html']))
+            self.extract_html_content('\n\n'.join(entity, bodies['text/html']))
             self.result.flag(self.result.FLAG_HTML)
 
         if 'text/plain' in bodies:
-            self.extract_plain_text_content('\n\n'.join(bodies['text/plain']))
+            self.extract_plain_text_content('\n\n'.join(entity, bodies['text/plain']))
             self.result.flag(self.result.FLAG_PLAINTEXT)

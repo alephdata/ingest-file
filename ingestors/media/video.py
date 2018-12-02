@@ -1,4 +1,5 @@
 import logging
+from followthemoney import model
 from pymediainfo import MediaInfo
 
 from ingestors.ingestor import Ingestor
@@ -25,20 +26,20 @@ class VideoIngestor(Ingestor, MediaInfoDateMixIn):
     SCORE = 3
 
     def ingest(self, file_path, entity):
-        self.result.flag(self.result.FLAG_VIDEO)
-        log.info("[%s] flagged as video.", self.result)
+        entity.schema = model.get('Video')
+        log.info("[%r] flagged as video.", entity)
         metadata = MediaInfo.parse(file_path)
         for track in metadata.tracks:
-            self.update('title', track.title)
-            self.update('generator', track.writing_application)
-            self.update('generator', track.writing_library)
-            self.update('generator', track.publisher)
-            self.update('created_at', self.parse_date(track.recorded_date))
-            self.update('created_at', self.parse_date(track.tagged_date))
-            self.update('created_at', self.parse_date(track.encoded_date))
+            entity.add('title', track.title)
+            entity.add('generator', track.writing_application)
+            entity.add('generator', track.writing_library)
+            entity.add('generator', track.publisher)
+            entity.add('authoredAt', self.parse_date(track.recorded_date))
+            entity.add('authoredAt', self.parse_date(track.tagged_date))
+            entity.add('authoredAt', self.parse_date(track.encoded_date))
             modified_at = self.parse_date(track.file_last_modification_date)
-            self.update('modified_at', modified_at)
-            self.update('duration', track.duration)
+            entity.add('modifiedAt', modified_at)
+            entity.add('duration', track.duration)
 
     @classmethod
     def match(cls, file_path, entity):
