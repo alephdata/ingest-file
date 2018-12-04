@@ -21,7 +21,7 @@ EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
 class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
     """Extract metadata from email messages."""
 
-    def ingest_attachment(self, name, mime_type, body):
+    def ingest_attachment(self, entity, name, mime_type, body):
         has_body = body is not None and len(body)
         if safe_string(name) is None and not has_body:
             # Hello, Outlook.
@@ -80,19 +80,17 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
             values.append((name, email))
         return values
 
-    def extract_headers_metadata(self, headers):
-        self.result.headers = safe_dict(dict(headers))
+    def extract_headers_metadata(self, entity, headers):
+        # self.result.headers = safe_dict(dict(headers))
         headers = [(safe_string(k), safe_string(v)) for k, v in headers]
         for field, value in headers:
             field = field.lower()
-            if field is None or value is None:
-                continue
 
             if field == 'subject':
-                self.update('title', value)
+                entity.add('title', value)
 
             if field == 'message-id':
-                self.update('message_id', value)
+                entity.add('messageId', value)
 
             if field == 'in-reply-to':
                 self.result.emit_in_reply_to(value)
@@ -105,13 +103,13 @@ class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
                 try:
                     date = email.utils.parsedate(date)
                     date = datetime.fromtimestamp(mktime(date))
-                    self.update('created_at', date)
+                    entity.add('created_at', date)
                 except Exception as ex:
                     log.warning("Failed to parse [%s]: %s", date, ex)
 
             if field == 'from':
                 for (name, _) in self.parse_emails(value):
-                    self.update('author', name)
+                    entity.add('author', name)
 
             if field in ['to', 'cc', 'bcc']:
                 self.parse_emails(value)

@@ -24,12 +24,12 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
     ]
     SCORE = 10
 
-    def _parse_headers(self, message):
+    def _parse_headers(self, entity, message):
         headers = message.getField('007D')
         if headers is not None:
             try:
                 message = Parser().parsestr(headers, headersonly=True)
-                self.extract_headers_metadata(message.items())
+                self.extract_headers_metadata(entity, message.items())
                 return
             except Exception:
                 log.warning("Cannot parse headers: %s" % headers)
@@ -69,7 +69,7 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
         for attachment in message.attachments:
             name = safe_string(attachment.longFilename)
             name = name or safe_string(attachment.shortFilename)
-            self.ingest_attachment(name,
+            self.ingest_attachment(entity, name,
                                    attachment.mimeType,
                                    attachment.data)
 
