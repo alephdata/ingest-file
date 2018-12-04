@@ -1,6 +1,7 @@
 import os
 import shutil
 import logging
+from followthemoney import model
 
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.encoding import EncodingSupport
@@ -36,17 +37,17 @@ class PackageSupport(TempFileSupport, EncodingSupport):
             return
         file_name = os.path.basename(out_path)
         try:
-            log.debug("Unpack: %s -> %s", self.result, file_name)
+            log.debug("Unpack: %s", file_name)
             with open(out_path, 'wb') as out_fh:
                 shutil.copyfileobj(fh, out_fh)
         finally:
             fh.close()
 
     def ingest(self, file_path, entity):
-        self.result.flag(self.result.FLAG_PACKAGE)
+        entity.schema = model.get('Package')
         temp_dir = self.make_empty_directory()
         self.unpack(file_path, temp_dir)
-        self.manager.delegate(DirectoryIngestor, self.result, temp_dir)
+        self.manager.delegate(DirectoryIngestor, temp_dir, entity)
 
     def unpack(self, file_path, temp_dir):
         pass

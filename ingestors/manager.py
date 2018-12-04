@@ -130,7 +130,7 @@ class Manager(object):
         entity.set('processingStatus', self.STATUS_PENDING)
         try:
             ingestor_class = self.auction(file_path, entity)
-            log.debug("Ingestor [%r]: %s", entity, ingestor_class.__name__)
+            log.info("Ingestor [%r]: %s", entity, ingestor_class.__name__)
             self.delegate(ingestor_class, file_path, entity,
                           work_path=work_path)
             entity.set('processingStatus', self.STATUS_SUCCESS)

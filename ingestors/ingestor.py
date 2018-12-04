@@ -38,10 +38,9 @@ class Ingestor(object):
                 return cls.SCORE
 
         extensions = [normalize_extension(e) for e in cls.EXTENSIONS]
-        extensions = [e for e in extensions if e is not None]
         for file_name in entity.get('fileName'):
             extension = normalize_extension(file_name)
-            if extension in extensions:
+            if extension is not None and extension in extensions:
                 return cls.SCORE
 
         return -1

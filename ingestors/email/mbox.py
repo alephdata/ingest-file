@@ -1,5 +1,6 @@
 import logging
 import mailbox
+from followthemoney import model
 
 from ingestors.email.msg import RFC822Ingestor
 from ingestors.util import join_path
@@ -16,8 +17,8 @@ class MboxFileIngestor(RFC822Ingestor):
 
     def ingest(self, file_path, entity):
         mbox = mailbox.mbox(file_path)
-        self.result.mime_type = self.DEFAULT_MIME
-        self.result.flag(self.result.FLAG_PACKAGE)
+        entity.schema = model.get('Package')
+        entity.add('mimeType', self.DEFAULT_MIME)
 
         for i, msg in enumerate(mbox.itervalues(), 1):
             # Is there a risk of https://bugs.python.org/issue27321 ?
@@ -26,15 +27,13 @@ class MboxFileIngestor(RFC822Ingestor):
                 with open(msg_path, 'wb') as fh:
                     fh.write(msg.as_bytes())
             except Exception:
-                log.exception("[%s] Cannot extract message %s",
-                              self.result, i)
+                log.exception("[%r] Cannot extract message %s", entity, i)
                 continue
 
-            child_id = join_path(self.result.id, str(i))
-            self.manager.handle_child(self.result,
-                                      msg_path,
-                                      id=child_id,
-                                      mime_type='message/rfc822')
+            child = self.manager.make_entity('Email')
+            child.make_id(entity, i)
+            child.add('mimeType', 'message/rfc822')
+            self.manager.handle_child(msg_path, child)
 
     @classmethod
     def match(cls, file_path, entity):
