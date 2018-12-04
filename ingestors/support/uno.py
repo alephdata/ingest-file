@@ -2,7 +2,7 @@ import os
 import time
 import logging
 import requests
-from celestial import DEFAULT
+from pantomime.types import DEFAULT
 from requests.exceptions import RequestException
 
 from ingestors.exc import ConfigurationException, ProcessingException
