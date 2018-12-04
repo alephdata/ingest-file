@@ -22,7 +22,7 @@ class RFC822Ingestor(Ingestor, EmailSupport):
         'email',
         'msg'
     ]
-    SCORE = 6
+    SCORE = 7
 
     def ingest(self, file_path):
         with open(file_path, 'rb') as fh:
