@@ -45,5 +45,5 @@ class OCRUtils(object):
                 if len(png_data) < self.MAX_SIZE:
                     return png_data
                 factor *= 0.9
-        except Exception as err:
+        except Exception:
             log.exception("Cannot open image for OCR.")
