@@ -4,7 +4,7 @@ from normality import safe_filename
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.shell import ShellSupport
-from ingestors.exc import ProcessingException
+from ingestors.exc import ProcessingException, SystemException
 from ingestors.util import join_path
 
 log = logging.getLogger(__name__)
@@ -24,6 +24,8 @@ class AccessIngestor(Ingestor, ShellSupport):
 
     def get_tables(self, local_path):
         mdb_tables = self.find_command('mdb-tables')
+        if mdb_tables is None:
+            raise SystemException('mdb-tools is not available')
         try:
             output = subprocess.check_output([mdb_tables, local_path])
             return [
@@ -36,6 +38,8 @@ class AccessIngestor(Ingestor, ShellSupport):
 
     def dump_table(self, file_path, table_name, csv_path):
         mdb_export = self.find_command('mdb-export')
+        if mdb_export is None:
+            raise SystemException('mdb-tools is not available')
         args = [mdb_export, '-b', 'strip', file_path, table_name]
         with open(csv_path, 'w') as fh:
             subprocess.call(args, stdout=fh)

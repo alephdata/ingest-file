@@ -5,12 +5,12 @@ import uuid
 from normality import collapse_spaces  # noqa
 from pdflib import Document
 
+from ingestors.services import get_ocr, get_convert
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.shell import ShellSupport
-from ingestors.support.ocr import OCRSupport
 
 
-class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
+class PDFSupport(ShellSupport, TempFileSupport):
     """Provides helpers for PDF file context extraction."""
 
     def pdf_extract(self, pdf):
@@ -25,6 +25,13 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
         pdf = Document(pdf_path.encode('utf-8'))
         self.pdf_extract(pdf)
 
+    def document_to_pdf(self, file_path):
+        """Convert an office document into a PDF file."""
+        converter = get_convert()
+        return converter.document_to_pdf(file_path, self.work_path,
+                                         file_name=self.result.file_name,
+                                         mime_type=self.result.mime_type)
+
     def pdf_extract_page(self, temp_dir, page):
         """Extract the contents of a single PDF page, using OCR if need be."""
         pagenum = page.page_no
@@ -32,9 +39,12 @@ class PDFSupport(ShellSupport, TempFileSupport, OCRSupport):
 
         image_path = os.path.join(temp_dir, str(uuid.uuid4()))
         page.extract_images(path=image_path.encode('utf-8'), prefix=b'img')
+        ocr = get_ocr()
+        languages = self.result.ocr_languages
         for image_file in glob.glob(os.path.join(image_path, "*.png")):
             with open(image_file, 'rb') as fh:
-                text = self.extract_text_from_image(fh.read())
+                data = fh.read()
+                text = ocr.extract_text(data, languages=languages)
                 # text = collapse_spaces(text)
                 if text is not None:
                     texts.append(text)

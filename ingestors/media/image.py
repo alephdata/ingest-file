@@ -2,15 +2,15 @@ import logging
 from datetime import datetime
 from PIL import ExifTags
 
+from ingestors.services import get_ocr
 from ingestors.ingestor import Ingestor
-from ingestors.support.ocr import OCRSupport
 from ingestors.support.image import ImageSupport
 from ingestors.support.plain import PlainTextSupport
 
 log = logging.getLogger(__name__)
 
 
-class ImageIngestor(Ingestor, OCRSupport, ImageSupport, PlainTextSupport):
+class ImageIngestor(Ingestor, ImageSupport, PlainTextSupport):
     """Image file ingestor class.
 
     Extracts the text from images using OCR.
@@ -81,7 +81,8 @@ class ImageIngestor(Ingestor, OCRSupport, ImageSupport, PlainTextSupport):
         image = self.parse_image(data)
         self.extract_exif(image)
 
-        text = self.extract_text_from_image(data)
+        ocr = get_ocr()
+        text = ocr.extract_text(data, languages=self.result.ocr_languages)
         self.extract_plain_text_content(text)
 
     @classmethod

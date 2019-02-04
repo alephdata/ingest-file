@@ -1,49 +1,43 @@
+import os
 import logging
-from PIL import Image
-from io import BytesIO
+import subprocess
+from servicelayer import env
+from distutils.spawn import find_executable
+
+from ingestors.exc import SystemException, ProcessingException
 
 log = logging.getLogger(__name__)
 
 
-class OCRUtils(object):
-    MAX_SIZE = (1024 * 1024 * 4) - 1024
-    MIN_WIDTH = 10
-    MIN_HEIGHT = 10
+class ShellCommand(object):
+    """Provides helpers for shell commands."""
 
-    def image_size_ok(self, image):
-        if image.width <= self.MIN_WIDTH:
-            return False
-        if image.height <= self.MIN_HEIGHT:
-            return False
-        return True
+    #: Convertion time before the job gets cancelled.
+    COMMAND_TIMEOUT = 10 * 60
 
-    def ensure_size(self, data):
-        """This is a utility to scale images submitted to OCR such that
-        they will fit into the body of a gRPC message, used both by
-        Google's Vision API and by Aleph's recognize-text microservice.
-        This is primarily because gRPC has a built-in limit, but it also seems
-        like good practice independently - reformatting broken image formats
-        into clean PNGs before doing OCR."""
-        if len(data) < self.MAX_SIZE:
-            return data
+    @classmethod
+    def find_command(self, name):
+        config_name = '%s_BIN' % name
+        config_name = config_name.replace('-', '_').upper()
+        return env.get(config_name, find_executable(name))
 
+    def exec_command(self, command, *args):
+        binary = self.find_command(command)
+        if binary is None:
+            raise SystemException("Program not found: %s" % command)
+        cmd = [binary]
+        cmd.extend(args)
         try:
-            image = Image.open(BytesIO(data))
-            image.load()
-            factor = 1.0
-            while True:
-                size = (int(image.width * factor), int(image.height * factor))
-                resized = image.resize(size, Image.ANTIALIAS)
-                if not self.image_size_ok(image):
-                    return
+            code = subprocess.call(cmd, timeout=self.COMMAND_TIMEOUT,
+                                   stdout=open(os.devnull, 'wb'))
+        except (IOError, OSError) as ose:
+            raise ProcessingException('Error: %s' % ose)
+        except subprocess.TimeoutExpired:
+            raise ProcessingException('Processing timed out.')
 
-                with BytesIO() as output:
-                    resized.save(output, format='png')
-                    png_data = output.getvalue()
+        if code != 0:
+            raise ProcessingException('Failed: %s' % ' '.join(cmd))
 
-                # log.warn("Size: %s, %s", len(data), len(png_data))
-                if len(png_data) < self.MAX_SIZE:
-                    return png_data
-                factor *= 0.9
-        except Exception:
-            log.exception("Cannot open image for OCR.")
+    def assert_outfile(self, path):
+        if not os.path.exists(path):
+            raise ProcessingException('File missing: {}'.format(path))

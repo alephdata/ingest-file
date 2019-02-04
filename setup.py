@@ -16,6 +16,9 @@ setup(
     install_requires=[
         'banal >= 0.4.2',
         'normality >= 1.0.0',
+        'servicelayer >= 0.1.1',
+        'redis >= 2.10.6, < 3',
+        'fakeredis >= 1.0',
         'pantomime >= 0.3.3',
         'requests[security] >= 2.21.0',
         'xlrd >= 1.2.0',
@@ -47,7 +50,7 @@ setup(
         'tesseract': [
             'tesserocr >= 2.2.2',
         ],
-        'googlevision': [
+        'vision': [
             'google-cloud-vision',
         ]
     },

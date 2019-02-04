@@ -1,6 +1,5 @@
 import os
 import shutil
-
 from banal import decode_path
 from normality import stringify
 from normality.cleaning import remove_unsafe_chars

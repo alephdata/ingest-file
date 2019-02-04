@@ -5,7 +5,7 @@ DOCKER=docker run -v $(PWD)/dist:/ingestors/dist \
 
 build:
 	# docker pull alephdata/ingestors
-	docker build --cache-from alephdata/ingestors -t alephdata/ingestors .
+	docker build -t alephdata/ingestors .
 
 shell:
 	$(DOCKER) bash
@@ -19,7 +19,7 @@ test: build ## run tests quickly with the default Python
 dist: ## builds source and wheel package
 	$(DOCKER) python3 setup.py sdist bdist_wheel
 
-clean: 
+clean:
 	rm -fr dist/
 
 .PHONY: dist build test shell clean

@@ -22,9 +22,8 @@ class Manager(object):
     MAGIC = magic.Magic(mime=True)
     INGESTORS = []
 
-    def __init__(self, config, ocr_service=None):
+    def __init__(self, config):
         self.config = config
-        self._ocr_service = ocr_service
 
     def get_env(self, name, default=None):
         """Get configuration from local config or environment."""
@@ -42,16 +41,6 @@ class Manager(object):
             for ep in iter_entry_points('ingestors'):
                 self.INGESTORS.append(ep.load())
         return self.INGESTORS
-
-    @property
-    def ocr_service(self):
-        if self._ocr_service is None:
-            try:
-                from ingestors.services.tesseract import TesseractService
-                self._ocr_service = TesseractService()
-            except ImportError:
-                log.info("Cannot load tesseract OCR service.")
-        return self._ocr_service
 
     def auction(self, file_path, result):
         if not is_file(file_path):

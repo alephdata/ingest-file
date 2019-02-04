@@ -50,6 +50,7 @@ RUN pip3 install -q banal>=0.3.4 \
                    pillow>=5.1.0 \
                    olefile>=0.44 \
                    tesserocr>=2.2.2 \
+                   grpcio>=1.17.0 \
                    python-magic>=0.4.12 \
                    pypdf2>=1.26.0 \
                    rarfile>=3.0 \

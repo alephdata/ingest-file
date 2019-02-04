@@ -1,9 +1,9 @@
 from ingestors.ingestor import Ingestor
-from ingestors.support.soffice import LibreOfficeSupport
+from ingestors.support.pdf import PDFSupport
 from ingestors.support.ooxml import OOXMLSupport
 
 
-class OfficeOpenXMLIngestor(Ingestor, LibreOfficeSupport, OOXMLSupport):
+class OfficeOpenXMLIngestor(Ingestor, OOXMLSupport, PDFSupport):
     """Office/Word document ingestor class.
 
     Converts the document to PDF and extracts the text.
