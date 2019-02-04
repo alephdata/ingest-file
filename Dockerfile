@@ -36,8 +36,8 @@ ENV LANG='en_US.UTF-8' \
     LANGUAGE='en_US:en' \
     LC_ALL='en_US.UTF-8'
 
-RUN pip3 install -q --upgrade pip setuptools six wheel
-RUN pip3 install -q banal>=0.3.4 \
+RUN pip3 install --no-cache-dir -q -U pip setuptools six wheel
+RUN pip3 install --no-cache-dir -q -U banal>=0.3.4 \
                    normality>=0.5.11 \
                    pantomime>=0.3.2 \
                    requests[security]>=2.18.4 \
