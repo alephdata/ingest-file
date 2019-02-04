@@ -15,6 +15,8 @@ log = logging.getLogger(__name__)
 
 
 class DocumentConverter(ABC):
+    # TODO: refactor this so that conversion results can be cached
+    # based on the SHA1 of the submitted and resulting documents.
 
     @classmethod
     def is_available(cls):

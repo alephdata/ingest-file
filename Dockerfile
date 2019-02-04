@@ -41,6 +41,7 @@ RUN pip3 install -q banal>=0.3.4 \
                    normality>=0.5.11 \
                    pantomime>=0.3.2 \
                    requests[security]>=2.18.4 \
+                   cryptography>=2.5 \
                    xlrd>=1.1.0 \
                    pyicu>=2.0.3 \
                    openpyxl>=2.5.3 \

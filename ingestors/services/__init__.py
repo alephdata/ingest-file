@@ -1,6 +1,8 @@
 from servicelayer import settings
 
 from ingestors.services.ocr import LocalOCRService
+from ingestors.services.ocr import ServiceOCRService
+from ingestors.services.ocr import GoogleOCRService
 from ingestors.services.convert import LocalDocumentConverter
 from ingestors.services.convert import ServiceDocumentConverter
 from ingestors.exc import SystemException
@@ -9,7 +11,11 @@ from ingestors.exc import SystemException
 def get_ocr():
     """Find the best available method to perform OCR."""
     if not hasattr(settings, '_ingestors_ocr'):
-        if LocalOCRService.is_available():
+        if GoogleOCRService.is_available():
+            settings._ingestors_ocr = GoogleOCRService()
+        elif ServiceOCRService.is_available():
+            settings._ingestors_ocr = ServiceOCRService()
+        elif LocalOCRService.is_available():
             settings._ingestors_ocr = LocalOCRService()
         else:
             raise SystemException("OCR is not available")
@@ -25,5 +31,5 @@ def get_convert():
         elif LocalDocumentConverter.is_available():
             settings._ingestors_convert = LocalDocumentConverter()
         else:
-            raise SystemException("OCR is not available")
+            raise SystemException("Document conversion is not available")
     return settings._ingestors_convert
