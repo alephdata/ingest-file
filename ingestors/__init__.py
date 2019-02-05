@@ -4,7 +4,7 @@ import logging
 from ingestors.manager import Manager
 from ingestors.result import Result  # noqa
 
-__version__ = '0.11.3'
+__version__ = '0.12.0'
 
 logging.getLogger('chardet').setLevel(logging.INFO)
 logging.getLogger('flanker').setLevel(logging.INFO)
