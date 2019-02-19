@@ -55,6 +55,7 @@ RUN pip3 install --no-cache-dir -q -U banal>=0.3.4 \
                    python-magic>=0.4.12 \
                    pypdf2>=1.26.0 \
                    rarfile>=3.0 \
+                   regex==2018.8.29 \
                    flanker>=0.9.0 \
                    ply==3.10 \
                    imapclient>=1.0.2 \
