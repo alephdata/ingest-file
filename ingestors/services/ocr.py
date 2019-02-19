@@ -105,7 +105,9 @@ class ServiceOCRService(OCRService, TextRecognizerService):
         return cls.SERVICE is not None
 
     def _extract_text(self, data, languages=None):
-        return self.Recognize(data, languages=languages)
+        text = self.Recognize(data, languages=languages)
+        if text is not None:
+            return text.text
 
 
 class GoogleOCRService(OCRService):
