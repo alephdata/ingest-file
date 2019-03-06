@@ -2,7 +2,7 @@ import os
 import glob
 import uuid
 
-from normality import collapse_spaces  # noqa
+from normality import stringify
 from pdflib import Document
 
 from ingestors.services import get_ocr, get_convert
@@ -45,7 +45,7 @@ class PDFSupport(ShellSupport, TempFileSupport):
             with open(image_file, 'rb') as fh:
                 data = fh.read()
                 text = ocr.extract_text(data, languages=languages)
-                # text = collapse_spaces(text)
+                text = stringify(text)
                 if text is not None:
                     texts.append(text)
 

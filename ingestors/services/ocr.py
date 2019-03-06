@@ -125,7 +125,7 @@ class GoogleOCRService(OCRService):
             return False
         return env.to_bool('OCR_VISION_API', False)
 
-    def extract_text(self, data, languages=None):
+    def _extract_text(self, data, languages=None):
         from google.cloud.vision import types
         if not hasattr(self, 'client'):
             import google.auth
