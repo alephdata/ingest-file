@@ -96,7 +96,7 @@ class ServiceDocumentConverter(DocumentConverter):
                 if isinstance(exc, HTTPError):
                     if exc.response.status_code == 400:
                         raise ProcessingException(exc.response.text)
-                log.err("Conversion failed: %s", exc)
+                log.error("Conversion failed: %s", exc)
                 backoff(failures=attempt)
             finally:
                 fh.close()
