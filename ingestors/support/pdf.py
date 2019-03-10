@@ -1,9 +1,8 @@
 import os
 import glob
 import uuid
-
-from normality import stringify
 from pdflib import Document
+from normality import stringify
 
 from ingestors.services import get_ocr, get_convert
 from ingestors.support.temp import TempFileSupport
@@ -21,7 +20,6 @@ class PDFSupport(ShellSupport, TempFileSupport):
             self.pdf_extract_page(temp_dir, page)
 
     def pdf_alternative_extract(self, pdf_path):
-        self.result.emit_pdf_alternative(pdf_path)
         pdf = Document(pdf_path.encode('utf-8'))
         self.pdf_extract(pdf)
 
