@@ -26,6 +26,7 @@ class Result(object):
     def __init__(self, **kwargs):
         self.status = None
         self.checksum = kwargs.get('checksum')
+        self.pdf_checksum = kwargs.get('pdf_checksum')
         self.size = kwargs.get('size')
         self.flags = set()
         self.file_path = decode_path(kwargs.get('file_path'))
@@ -55,7 +56,6 @@ class Result(object):
         self.body_html = None
         self.rows = []
         self.children = []
-        self.pdf_path = None
         self.duration = None
         self.sampling_rate = None
 
@@ -82,9 +82,6 @@ class Result(object):
     def emit_rows(self, iterator):
         for row in iterator:
             self.rows.append(row)
-
-    def emit_pdf_alternative(self, file_path):
-        self.pdf_path = safe_string(file_path)
 
     def emit_email(self, text):
         text = safe_string(text)
@@ -141,7 +138,7 @@ class Result(object):
             'published_at': self.published_at,
             'error_message': self.error_message,
             'checksum': self.checksum,
-            'pdf_path': self.pdf_path,
+            'pdf_checksum': self.pdf_checksum,
             'size': self.size,
             'pages': self.pages,
             'rows': self.rows,

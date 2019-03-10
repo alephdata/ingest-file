@@ -28,9 +28,10 @@ class PDFSupport(ShellSupport, TempFileSupport):
     def document_to_pdf(self, file_path):
         """Convert an office document into a PDF file."""
         converter = get_convert()
-        return converter.document_to_pdf(file_path, self.work_path,
-                                         file_name=self.result.file_name,
-                                         mime_type=self.result.mime_type)
+        return converter.document_to_pdf(file_path,
+                                         self.result,
+                                         self.work_path,
+                                         self.manager.archive)
 
     def pdf_extract_page(self, temp_dir, page):
         """Extract the contents of a single PDF page, using OCR if need be."""

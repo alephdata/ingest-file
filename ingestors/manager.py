@@ -2,7 +2,7 @@ import os
 import magic
 import logging
 import hashlib
-from normality import stringify
+from servicelayer.archive import init_archive
 from pantomime import normalize_mimetype, useful_mimetype
 from pkg_resources import iter_entry_points
 
@@ -22,18 +22,8 @@ class Manager(object):
     MAGIC = magic.Magic(mime=True)
     INGESTORS = []
 
-    def __init__(self, config):
-        self.config = config
-
-    def get_env(self, name, default=None):
-        """Get configuration from local config or environment."""
-        value = stringify(self.config.get(name))
-        if value is not None:
-            return value
-        value = stringify(os.environ.get(name))
-        if value is not None:
-            return value
-        return default
+    def __init__(self, archive=None):
+        self.archive = archive or init_archive()
 
     @property
     def ingestors(self):

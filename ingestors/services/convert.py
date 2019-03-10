@@ -5,6 +5,7 @@ from pantomime.types import DEFAULT
 from requests import RequestException, HTTPError
 from abc import ABC, abstractmethod
 from servicelayer import env
+from servicelayer.cache import get_redis, make_key
 from servicelayer.util import backoff, service_retries
 
 from ingestors.exc import ProcessingException
@@ -15,16 +16,27 @@ log = logging.getLogger(__name__)
 
 
 class DocumentConverter(ABC):
-    # TODO: refactor this so that conversion results can be cached
-    # based on the SHA1 of the submitted and resulting documents.
 
     @classmethod
     def is_available(cls):
         return False
 
+    def document_to_pdf(self, file_path, result, work_path, archive):
+        conn = get_redis()
+        key = make_key('pdf', result.checksum)
+        if conn.exists(key):
+            log.info("Using [%s] PDF from cache", result.file_name)
+            pdf_hash = conn.get(key).decode('utf-8')
+            return archive.load_file(pdf_hash, temp_path=work_path)
+
+        pdf_file = self._document_to_pdf(file_path, result, work_path)
+        content_hash = archive.archive_file(pdf_file)
+        result.pdf_checksum = content_hash
+        conn.set(key, content_hash)
+        return pdf_file
+
     @abstractmethod
-    def document_to_pdf(self, file_path, work_path,
-                        file_name=None, mime_type=None):
+    def _document_to_pdf(self, file_path, result, work_path):
         pass
 
 
@@ -35,12 +47,11 @@ class LocalDocumentConverter(DocumentConverter, ShellCommand):
     def is_available(cls):
         return cls.find_command('soffice') is not None
 
-    def document_to_pdf(self, file_path, work_path,
-                        file_name=None, mime_type=None):
+    def _document_to_pdf(self, file_path, result, work_path):
         """Converts an office document to PDF."""
         instance_dir = make_directory(work_path, 'soffice_instance')
         out_dir = make_directory(work_path, 'soffice_output')
-        log.info('Converting [%s] to PDF...', file_name)
+        log.info('Converting [%s] to PDF...', result.file_name)
         instance_dir = '-env:UserInstallation=file://{}'.format(instance_dir)
         self.exec_command('soffice',
                           instance_dir,
@@ -70,14 +81,13 @@ class ServiceDocumentConverter(DocumentConverter):
     def is_available(cls):
         return cls.SERVICE_URL is not None
 
-    def document_to_pdf(self, file_path, work_path,
-                        file_name=None, mime_type=None):
+    def _document_to_pdf(self, file_path, result, work_path):
         """Converts an office document to PDF."""
-        log.info('Converting [%s] to PDF...', file_name)
+        log.info('Converting [%s] to PDF...', result.file_name)
         out_path = os.path.basename(file_path)
         out_path = join_path(work_path, '%s.pdf' % out_path)
-        file_name = file_name or 'data'
-        mime_type = mime_type or DEFAULT
+        file_name = result.file_name or 'data'
+        mime_type = result.mime_type or DEFAULT
         attempt = 1
         for attempt in service_retries():
             fh = open(file_path, 'rb')
