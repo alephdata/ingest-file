@@ -48,7 +48,7 @@ setup(
         'tesseract': [
             'tesserocr >= 2.2.2',
         ],
-        'vision': [
+        'google': [
             'google-cloud-vision',
         ]
     },

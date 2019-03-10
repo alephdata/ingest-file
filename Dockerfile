@@ -67,3 +67,5 @@ RUN pip3 install --no-cache-dir -q -U banal>=0.3.4 \
 COPY . /ingestors
 WORKDIR /ingestors
 RUN pip3 install -e /ingestors[dev]
+
+ENV ARCHIVE_PATH=/data
