@@ -1,6 +1,7 @@
 import os
 import logging
 import requests
+from normality import stringify
 from pantomime.types import DEFAULT
 from requests import RequestException, HTTPError
 from abc import ABC, abstractmethod
@@ -26,8 +27,9 @@ class DocumentConverter(ABC):
         key = make_key('pdf', result.checksum)
         if conn.exists(key):
             log.info("Using [%s] PDF from cache", result.file_name)
-            pdf_hash = conn.get(key).decode('utf-8')
-            return archive.load_file(pdf_hash, temp_path=work_path)
+            pdf_hash = stringify(conn.get(key))
+            if pdf_hash is not None:
+                return archive.load_file(pdf_hash, temp_path=work_path)
 
         pdf_file = self._document_to_pdf(file_path, result, work_path)
         content_hash = archive.archive_file(pdf_file)
