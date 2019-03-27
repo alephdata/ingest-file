@@ -68,7 +68,7 @@ class OOXMLSupport(object):
             with zipfile.ZipFile(file_path, 'r') as zf:
                 manifest = zf.open('[Content_Types].xml').read()
                 for mime_type in cls.MIME_TYPES:
-                    if mime_type in manifest:
+                    if mime_type.encode() in manifest:
                         return True
         except Exception:
             return False
