@@ -1,6 +1,6 @@
 DOCKER=docker run -v $(PWD):/ingestors \
-									-v /:/host \
-									-ti alephdata/ingestors
+					-v /:/host \
+					-ti alephdata/ingestors
 
 build:
 	# docker pull alephdata/ingestors

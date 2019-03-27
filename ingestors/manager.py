@@ -7,6 +7,8 @@ from pantomime import normalize_mimetype, useful_mimetype
 from normality import stringify
 from followthemoney import model
 # from followthemoney.types import registry
+from servicelayer.archive import init_archive
+from pantomime import normalize_mimetype, useful_mimetype
 from pkg_resources import iter_entry_points
 
 from ingestors.directory import DirectoryIngestor
@@ -31,24 +33,10 @@ class Manager(object):
     MAGIC = magic.Magic(mime=True)
     INGESTORS = []
 
-    def __init__(self, config, key_prefix=None,
-                 ocr_service=None,
-                 ocr_languages=None):
-        self.config = config
+    def __init__(self, archive=None, key_prefix=None):
         self.key_prefix = key_prefix
-        self._ocr_service = ocr_service
-        self.ocr_languages = ocr_languages or []
+        self.archive = archive or init_archive()
         self.entities = []
-
-    def get_env(self, name, default=None):
-        """Get configuration from local config or environment."""
-        value = stringify(self.config.get(name))
-        if value is not None:
-            return value
-        value = stringify(os.environ.get(name))
-        if value is not None:
-            return value
-        return default
 
     @property
     def ingestors(self):
@@ -57,24 +45,15 @@ class Manager(object):
                 self.INGESTORS.append(ep.load())
         return self.INGESTORS
 
-    @property
-    def ocr_service(self):
-        if self._ocr_service is None:
-            try:
-                from ingestors.services.tesseract import TesseractService
-                self._ocr_service = TesseractService()
-            except ImportError:
-                log.info("Cannot load tesseract OCR service.")
-        return self._ocr_service
-
+    
     def make_entity(self, schema):
         schema = model.get(schema)
         return model.make_entity(schema, key_prefix=self.key_prefix)
 
     def emit_entity(self, entity):
-        # from pprint import pprint
-        # pprint(entity.to_dict())
-        # self.entities.append(entity)
+        from pprint import pprint
+        pprint(entity.to_dict())
+        self.entities.append(entity)
         pass
 
     def auction(self, file_path, entity):
@@ -129,20 +108,21 @@ class Manager(object):
             entity.set('fileName', file_name)
 
         self.checksum_file(entity, file_path)
-        entity.set('processingStatus', self.STATUS_PENDING)
+        # entity.set('processingStatus', self.STATUS_PENDING)
         try:
             ingestor_class = self.auction(file_path, entity)
             log.info("Ingestor [%r]: %s", entity, ingestor_class.__name__)
             self.delegate(ingestor_class, file_path, entity,
                           work_path=work_path)
-            entity.set('processingStatus', self.STATUS_SUCCESS)
+            # entity.set('processingStatus', self.STATUS_SUCCESS)
         except ProcessingException as pexc:
-            entity.set('processingStatus', self.STATUS_FAILURE)
-            entity.set('processingError', safe_string(pexc))
+            # entity.set('processingStatus', self.STATUS_FAILURE)
+            # entity.set('processingError', safe_string(pexc))
             log.warning("Failed [%r]: %s", entity, pexc)
         finally:
-            if self.STATUS_PENDING in entity.get('processingStatus'):
-                entity.set('processingStatus', self.STATUS_SUCCESS)
+            pass
+            # if self.STATUS_PENDING in entity.get('processingStatus'):
+                # entity.set('processingStatus', self.STATUS_SUCCESS)
 
         self.emit_entity(entity)
 

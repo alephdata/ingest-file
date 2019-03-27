@@ -1,7 +1,8 @@
 import logging
 from tempfile import mkdtemp
+from datetime import date, datetime
 from pantomime import normalize_mimetype, normalize_extension
-from ingestors.util import remove_directory
+from ingestors.util import safe_string, remove_directory
 
 log = logging.getLogger(__name__)
 
@@ -18,7 +19,7 @@ class Ingestor(object):
             work_path = mkdtemp(prefix='ingestor-')
         self.work_path = work_path
 
-    def ingest(self, file_path, entity):
+    def ingest(self, file_path):
         """The ingestor implementation. Should be overwritten.
 
         This method does not return anything.
@@ -28,6 +29,17 @@ class Ingestor(object):
 
     def cleanup(self):
         remove_directory(self.work_path)
+
+    # def update(self, name, value):
+    #     """Set a metadata value if it is not already set with a value."""
+    #     existing = getattr(self.result, name)
+    #     if existing:
+    #         return
+    #     if not isinstance(value, (date, datetime)):
+    #         value = safe_string(value)
+    #     if value is None:
+    #         return
+    #     setattr(self.result, name, value)
 
     @classmethod
     def match(cls, file_path, entity):

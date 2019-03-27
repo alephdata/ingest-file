@@ -11,6 +11,8 @@ from ingestors.support.shell import ShellSupport
 from ingestors.exc import ProcessingException, SystemException
 from ingestors.support.table import TableSupport
 from ingestors.util import safe_string
+from ingestors.exc import ProcessingException, SystemException
+
 
 log = logging.getLogger(__name__)
 
