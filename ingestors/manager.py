@@ -1,21 +1,21 @@
 import os
 import magic
 import logging
-import hashlib
-from servicelayer.archive import init_archive
-from pantomime import normalize_mimetype, useful_mimetype
-from normality import stringify
-from followthemoney import model
-# from followthemoney.types import registry
-from servicelayer.archive import init_archive
-from pantomime import normalize_mimetype, useful_mimetype
+import time
 from pkg_resources import iter_entry_points
 
+from followthemoney import model
+from servicelayer.archive import init_archive
+
 from ingestors.directory import DirectoryIngestor
-from ingestors.exc import ProcessingException
+from ingestors.exc import ProcessingException, SystemException
 from ingestors.util import is_file, safe_string
 
 log = logging.getLogger(__name__)
+
+MAX_RETRIES = 3
+RETRY_BACKOFF_SECONDS = 5
+RETRY_BACKOFF_FACTOR = 2
 
 
 class Manager(object):
@@ -33,10 +33,14 @@ class Manager(object):
     MAGIC = magic.Magic(mime=True)
     INGESTORS = []
 
-    def __init__(self, archive=None, key_prefix=None):
-        self.key_prefix = key_prefix
-        self.archive = archive or init_archive()
-        self.entities = []
+    def __init__(self, dataset, context):
+        self.archive = init_archive()
+        # TODO: Probably a good idea to make context readonly since we are
+        # reusing it in child ingestors
+        self.dataset = dataset
+        self.context = context
+        self.work_path = context.get('work_path')
+        self.key_prefix = context.get('key_prefix')
 
     @property
     def ingestors(self):
@@ -45,7 +49,6 @@ class Manager(object):
                 self.INGESTORS.append(ep.load())
         return self.INGESTORS
 
-    
     def make_entity(self, schema):
         schema = model.get(schema)
         return model.make_entity(schema, key_prefix=self.key_prefix)
@@ -76,59 +79,47 @@ class Manager(object):
         return best_cls
 
     def handle_child(self, file_path, child):
+        if is_file(file_path):
+            checksum = self.archive.archive_file(file_path)
+            child.set('contentHash', checksum.hexdigest())
+            child.set('fileSize', os.path.getsize(file_path))
         self.ingest(file_path, child)
 
-    def checksum_file(self, entity, file_path):
-        "Generate a hash and file size for a given file name."
-        if not is_file(file_path):
-            return
-
-        if not entity.has('contentHash'):
-            checksum = hashlib.sha1()
-            size = 0
-            with open(file_path, 'rb') as fh:
-                while True:
-                    block = fh.read(8192)
-                    if not block:
-                        break
-                    size += len(block)
-                    checksum.update(block)
-
-            entity.set('contentHash', checksum.hexdigest())
-            entity.set('fileSize', size)
-
-        if not entity.has('fileSize'):
-            entity.add('fileSize', os.path.getsize(file_path))
-
-    def ingest(self, file_path, entity=None, work_path=None):
+    def ingest(self, file_path, entity, **kwargs):
         """Main execution step of an ingestor."""
-        if entity is None:
-            entity = self.make_entity('Document')
-            file_name = os.path.basename(file_path) if file_path else None
-            entity.set('fileName', file_name)
-
-        self.checksum_file(entity, file_path)
-        # entity.set('processingStatus', self.STATUS_PENDING)
         try:
             ingestor_class = self.auction(file_path, entity)
             log.info("Ingestor [%r]: %s", entity, ingestor_class.__name__)
             self.delegate(ingestor_class, file_path, entity,
-                          work_path=work_path)
-            # entity.set('processingStatus', self.STATUS_SUCCESS)
+                          work_path=self.work_path)
+            entity.set('processingStatus', self.STATUS_SUCCESS)
         except ProcessingException as pexc:
-            # entity.set('processingStatus', self.STATUS_FAILURE)
-            # entity.set('processingError', safe_string(pexc))
+            entity.set('processingStatus', self.STATUS_FAILURE)
+            entity.set('processingError', safe_string(pexc))
             log.warning("Failed [%r]: %s", entity, pexc)
+        except SystemException as pexc:
+            retries = kwargs.get('retries', 0)
+            backoff = kwargs.get('backoff', RETRY_BACKOFF_SECONDS)
+            if retries < MAX_RETRIES:
+                time.sleep(backoff)
+                retries = retries + 1
+                backoff = backoff * RETRY_BACKOFF_FACTOR
+                self.ingest(
+                    file_path, entity, retries=retries, backoff=backoff
+                )
+                return
+            entity.set('processingStatus', self.STATUS_STOPPED)
+            entity.set('processingError', safe_string(pexc))
+            log.warning("Stopped [%r]: %s", entity, pexc)
         finally:
-            pass
-            # if self.STATUS_PENDING in entity.get('processingStatus'):
-                # entity.set('processingStatus', self.STATUS_SUCCESS)
+            self.emit_entity(entity)
 
-        self.emit_entity(entity)
-
-    def delegate(self, ingestor_class, file_path, entity, work_path=None):
-        ingestor = ingestor_class(self, work_path=work_path)
+    def delegate(self, ingestor_class, file_path, entity):
+        ingestor = ingestor_class(self)
         try:
             ingestor.ingest(file_path, entity)
         finally:
             ingestor.cleanup()
+
+    def get_filepath(self, entity):
+        return self.archive.load_file(entity.get('contentHash'))

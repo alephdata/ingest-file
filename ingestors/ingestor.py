@@ -1,8 +1,7 @@
 import logging
 from tempfile import mkdtemp
-from datetime import date, datetime
 from pantomime import normalize_mimetype, normalize_extension
-from ingestors.util import safe_string, remove_directory
+from ingestors.util import remove_directory
 
 log = logging.getLogger(__name__)
 
@@ -13,19 +12,17 @@ class Ingestor(object):
     EXTENSIONS = []
     SCORE = 3
 
-    def __init__(self, manager, work_path=None):
+    def __init__(self, manager):
         self.manager = manager
-        if work_path is None:
-            work_path = mkdtemp(prefix='ingestor-')
-        self.work_path = work_path
+        self.work_path = manager.work_path or mkdtemp(prefix='ingestor-')
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
         """The ingestor implementation. Should be overwritten.
 
         This method does not return anything.
-        Use the ``result`` attribute to store any resulted data.
+        Use the extracted data on `entity`.
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def cleanup(self):
         remove_directory(self.work_path)
