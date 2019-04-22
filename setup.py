@@ -14,6 +14,7 @@ setup(
     package_dir={'ingestors': 'ingestors'},
     include_package_data=True,
     install_requires=[
+        'click >= 7.0',
         'banal >= 0.4.2',
         'normality >= 1.0.0',
         'servicelayer >= 1.0.0',
@@ -101,6 +102,9 @@ setup(
             'svg = ingestors.media.svg:SVGIngestor',
             'audio = ingestors.media.audio:AudioIngestor',
             'video = ingestors.media.video:VideoIngestor'
-        ]
+        ],
+        'console_scripts': [
+            'ingestors = ingestors.cli:cli'
+        ],
     }
 )
