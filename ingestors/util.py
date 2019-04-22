@@ -3,6 +3,7 @@ import shutil
 from banal import decode_path
 from normality import stringify
 from normality.cleaning import remove_unsafe_chars
+from followthemoney import model
 
 
 def safe_string(data, encoding_default='utf-8', encoding=None):
@@ -64,3 +65,8 @@ def remove_directory(file_path):
         shutil.rmtree(file_path, True)
     except Exception:
         pass
+
+
+def make_entity(schema, dataset):
+    schema = model.get(schema)
+    return model.make_entity(schema, key_prefix=dataset)
