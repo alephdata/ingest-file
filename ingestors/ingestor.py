@@ -14,7 +14,7 @@ class Ingestor(object):
 
     def __init__(self, manager):
         self.manager = manager
-        self.work_path = manager.work_path or mkdtemp(prefix='ingestor-')
+        self.work_path = mkdtemp(prefix='ingestor-')
 
     def ingest(self, file_path, entity):
         """The ingestor implementation. Should be overwritten.
