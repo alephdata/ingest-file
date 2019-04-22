@@ -39,15 +39,14 @@ class Manager(object):
         # reusing it in child ingestors
         self.dataset = dataset
         self.context = context
-        self.work_path = context.get('work_path')
-        self.key_prefix = context.get('key_prefix')
+        self.key_prefix = dataset
 
-    @property
-    def ingestors(self):
-        if not len(self.INGESTORS):
+    @classmethod
+    def ingestors(cls):
+        if not len(cls.INGESTORS):
             for ep in iter_entry_points('ingestors'):
-                self.INGESTORS.append(ep.load())
-        return self.INGESTORS
+                cls.INGESTORS.append(ep.load())
+        return cls.INGESTORS
 
     def make_entity(self, schema):
         schema = model.get(schema)
@@ -56,8 +55,7 @@ class Manager(object):
     def emit_entity(self, entity):
         from pprint import pprint
         pprint(entity.to_dict())
-        self.entities.append(entity)
-        pass
+        # self.entities.append(entity)
 
     def auction(self, file_path, entity):
         if not is_file(file_path):
@@ -68,7 +66,7 @@ class Manager(object):
             entity.add('mimeType', self.MAGIC.from_file(file_path))
 
         best_score, best_cls = 0, None
-        for cls in self.ingestors:
+        for cls in self.__class__.ingestors():
             score = cls.match(file_path, entity)
             if score > best_score:
                 best_score = score
@@ -81,7 +79,7 @@ class Manager(object):
     def handle_child(self, file_path, child):
         if is_file(file_path):
             checksum = self.archive.archive_file(file_path)
-            child.set('contentHash', checksum.hexdigest())
+            child.set('contentHash', checksum)
             child.set('fileSize', os.path.getsize(file_path))
         self.ingest(file_path, child)
 
@@ -90,8 +88,7 @@ class Manager(object):
         try:
             ingestor_class = self.auction(file_path, entity)
             log.info("Ingestor [%r]: %s", entity, ingestor_class.__name__)
-            self.delegate(ingestor_class, file_path, entity,
-                          work_path=self.work_path)
+            self.delegate(ingestor_class, file_path, entity)
             entity.set('processingStatus', self.STATUS_SUCCESS)
         except ProcessingException as pexc:
             entity.set('processingStatus', self.STATUS_FAILURE)
@@ -122,4 +119,4 @@ class Manager(object):
             ingestor.cleanup()
 
     def get_filepath(self, entity):
-        return self.archive.load_file(entity.get('contentHash'))
+        return self.archive.load_file(entity.first('contentHash'))
