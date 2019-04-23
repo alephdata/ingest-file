@@ -45,6 +45,7 @@ def ingest(path, dataset, languages=None):
     archive = init_archive()
     entity = make_entity('Document', dataset)
     checksum = archive.archive_file(path)
+    entity.id = checksum
     entity.set('contentHash', checksum)
     entity.set('fileSize', os.path.getsize(path))
     file_name = os.path.basename(path)
