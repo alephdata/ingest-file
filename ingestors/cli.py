@@ -53,7 +53,7 @@ def ingest(path, dataset, languages=None):
     context = {
         'languages': languages
     }
-    push_task(settings.QUEUE_HIGH, dataset, entity, context)
+    push_task(settings.QUEUE_HIGH, dataset, entity.to_dict(), context)
 
 
 if __name__ == "__main__":

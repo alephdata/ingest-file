@@ -1,10 +1,11 @@
 import logging
 import threading
 
-from servicelayer import settings
 from servicelayer.queue import poll_task, mark_task_finished
+from followthemoney import model
 
 from ingestors.manager import Manager
+from ingestors import settings
 
 log = logging.getLogger(__name__)
 
@@ -25,8 +26,9 @@ class TaskRunner(object):
             if task is None:
                 return
             dataset, entity, context = task
+            entity = model.get_proxy(entity)
             try:
-                cls.execute(*task)
+                cls.execute(dataset, entity, context)
             except Exception as exc:
                 log.exception("Task failed to execute:", exc)
             finally:
@@ -41,6 +43,5 @@ class TaskRunner(object):
             t.daemon = True
             t.start()
             threads.append(t)
-        # stop workers
         for t in threads:
             t.join()
