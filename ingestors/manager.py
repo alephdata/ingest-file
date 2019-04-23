@@ -6,10 +6,12 @@ from pkg_resources import iter_entry_points
 
 from followthemoney import model
 from servicelayer.archive import init_archive
+from balkhash import init
 
 from ingestors.directory import DirectoryIngestor
 from ingestors.exc import ProcessingException, SystemException
 from ingestors.util import is_file, safe_string
+from ingestors import settings
 
 log = logging.getLogger(__name__)
 
@@ -120,3 +122,12 @@ class Manager(object):
 
     def get_filepath(self, entity):
         return self.archive.load_file(entity.first('contentHash'))
+
+    def get_dataset(self):
+        return init(self.dataset, backend=settings.BALKHASH_BACKEND_ENV)
+
+    def balkhash_emit(self, entity, fragment=None):
+        writer = self.get_dataset()
+        log.debug("Store entity [%(schema)s]: %(id)s", entity)
+        writer.put(entity, fragment)
+        writer.close()

@@ -37,6 +37,7 @@ setup(
         'dbf >= 0.96.8',
         'pdflib >= 0.1.5',
         'pymediainfo >= 2.3.0',
+        'balkhash >= 0.3.3',
     ],
     extras_require={
         'dev': [
