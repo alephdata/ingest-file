@@ -26,10 +26,12 @@ class DocumentConverter(ABC):
         conn = get_redis()
         key = make_key('pdf', result.checksum)
         if conn.exists(key):
-            log.info("Using [%s] PDF from cache", result.file_name)
-            pdf_hash = stringify(conn.get(key))
-            if pdf_hash is not None:
-                return archive.load_file(pdf_hash, temp_path=work_path)
+            content_hash = stringify(conn.get(key))
+            log.info("Using [%s] PDF from cache: %s",
+                     result.file_name, content_hash)
+            if content_hash is not None:
+                result.pdf_checksum = content_hash
+                return archive.load_file(content_hash, temp_path=work_path)
 
         pdf_file = self._document_to_pdf(file_path, result, work_path)
         content_hash = archive.archive_file(pdf_file)
