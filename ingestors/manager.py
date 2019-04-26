@@ -92,10 +92,6 @@ class Manager(object):
             log.info("Ingestor [%r]: %s", entity, ingestor_class.__name__)
             self.delegate(ingestor_class, file_path, entity)
             entity.set('processingStatus', self.STATUS_SUCCESS)
-        except ProcessingException as pexc:
-            entity.set('processingStatus', self.STATUS_FAILURE)
-            entity.set('processingError', safe_string(pexc))
-            log.warning("Failed [%r]: %s", entity, pexc)
         except SystemException as pexc:
             retries = kwargs.get('retries', 0)
             backoff = kwargs.get('backoff', RETRY_BACKOFF_SECONDS)
@@ -110,8 +106,12 @@ class Manager(object):
             entity.set('processingStatus', self.STATUS_STOPPED)
             entity.set('processingError', safe_string(pexc))
             log.warning("Stopped [%r]: %s", entity, pexc)
+        except (ProcessingException, Exception) as pexc:
+            entity.set('processingStatus', self.STATUS_FAILURE)
+            entity.set('processingError', safe_string(pexc))
+            log.warning("Failed [%r]: %s", entity, pexc)
         finally:
-            self.emit_entity(entity)
+            return self.emit_entity(entity)
 
     def delegate(self, ingestor_class, file_path, entity):
         ingestor = ingestor_class(self)
