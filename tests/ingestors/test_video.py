@@ -6,12 +6,16 @@ from ..support import TestCase
 class VideoIngestorTest(TestCase):
 
     def test_video(self):
-        fixture_path = self.fixture('big_buck_bunny.mp4')
-        result = self.manager.ingest(fixture_path)
-        self.assertEqual(result.status, result.STATUS_SUCCESS)
-        self.assertEqual(result.title, 'Hinted Video Track')
+        fixture_path, entity = self.fixture('big_buck_bunny.mp4')
+        result = self.manager.ingest(fixture_path, entity)
         self.assertEqual(
-            result.created_at, datetime.datetime(2010, 2, 9, 1, 55, 40)
+            result.first('processingStatus'),
+            self.manager.STATUS_SUCCESS
         )
-        self.assertEqual(result.duration, '60095')
-        self.assertIn('video', result.flags)
+        self.assertIn('Hinted Video Track', result.get('title'))
+        self.assertIn(
+            datetime.datetime(2010, 2, 9, 1, 55, 39).isoformat(),
+            result.get('authoredAt')
+        )
+        self.assertEqual(result.first('duration'), '60095')
+        self.assertEqual(result.schema, 'Video')

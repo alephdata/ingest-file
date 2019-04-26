@@ -12,8 +12,8 @@ class TableSupport(object):
             entity = self.manager.make_entity('Row')
             entity.make_id(table.id, index)
             entity.set('index', index)
-            entity.add('cells', list(row.values()))
-            entity.add('table', table)
+            entity.set('cells', list(row.values()))
+            entity.set('table', table)
             self.manager.emit_entity(entity)
 
     def emit_row_tuples(self, table, rows):

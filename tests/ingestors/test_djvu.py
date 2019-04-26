@@ -7,10 +7,10 @@ class DejaVuIngestorTest(TestCase):
 
     @skip
     def test_match(self):
-        fixture_path = self.fixture('Test_rs20846.djvu')
-        result = self.manager.ingest(fixture_path)
-        self.assertEqual(result.mime_type, 'image/vnd.djvu')
+        fixture_path, entity = self.fixture('Test_rs20846.djvu')
+        result = self.manager.ingest(fixture_path, entity)
+        self.assertEqual(result.first('mimeType'), 'image/vnd.djvu')
 
-        self.assertEqual(len(result.pages), 11)
-        self.assertIn(u'Executive Orders', result.pages[0]['text'])
-        self.assertIn('pdf', result.flags)
+        self.assertEqual(len(self.manager.entities), 11+1)
+        self.assertIn(u'Executive Orders', self.manager.entities[0].first('bodyText'))  # noqa
+        self.assertEqual(result.schema, 'Pages')

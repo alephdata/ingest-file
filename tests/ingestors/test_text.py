@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from ingestors import Result
 from normality.cleaning import decompose_nfkd
+from followthemoney.proxy import EntityProxy
 
 from ..support import TestCase
 
@@ -8,26 +8,28 @@ from ..support import TestCase
 class TextIngestorTest(TestCase):
 
     def test_match(self):
-        fixture_path = self.fixture('utf.txt')
-        result = self.manager.ingest(fixture_path)
+        fixture_path, entity = self.fixture('utf.txt')
+        entity = self.manager.ingest(fixture_path, entity)
 
-        self.assertTrue(isinstance(result, Result))
-        self.assertEqual(result.mime_type, 'text/plain')
+        self.assertTrue(isinstance(entity, EntityProxy))
+        self.assertEqual(entity.first('mimeType'), 'text/plain')
 
-        self.assertEqual(decompose_nfkd(result.body_text),
+        self.assertEqual(decompose_nfkd(entity.first('bodyText')),
                          decompose_nfkd(u'Îș unî©ođ€.'))
-        self.assertEqual(result.status, Result.STATUS_SUCCESS)
-        self.assertIn('plaintext', result.flags)
+        self.assertEqual(
+            entity.first('processingStatus'), self.manager.STATUS_SUCCESS
+        )
+        self.assertEqual(entity.schema, 'PlainText')
 
     def test_ingest_binary_mode(self):
-        fixture_path = self.fixture('non_utf.txt')
-        result = self.manager.ingest(fixture_path)
+        fixture_path, entity = self.fixture('non_utf.txt')
+        entity = self.manager.ingest(fixture_path, entity)
 
-        self.assertIn(u'größter', result.body_text)
-        self.assertIn('plaintext', result.flags)
+        self.assertIn(u'größter', entity.first('bodyText'))
+        self.assertEqual(entity.schema, 'PlainText')
 
     def test_ingest_extra_fixture(self):
-        fixture_path = self.fixture('udhr_ger.txt')
-        result = self.manager.ingest(fixture_path)
-        self.assertIsNotNone(result.body_text)
-        self.assertIn('plaintext', result.flags)
+        fixture_path, entity = self.fixture('udhr_ger.txt')
+        entity = self.manager.ingest(fixture_path, entity)
+        self.assertIsNotNone(entity.first('bodyText'))
+        self.assertEqual(entity.schema, 'PlainText')

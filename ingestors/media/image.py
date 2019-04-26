@@ -83,7 +83,9 @@ class ImageIngestor(Ingestor, ImageSupport, PlainTextSupport):
         self.extract_exif(image)
 
         ocr = get_ocr()
-        text = ocr.extract_text(data, languages=self.result.ocr_languages)
+        text = ocr.extract_text(
+            data, languages=self.manager.context.get('languages')
+        )
         self.extract_plain_text_content(text)
 
     @classmethod

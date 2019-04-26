@@ -48,5 +48,5 @@ class OpenDocumentIngestor(Ingestor, OpenDocumentSupport, PDFSupport):
         """Ingestor implementation."""
         entity.schema = model.get('Pages')
         self.parse_opendocument(file_path, entity)
-        pdf_path = self.document_to_pdf(file_path)
+        pdf_path = self.document_to_pdf(file_path, entity)
         self.pdf_alternative_extract(entity, pdf_path)

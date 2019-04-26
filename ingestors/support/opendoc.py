@@ -37,6 +37,4 @@ class OpenDocumentSupport(object):
             if child.tagName == 'meta:generator':
                 entity.add('generator', value)
 
-        # from pprint import pprint
-        # pprint(self.result.to_dict())
         return doc

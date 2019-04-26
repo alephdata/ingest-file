@@ -56,9 +56,6 @@ class OOXMLSupport(object):
         modified_at = self.parse_ooxml_date(get(self.DCT_NS, 'modified'))
         entity.add('modifiedAt', modified_at)
 
-        # from pprint import pprint
-        # pprint(self.result.to_dict())
-
     @classmethod
     def inspect_ooxml_manifest(cls, file_path):
         if not zipfile.is_zipfile(file_path):

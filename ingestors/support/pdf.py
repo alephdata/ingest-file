@@ -28,11 +28,11 @@ class PDFSupport(ShellSupport, TempFileSupport):
         pdf = Document(pdf_path.encode('utf-8'))
         self.pdf_extract(entity, pdf)
 
-    def document_to_pdf(self, file_path):
+    def document_to_pdf(self, file_path, entity):
         """Convert an office document into a PDF file."""
         converter = get_convert()
         return converter.document_to_pdf(file_path,
-                                         self.result,
+                                         entity,
                                          self.work_path,
                                          self.manager.archive)
 
@@ -47,7 +47,7 @@ class PDFSupport(ShellSupport, TempFileSupport):
         image_path = os.path.join(temp_dir, str(uuid.uuid4()))
         page.extract_images(path=image_path.encode('utf-8'), prefix=b'img')
         ocr = get_ocr()
-        languages = self.result.ocr_languages
+        languages = self.manager.context.get('languages')
         for image_file in glob.glob(os.path.join(image_path, "*.png")):
             with open(image_file, 'rb') as fh:
                 data = fh.read()
@@ -59,4 +59,5 @@ class PDFSupport(ShellSupport, TempFileSupport):
 
         text = ' \n'.join(texts).strip()
         entity.set('bodyText', text)
+        entity.set('indexText', text)
         self.manager.emit_entity(entity)

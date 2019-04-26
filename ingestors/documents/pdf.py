@@ -49,8 +49,8 @@ class PDFIngestor(Ingestor, PDFSupport):
             self.extract_metadata(pdf, entity)
             self.extract_xmp_metadata(pdf, entity)
             self.pdf_extract(entity, pdf)
-        except Exception:
-            raise ProcessingException("Could not extract PDF file.")
+        except Exception as ex:
+            raise ProcessingException("Could not extract PDF file: %r", ex)
 
     @classmethod
     def match(cls, file_path, entity):

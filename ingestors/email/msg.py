@@ -58,7 +58,7 @@ class RFC822Ingestor(Ingestor, EmailSupport):
                 if part.body is None:
                     continue
             except (DecodingError, ValueError) as de:
-                log.warning("Cannot decode part [%s]: %s", self.result, de)
+                log.warning("Cannot decode part [%s]: %s", entity, de)
                 continue
 
             file_name = part.detected_file_name

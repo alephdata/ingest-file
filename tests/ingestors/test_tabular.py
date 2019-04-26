@@ -5,30 +5,37 @@ from ..support import TestCase
 class TabularIngestorTest(TestCase):
 
     def test_simple_xlsx(self):
-        fixture_path = self.fixture('file.xlsx')
-        result = self.manager.ingest(fixture_path)
-        self.assertEqual(result.status, result.STATUS_SUCCESS)
-        self.assertEqual(len(result.children), 2)
-        child = result.children[0]
-        self.assertEqual(child.file_name, 'Sheet1.csv')
-        self.assertEqual(child.title, 'Sheet1')
-        # print child.rows[0]
-        self.assertEqual(child.rows[0]['Name'], 'Mihai Viteazul')
+        fixture_path, entity = self.fixture('file.xlsx')
+        result = self.manager.ingest(fixture_path, entity)
+        self.assertEqual(
+            result.first('processingStatus'), self.manager.STATUS_SUCCESS
+        )
+        row1 = self.manager.entities[1]
+        self.assertEqual(row1.schema, 'Row')
+        self.assertIn('Mihai Viteazul', row1.get('cells'))
+        row0 = self.manager.entities[0]
+        self.assertIn('Name', row0.get('cells'))
+        sheet1 = self.manager.entities[3]
+        self.assertEqual(sheet1.schema, 'Table')
+        self.assertEqual(sheet1.first('title'), 'Sheet1')
+        self.assertEqual(result.schema, 'Workbook')
 
     def test_unicode_xls(self):
-        fixture_path = self.fixture('rom.xls')
-        result = self.manager.ingest(fixture_path)
-        self.assertEqual(result.status, result.STATUS_SUCCESS)
-        self.assertEqual(len(result.children), 1)
-        child = result.children[0]
-        self.assertEqual(child.title, u'Лист1')
-        self.assertEqual(child.file_name, u'List1.csv')
+        fixture_path, entity = self.fixture('rom.xls')
+        result = self.manager.ingest(fixture_path, entity)
+        self.assertEqual(
+            result.first('processingStatus'), self.manager.STATUS_SUCCESS
+        )
+        sheet1 = next((x for x in self.manager.entities if x.schema == 'Table'), None)  # noqa
+        self.assertEqual(sheet1.first('title'), u'Лист1')
+        self.assertEqual(result.schema, 'Workbook')
 
     def test_unicode_ods(self):
-        fixture_path = self.fixture('rom.ods')
-        result = self.manager.ingest(fixture_path)
-        self.assertEqual(result.status, result.STATUS_SUCCESS)
-        self.assertEqual(len(result.children), 3)
-        child = result.children[0]
-        self.assertEqual(child.title, u'Лист1')
-        self.assertEqual(child.file_name, u'List1.csv')
+        fixture_path, entity = self.fixture('rom.ods')
+        result = self.manager.ingest(fixture_path, entity)
+        self.assertEqual(
+            result.first('processingStatus'), self.manager.STATUS_SUCCESS
+        )
+        sheet1 = next((x for x in self.manager.entities if x.schema == 'Table'), None)  # noqa
+        self.assertEqual(sheet1.first('title'), u'Лист1')
+        self.assertEqual(result.schema, 'Workbook')

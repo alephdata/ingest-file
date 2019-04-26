@@ -60,9 +60,6 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
         self.update('title', message.getField('0070'))
         self.update('author', message.getField('0C1A'))
 
-        # from pprint import pprint
-        # pprint(self.result.to_dict())
-
         self.extract_olefileio_metadata(message)
         self.result.flag(self.result.FLAG_EMAIL)
         self.result.flag(self.result.FLAG_PLAINTEXT)

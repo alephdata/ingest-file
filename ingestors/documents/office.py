@@ -168,5 +168,5 @@ class DocumentIngestor(Ingestor, OLESupport, PDFSupport):
         """Ingestor implementation."""
         entity.schema = model.get('Pages')
         self.extract_ole_metadata(file_path, entity)
-        pdf_path = self.document_to_pdf(file_path)
+        pdf_path = self.document_to_pdf(file_path, entity)
         self.pdf_alternative_extract(entity, pdf_path)

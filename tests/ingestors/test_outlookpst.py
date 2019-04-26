@@ -7,8 +7,9 @@ from ..support import TestCase
 class OutlookPSTTest(TestCase):
 
     def test_match(self):
-        fixture_path = self.fixture('testPST.pst')
-        result = self.manager.ingest(fixture_path)
-        # pprint(result.to_dict())
-        self.assertEqual(len(result.children), 1)
-        self.assertIn('package', result.flags)
+        fixture_path, entity = self.fixture('testPST.pst')
+        result = self.manager.ingest(fixture_path, entity)
+        self.assertEqual(
+            result.first('processingStatus'), self.manager.STATUS_SUCCESS
+        )
+        self.assertEqual(result.schema, 'Folder')
