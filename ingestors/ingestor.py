@@ -27,17 +27,6 @@ class Ingestor(object):
     def cleanup(self):
         remove_directory(self.work_path)
 
-    # def update(self, name, value):
-    #     """Set a metadata value if it is not already set with a value."""
-    #     existing = getattr(self.result, name)
-    #     if existing:
-    #         return
-    #     if not isinstance(value, (date, datetime)):
-    #         value = safe_string(value)
-    #     if value is None:
-    #         return
-    #     setattr(self.result, name, value)
-
     @classmethod
     def match(cls, file_path, entity):
         mime_types = [normalize_mimetype(m, default=None) for m in cls.MIME_TYPES]  # noqa
