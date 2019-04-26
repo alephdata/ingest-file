@@ -39,7 +39,7 @@ class VideoIngestor(Ingestor, MediaInfoDateMixIn):
                 entity.add('authoredAt', self.parse_date(track.recorded_date))
                 entity.add('authoredAt', self.parse_date(track.tagged_date))
                 entity.add('authoredAt', self.parse_date(track.encoded_date))
-                modified_at = self.parse_date(track.file_last_modification_date)
+                modified_at = self.parse_date(track.file_last_modification_date)  # noqa
                 entity.add('modifiedAt', modified_at)
                 entity.add('duration', track.duration)
         except Exception as ex:

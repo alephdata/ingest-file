@@ -54,10 +54,10 @@ class Manager(object):
         schema = model.get(schema)
         return model.make_entity(schema, key_prefix=self.key_prefix)
 
-    def emit_entity(self, entity):
+    def emit_entity(self, entity, fragment=None):
         from pprint import pprint
         pprint(entity.to_dict())
-        # self.entities.append(entity)
+        self.balkhash_emit(entity, fragment=fragment)
 
     def auction(self, file_path, entity):
         if not is_file(file_path):
@@ -128,6 +128,6 @@ class Manager(object):
 
     def balkhash_emit(self, entity, fragment=None):
         writer = self.get_dataset()
-        log.debug("Store entity [%(schema)s]: %(id)s", entity)
+        # log.debug("Store entity [%(schema)s]: %(id)s", entity.to_dict())
         writer.put(entity, fragment)
         writer.close()

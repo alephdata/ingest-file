@@ -9,8 +9,9 @@ from ingestors import Manager
 from ingestors.util import make_entity, is_file
 
 
-def emit_entity(self, entity):
+def emit_entity(self, entity, fragment=None):
     self.entities.append(entity)
+    self.balkhash_emit(entity, fragment=fragment)
     return entity
 
 
@@ -23,7 +24,9 @@ class TestCase(unittest.TestCase):
 
     def fixture(self, fixture_path):
         """Returns a fixture path and a dummy entity"""
+        # clear out entities
         self.manager.entities = []
+        self.manager.get_dataset().delete()
         cur_path = os.path.dirname(os.path.realpath(__file__))
         cur_path = os.path.join(cur_path, 'fixtures')
         path = os.path.join(cur_path, fixture_path)

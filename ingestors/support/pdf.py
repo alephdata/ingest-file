@@ -60,4 +60,8 @@ class PDFSupport(ShellSupport, TempFileSupport):
         text = ' \n'.join(texts).strip()
         entity.set('bodyText', text)
         entity.set('indexText', text)
+        parent_fragment = self.manager.make_entity('Document')
+        parent_fragment.id = document.id
+        parent_fragment.set('indexText', text)
         self.manager.emit_entity(entity)
+        self.manager.emit_entity(parent_fragment, fragment=str(page.page_no))
