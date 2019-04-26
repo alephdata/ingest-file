@@ -5,4 +5,4 @@ INGESTOR_THREADS = env.to_int(
     'INGESTOR_THREADS', min(8, multiprocessing.cpu_count())
 )
 
-BALKHASH_BACKEND_ENV = env('BALKHASH_BACKEND_ENV', 'LEVELDB')
+BALKHASH_BACKEND_ENV = env.get('BALKHASH_BACKEND_ENV', 'LEVELDB')
