@@ -22,8 +22,9 @@ class TableSupport(object):
             if workbook:
                 workbook_fragment = self.manager.make_entity('Document')
                 workbook_fragment.id = workbook.id
-                workbook_fragment.set('indexText', ', '.join(row))
-                self.manager.emit_entity(workbook_fragment, fragment=str(index))  # noqa
+                workbook_fragment.set('indexText', ', '.join(row.values()))
+                fragment = table.first('title') + '-' + str(index)
+                self.manager.emit_entity(workbook_fragment, fragment=fragment)
 
     def emit_row_tuples(self, table, rows, workbook=None):
         for index, row in enumerate(rows, 1):
@@ -41,4 +42,5 @@ class TableSupport(object):
                 workbook_fragment = self.manager.make_entity('Document')
                 workbook_fragment.id = workbook.id
                 workbook_fragment.set('indexText', ', '.join(row))
-                self.manager.emit_entity(workbook_fragment, fragment=str(index))  # noqa
+                fragment = table.first('title') + '-' + str(index)
+                self.manager.emit_entity(workbook_fragment, fragment=fragment)
