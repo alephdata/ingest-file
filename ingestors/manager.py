@@ -83,6 +83,8 @@ class Manager(object):
             checksum = self.archive.archive_file(file_path)
             child.set('contentHash', checksum)
             child.set('fileSize', os.path.getsize(file_path))
+            file_name = os.path.basename(file_path)
+            child.add('fileName', file_name)
         self.ingest(file_path, child)
 
     def ingest(self, file_path, entity, **kwargs):
