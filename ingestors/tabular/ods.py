@@ -72,5 +72,5 @@ class OpenOfficeSpreadsheetIngestor(Ingestor, TableSupport,
             table.make_id(entity, name)
             table.set('title', name)
             table.add('parent', entity)
-            self.emit_row_tuples(table, self.generate_csv(sheet))
+            self.emit_row_tuples(table, self.generate_csv(sheet), entity)
             self.manager.emit_entity(table)
