@@ -6,13 +6,12 @@ from followthemoney import model
 
 from ingestors.services import get_ocr
 from ingestors.ingestor import Ingestor
-from ingestors.support.plain import PlainTextSupport
 from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
 
-class ImageIngestor(Ingestor, PlainTextSupport):
+class ImageIngestor(Ingestor):
     """Image file ingestor class.
 
     Extracts the text from images using OCR.
@@ -89,7 +88,7 @@ class ImageIngestor(Ingestor, PlainTextSupport):
             ocr = get_ocr()
             languages = self.manager.context.get('languages')
             text = ocr.extract_text(data, languages=languages)
-            self.extract_plain_text_content(text)
+            entity.add('bodyText', text)
         except Exception as err:
             raise ProcessingException("Failed to load image: %r" % err)
 

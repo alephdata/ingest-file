@@ -2,11 +2,10 @@ from followthemoney import model
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.encoding import EncodingSupport
-from ingestors.support.plain import PlainTextSupport
 from ingestors.exc import ProcessingException
 
 
-class PlainTextIngestor(Ingestor, EncodingSupport, PlainTextSupport):
+class PlainTextIngestor(Ingestor, EncodingSupport):
     """Plan text file ingestor class.
 
     Extracts the text from the document and enforces unicode on it.
@@ -46,7 +45,4 @@ class PlainTextIngestor(Ingestor, EncodingSupport, PlainTextSupport):
                 raise ProcessingException("Text file is too large.")
 
         text = self.read_file_decoded(entity, file_path)
-        if text is None:
-            raise ProcessingException("Document could not be decoded.")
-
-        self.extract_plain_text_content(entity, text)
+        entity.set('bodyText', text)

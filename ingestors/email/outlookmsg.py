@@ -46,7 +46,7 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
     def ingest(self, file_path, entity):
         message = Message(file_path)
         self._parse_headers(message)
-        self.extract_plain_text_content(message.getField('1000'))
+        entity.add('bodyText', message.getField('1000'))
         self.update('message_id', message.getField('1035'))
 
         # all associated person names, i.e. sender, recipient etc.

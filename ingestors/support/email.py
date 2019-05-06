@@ -10,7 +10,6 @@ from normality import safe_filename, stringify
 
 from ingestors.support.html import HTMLSupport
 from ingestors.support.temp import TempFileSupport
-from ingestors.support.plain import PlainTextSupport
 from ingestors.util import join_path, safe_string
 
 log = logging.getLogger(__name__)
@@ -18,7 +17,7 @@ log = logging.getLogger(__name__)
 EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
 
-class EmailSupport(TempFileSupport, HTMLSupport, PlainTextSupport):
+class EmailSupport(TempFileSupport, HTMLSupport):
     """Extract metadata from email messages."""
 
     def ingest_attachment(self, entity, name, mime_type, body):

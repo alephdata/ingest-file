@@ -206,5 +206,5 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
             self.extract_html_content(entity, html)
             self.result.flag(self.result.FLAG_HTML)
         else:
-            self.extract_plain_text_content(entity, body)
+            entity.add('bodyText', body)
             self.result.flag(self.result.FLAG_PLAINTEXT)
