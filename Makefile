@@ -1,10 +1,7 @@
-DOCKER=docker run -v $(PWD):/ingestors \
-					-v /:/host \
-					-ti alephdata/ingestors
+DOCKER=docker-compose run --rm shell 
 
 build:
-	# docker pull alephdata/ingestors
-	docker build -t alephdata/ingestors .
+	docker-compose build
 
 shell:
 	$(DOCKER) bash

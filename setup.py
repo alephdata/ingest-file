@@ -13,32 +13,7 @@ setup(
     packages=find_packages(exclude=['tests']),
     package_dir={'ingestors': 'ingestors'},
     include_package_data=True,
-    install_requires=[
-        'click >= 7.0',
-        'banal >= 0.4.2',
-        'normality >= 1.0.0',
-        'servicelayer >= 1.1.0',
-        'pantomime >= 0.3.3',
-        'requests[security] >= 2.21.0',
-        'xlrd >= 1.2.0',
-        'openpyxl >= 2.5.14',
-        'followthemoney >= 1.11.19',
-        'odfpy >= 1.3.5',
-        'cchardet >= 2.1.1',
-        'lxml >= 4.2.1',
-        'pillow >= 5.1.0',
-        'olefile >= 0.44',
-        'python-magic >= 0.4.12',
-        'pypdf2 >= 1.26.0',
-        'rarfile >= 3.0',
-        'flanker >= 0.9.0',
-        'ply >= 3.10',
-        'imapclient >= 1.0.2',
-        'dbf >= 0.96.8',
-        'pdflib >= 0.1.5',
-        'pymediainfo >= 2.3.0',
-        'balkhash >= 0.3.3',
-    ],
+    install_requires=[],
     extras_require={
         'dev': [
             'bumpversion>=0.5.3',
@@ -46,12 +21,6 @@ setup(
             'flake8>=2.6.0',
             'nose',
             'coverage>=4.1'
-        ],
-        'tesseract': [
-            'tesserocr >= 2.2.2',
-        ],
-        'google': [
-            'google-cloud-vision',
         ]
     },
     license="MIT",

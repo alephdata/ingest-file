@@ -37,33 +37,8 @@ ENV LANG='en_US.UTF-8' \
     LC_ALL='en_US.UTF-8'
 
 RUN pip3 install --no-cache-dir -q -U pip setuptools six wheel
-RUN pip3 install --no-cache-dir -q -U banal>=0.3.4 \
-                   normality>=0.5.11 \
-                   pantomime>=0.3.2 \
-                   requests[security]>=2.18.4 \
-                   cryptography>=2.5 \
-                   followthemoney>=1.3.0 \
-                   xlrd>=1.1.0 \
-                   pyicu>=2.0.3 \
-                   openpyxl>=2.5.3 \
-                   odfpy>=1.3.5 \
-                   cchardet>=2.1.1 \
-                   lxml>=4.2.1 \
-                   pillow>=5.1.0 \
-                   olefile>=0.44 \
-                   tesserocr>=2.2.2 \
-                   grpcio>=1.17.0 \
-                   python-magic>=0.4.12 \
-                   pypdf2>=1.26.0 \
-                   rarfile>=3.0 \
-                   regex==2018.8.29 \
-                   flanker>=0.9.0 \
-                   ply==3.10 \
-                   imapclient>=1.0.2 \
-                   dbf>=0.96.8 \
-                   pdflib>=0.1.5 \
-                   pymediainfo>=2.3.0 \
-                   nose
+COPY requirements.txt /tmp/
+RUN pip3 install -r /tmp/requirements.txt
 
 COPY . /ingestors
 WORKDIR /ingestors
