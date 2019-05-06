@@ -25,12 +25,12 @@ class TaskRunner(object):
             # log.info("Received Task: ", str(task))
             if task is None:
                 return
-            dataset, entity, context = task
-            entity = model.get_proxy(entity)
             try:
+                dataset, entity, context = task
+                entity = model.get_proxy(entity)
                 cls.execute(dataset, entity, context)
-            except Exception as exc:
-                log.exception("Task failed to execute:", exc)
+            except Exception:
+                log.exception("Task failed to execute.")
             finally:
                 mark_task_finished(dataset)
 
