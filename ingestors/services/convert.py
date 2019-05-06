@@ -28,6 +28,7 @@ class DocumentConverter(ABC):
         if conn.exists(key):
             log.info("Using [%s] PDF from cache", entity.get('fileName'))
             pdf_hash = stringify(conn.get(key))
+            entity.set('pdfHash', pdf_hash)
             if pdf_hash is not None:
                 return archive.load_file(pdf_hash, temp_path=work_path)
 

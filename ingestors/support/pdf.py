@@ -8,10 +8,10 @@ from normality import stringify
 
 from ingestors.services import get_ocr, get_convert
 from ingestors.support.temp import TempFileSupport
-from ingestors.support.shell import ShellSupport
+from ingestors.services.util import ShellCommand
 
 
-class PDFSupport(ShellSupport, TempFileSupport):
+class PDFSupport(TempFileSupport, ShellCommand):
     """Provides helpers for PDF file context extraction."""
 
     def pdf_extract(self, entity, pdf):

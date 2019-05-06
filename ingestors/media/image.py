@@ -1,17 +1,18 @@
 import logging
-from PIL import ExifTags
+from io import BytesIO
 from datetime import datetime
+from PIL import Image, ExifTags
 from followthemoney import model
 
 from ingestors.services import get_ocr
 from ingestors.ingestor import Ingestor
-from ingestors.support.image import ImageSupport
 from ingestors.support.plain import PlainTextSupport
+from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
 
-class ImageIngestor(Ingestor, ImageSupport, PlainTextSupport):
+class ImageIngestor(Ingestor, PlainTextSupport):
     """Image file ingestor class.
 
     Extracts the text from images using OCR.
@@ -79,14 +80,18 @@ class ImageIngestor(Ingestor, ImageSupport, PlainTextSupport):
         with open(file_path, 'rb') as fh:
             data = fh.read()
 
-        image = self.parse_image(data)
-        self.extract_exif(image)
+        try:
+            image = Image.open(BytesIO(data))
+            image.load()
+            image = self.parse_image(data)
+            self.extract_exif(image)
 
-        ocr = get_ocr()
-        text = ocr.extract_text(
-            data, languages=self.manager.context.get('languages')
-        )
-        self.extract_plain_text_content(text)
+            ocr = get_ocr()
+            languages = self.manager.context.get('languages')
+            text = ocr.extract_text(data, languages=languages)
+            self.extract_plain_text_content(text)
+        except Exception as err:
+            raise ProcessingException("Failed to load image: %r" % err)
 
     @classmethod
     def match(cls, file_path, entity):

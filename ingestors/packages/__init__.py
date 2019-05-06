@@ -4,13 +4,13 @@ import shutil
 import tarfile
 
 from ingestors.ingestor import Ingestor
-from ingestors.support.shell import ShellSupport
 from ingestors.support.package import PackageSupport
+from ingestors.services.util import ShellCommand
 from ingestors.exc import ProcessingException
 from ingestors.util import join_path
 
 
-class SevenZipIngestor(PackageSupport, Ingestor, ShellSupport):
+class SevenZipIngestor(PackageSupport, Ingestor, ShellCommand):
     MIME_TYPES = [
         'application/x-7z-compressed',
         'application/7z-compressed'

@@ -11,7 +11,7 @@ from normality import safe_filename, stringify
 from ingestors.support.html import HTMLSupport
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.plain import PlainTextSupport
-from ingestors.util import join_path, safe_string, safe_dict
+from ingestors.util import join_path, safe_string
 
 log = logging.getLogger(__name__)
 
