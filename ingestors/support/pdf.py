@@ -59,4 +59,4 @@ class PDFSupport(TempFileSupport, ShellCommand):
         entity.set('index', page.page_no)
         entity.add('bodyText', text)
         self.manager.emit_entity(entity)
-        self.manager.emit_text_fragment(document, text, page.page_no)
+        self.manager.emit_text_fragment(document, text, entity.id)

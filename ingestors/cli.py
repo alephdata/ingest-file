@@ -1,14 +1,13 @@
-import logging
 import os
-
 import click
-from servicelayer.archive import init_archive
+import logging
 from servicelayer.cache import get_redis
-from servicelayer.queue import push_task
 from servicelayer import settings
 
+from ingestors.manager import Manager
+from ingestors.directory import DirectoryIngestor
 from ingestors.task_runner import TaskRunner
-from ingestors.util import is_file, make_entity
+from ingestors.util import is_file, is_directory
 
 log = logging.getLogger(__name__)
 
@@ -40,20 +39,19 @@ def killthekitten():
               help="foreign_id of the collection")
 @click.argument('path', type=click.Path(exists=True))
 def ingest(path, dataset, languages=None):
-    if not is_file(path):
-        raise click.BadParameter('path is not a file')
-    archive = init_archive()
-    entity = make_entity('Document', dataset)
-    checksum = archive.archive_file(path)
-    entity.id = checksum
-    entity.set('contentHash', checksum)
-    entity.set('fileSize', os.path.getsize(path))
-    file_name = os.path.basename(path)
-    entity.set('fileName', file_name)
     context = {
-        'languages': languages
+        'languages': languages,
+        'queue': settings.QUEUE_HIGH
     }
-    push_task(settings.QUEUE_HIGH, dataset, entity.to_dict(), context)
+    manager = Manager(dataset, context)
+    if is_file(path):
+        entity = manager.make_entity('Document')
+        checksum = manager.archive_entity(entity, path)
+        entity.make_id(checksum)
+        entity.set('fileName', os.path.basename(path))
+        manager.queue_entity(entity)
+    if is_directory(path):
+        DirectoryIngestor.crawl(manager, path)
 
 
 if __name__ == "__main__":

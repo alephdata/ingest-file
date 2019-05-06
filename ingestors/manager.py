@@ -3,10 +3,11 @@ import magic
 import logging
 import time
 from pkg_resources import iter_entry_points
-
-from followthemoney import model
-from servicelayer.archive import init_archive
 from balkhash import init
+from followthemoney import model
+from servicelayer.queue import push_task
+from servicelayer.archive import init_archive
+from servicelayer.settings import QUEUE_MEDIUM
 
 from ingestors.directory import DirectoryIngestor
 from ingestors.exc import ProcessingException, SystemException
@@ -41,7 +42,6 @@ class Manager(object):
         # reusing it in child ingestors
         self.dataset = dataset
         self.context = context
-        self.key_prefix = dataset
 
     @classmethod
     def ingestors(cls):
@@ -53,9 +53,17 @@ class Manager(object):
     def get_dataset(self):
         return init(self.dataset, backend=settings.BALKHASH_BACKEND_ENV)
 
-    def make_entity(self, schema):
+    def make_entity(self, schema, parent=None):
         schema = model.get(schema)
-        return model.make_entity(schema, key_prefix=self.key_prefix)
+        entity = model.make_entity(schema, key_prefix=self.dataset)
+        self.make_child(parent, entity)
+        return entity
+
+    def make_child(self, parent, child):
+        if parent is not None:
+            child.add('parent', parent.id)
+            child.add('ancestors', parent.get('ancestors'))
+            child.add('ancestors', parent.id)
 
     def emit_entity(self, entity, fragment=None):
         from pprint import pprint
@@ -66,7 +74,7 @@ class Manager(object):
         writer.close()
 
     def emit_text_fragment(self, entity, text, fragment):
-        doc = self.manager.make_entity(entity.schema)
+        doc = self.make_entity(entity.schema)
         doc.id = entity.id
         doc.add('indexText', text)
         self.emit_entity(doc, fragment=str(fragment))
@@ -93,14 +101,22 @@ class Manager(object):
             raise ProcessingException("Format not supported")
         return best_cls
 
-    def handle_child(self, file_path, child):
+    def queue_entity(self, entity):
+        queue = self.context.get('queue', QUEUE_MEDIUM)
+        push_task(queue, self.dataset, entity.to_dict(), self.context)
+
+    def archive_entity(self, entity, file_path):
         if is_file(file_path):
             checksum = self.archive.archive_file(file_path)
-            child.set('contentHash', checksum)
-            child.set('fileSize', os.path.getsize(file_path))
-            file_name = os.path.basename(file_path)
-            child.add('fileName', file_name)
-        self.ingest(file_path, child)
+            entity.set('contentHash', checksum)
+            entity.set('fileSize', os.path.getsize(file_path))
+            return checksum
+
+    def handle_child(self, file_path, child):
+        self.archive_entity(child, file_path)
+        file_name = os.path.basename(file_path)
+        child.add('fileName', file_name)
+        self.queue_entity(child)
 
     def ingest(self, file_path, entity, **kwargs):
         """Main execution step of an ingestor."""

@@ -3,7 +3,6 @@ import shutil
 from banal import decode_path
 from normality import stringify
 from normality.cleaning import remove_unsafe_chars
-from followthemoney import model
 
 
 def safe_string(data, encoding_default='utf-8', encoding=None):
@@ -49,6 +48,14 @@ def is_file(file_path):
     return os.path.isfile(file_path)
 
 
+def is_directory(file_path):
+    """Check if a thing is a file, with null guard."""
+    file_path = decode_path(file_path)
+    if file_path is None:
+        return False
+    return os.path.isdir(file_path)
+
+
 def make_directory(*parts):
     """Create a directory, be quiet if it already exists."""
     file_path = join_path(*parts)
@@ -65,8 +72,3 @@ def remove_directory(file_path):
         shutil.rmtree(file_path, True)
     except Exception:
         pass
-
-
-def make_entity(schema, dataset):
-    schema = model.get(schema)
-    return model.make_entity(schema, key_prefix=dataset)

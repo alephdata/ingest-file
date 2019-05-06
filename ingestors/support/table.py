@@ -16,7 +16,7 @@ class TableSupport(object):
             entity.set('cells', registry.json.pack(values))
             entity.set('table', table)
             self.manager.emit_entity(entity)
-            self.manager.emit_text_fragment(table, values, index)
+            self.manager.emit_text_fragment(table, values, entity.id)
 
     def emit_row_tuples(self, table, rows):
         for index, row in enumerate(rows, 1):
@@ -27,4 +27,4 @@ class TableSupport(object):
             entity.add('cells', registry.json.pack(row))
             entity.add('table', table)
             self.manager.emit_entity(entity)
-            self.manager.emit_text_fragment(table, row, index)
+            self.manager.emit_text_fragment(table, row, entity.id)
