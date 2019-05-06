@@ -1,9 +1,9 @@
 import os
+import time
 import magic
 import logging
-import time
+import balkhash
 from pkg_resources import iter_entry_points
-from balkhash import init
 from followthemoney import model
 from servicelayer.queue import push_task
 from servicelayer.archive import init_archive
@@ -37,11 +37,16 @@ class Manager(object):
     INGESTORS = []
 
     def __init__(self, dataset, context):
-        self.archive = init_archive()
         # TODO: Probably a good idea to make context readonly since we are
         # reusing it in child ingestors
         self.dataset = dataset
         self.context = context
+
+    @property
+    def archive(self):
+        if not hasattr(settings, '_archive'):
+            settings._archive = init_archive()
+        return settings._archive
 
     @classmethod
     def ingestors(cls):
@@ -51,7 +56,7 @@ class Manager(object):
         return cls.INGESTORS
 
     def get_dataset(self):
-        return init(self.dataset, backend=settings.BALKHASH_BACKEND_ENV)
+        return balkhash.init(self.dataset)
 
     def make_entity(self, schema, parent=None):
         schema = model.get(schema)
@@ -60,7 +65,7 @@ class Manager(object):
         return entity
 
     def make_child(self, parent, child):
-        if parent is not None:
+        if parent is not None and child is not None:
             child.add('parent', parent.id)
             child.add('ancestors', parent.get('ancestors'))
             child.add('ancestors', parent.id)
@@ -68,10 +73,10 @@ class Manager(object):
     def emit_entity(self, entity, fragment=None):
         from pprint import pprint
         pprint(entity.to_dict())
-        writer = self.get_dataset()
+        # writer = self.get_dataset()
         # log.debug("Store entity [%(schema)s]: %(id)s", entity.to_dict())
-        writer.put(entity, fragment)
-        writer.close()
+        # writer.put(entity, fragment)
+        # writer.close()
 
     def emit_text_fragment(self, entity, text, fragment):
         doc = self.make_entity(entity.schema)
