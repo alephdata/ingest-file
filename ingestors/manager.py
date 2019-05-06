@@ -50,6 +50,9 @@ class Manager(object):
                 cls.INGESTORS.append(ep.load())
         return cls.INGESTORS
 
+    def get_dataset(self):
+        return init(self.dataset, backend=settings.BALKHASH_BACKEND_ENV)
+
     def make_entity(self, schema):
         schema = model.get(schema)
         return model.make_entity(schema, key_prefix=self.key_prefix)
@@ -57,7 +60,19 @@ class Manager(object):
     def emit_entity(self, entity, fragment=None):
         from pprint import pprint
         pprint(entity.to_dict())
-        self.balkhash_emit(entity, fragment=fragment)
+        writer = self.get_dataset()
+        # log.debug("Store entity [%(schema)s]: %(id)s", entity.to_dict())
+        writer.put(entity, fragment)
+        writer.close()
+
+    def emit_text_fragment(self, entity, text, fragment):
+        doc = self.manager.make_entity(entity.schema)
+        doc.id = entity.id
+        doc.add('indexText', text)
+        self.emit_entity(doc, fragment=str(fragment))
+
+    def get_filepath(self, entity):
+        return self.archive.load_file(entity.first('contentHash'))
 
     def auction(self, file_path, entity):
         if not is_file(file_path):
@@ -113,7 +128,7 @@ class Manager(object):
             entity.set('processingError', safe_string(pexc))
             log.warning("Failed [%r]: %s", entity, pexc)
         finally:
-            return self.emit_entity(entity)
+            self.emit_entity(entity)
 
     def delegate(self, ingestor_class, file_path, entity):
         ingestor = ingestor_class(self)
@@ -121,15 +136,3 @@ class Manager(object):
             ingestor.ingest(file_path, entity)
         finally:
             ingestor.cleanup()
-
-    def get_filepath(self, entity):
-        return self.archive.load_file(entity.first('contentHash'))
-
-    def get_dataset(self):
-        return init(self.dataset, backend=settings.BALKHASH_BACKEND_ENV)
-
-    def balkhash_emit(self, entity, fragment=None):
-        writer = self.get_dataset()
-        # log.debug("Store entity [%(schema)s]: %(id)s", entity.to_dict())
-        writer.put(entity, fragment)
-        writer.close()

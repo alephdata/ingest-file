@@ -37,11 +37,6 @@ class PDFSupport(TempFileSupport, ShellCommand):
 
     def pdf_extract_page(self, document, temp_dir, page):
         """Extract the contents of a single PDF page, using OCR if need be."""
-        entity = self.manager.make_entity('Page')
-        entity.make_id(document.id, page.page_no)
-        entity.set('document', document)
-        entity.set('index', page.page_no)
-
         texts = page.lines
         image_path = os.path.join(temp_dir, str(uuid.uuid4()))
         page.extract_images(path=image_path.encode('utf-8'), prefix=b'img')
@@ -57,10 +52,11 @@ class PDFSupport(TempFileSupport, ShellCommand):
                     texts.append(text)
 
         text = ' \n'.join(texts).strip()
-        entity.set('bodyText', text)
-        entity.set('indexText', text)
-        parent_fragment = self.manager.make_entity('Document')
-        parent_fragment.id = document.id
-        parent_fragment.set('indexText', text)
+
+        entity = self.manager.make_entity('Page')
+        entity.make_id(document.id, page.page_no)
+        entity.set('document', document)
+        entity.set('index', page.page_no)
+        entity.add('bodyText', text)
         self.manager.emit_entity(entity)
-        self.manager.emit_entity(parent_fragment, fragment=str(page.page_no))
+        self.manager.emit_text_fragment(document, text, page.page_no)
