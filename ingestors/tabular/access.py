@@ -68,5 +68,5 @@ class AccessIngestor(Ingestor, TableSupport, ShellCommand):
             table.set('title', table_name)
             table.add('parent', entity)
             rows = self.generate_rows(file_path, table_name)
-            self.emit_row_dicts(table, rows, entity)
+            self.emit_row_dicts(table, rows)
             self.manager.emit_entity(table)

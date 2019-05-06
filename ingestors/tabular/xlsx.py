@@ -46,9 +46,7 @@ class ExcelXMLIngestor(Ingestor, TableSupport, OOXMLSupport):
                 table.make_id(entity, name)
                 table.set('title', name)
                 table.add('parent', entity)
-                self.emit_row_tuples(
-                    table, self.generate_rows(book[name]), entity
-                )
+                self.emit_row_tuples(table, self.generate_rows(book[name]))
                 self.manager.emit_entity(table)
         except Exception as err:
             raise ProcessingException('Cannot read Excel file: %s' % err)

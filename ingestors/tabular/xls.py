@@ -64,7 +64,7 @@ class ExcelIngestor(Ingestor, TableSupport, OLESupport):
                 table.make_id(entity, sheet.name)
                 table.set('title', sheet.name)
                 table.add('parent', entity)
-                self.emit_row_tuples(table, self.generate_csv(sheet), entity)
+                self.emit_row_tuples(table, self.generate_csv(sheet))
                 self.manager.emit_entity(table)
         except XLRDError as err:
             raise ProcessingException('Invalid Excel file: %s' % err)

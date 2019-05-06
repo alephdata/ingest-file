@@ -58,7 +58,7 @@ class SQLiteIngestor(Ingestor, TableSupport):
                 table.set('title', table_name)
                 table.add('parent', entity)
                 rows = self.generate_rows(conn, table_name)
-                self.emit_row_dicts(table, rows, entity)
+                self.emit_row_dicts(table, rows)
                 self.manager.emit_entity(table)
         finally:
             conn.close()

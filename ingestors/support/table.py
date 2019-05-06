@@ -1,5 +1,5 @@
 import logging
-# from banal import ensure_list
+from followthemoney.types import registry
 
 log = logging.getLogger(__name__)
 
@@ -7,40 +7,24 @@ log = logging.getLogger(__name__)
 class TableSupport(object):
     """Handle creating rows from an ingestor."""
 
-    def emit_row_dicts(self, table, rows, workbook=None):
+    def emit_row_dicts(self, table, rows):
         for index, row in enumerate(rows, 1):
+            values = list(row.values())
             entity = self.manager.make_entity('Row')
             entity.make_id(table.id, index)
             entity.set('index', index)
-            entity.set('cells', list(row.values()))
+            entity.set('cells', registry.json.pack(values))
             entity.set('table', table)
-            table_fragment = self.manager.make_entity('Document')
-            table_fragment.id = table.id
-            table_fragment.set('indexText', ', '.join(row.values()))
             self.manager.emit_entity(entity)
-            self.manager.emit_entity(table_fragment, fragment=str(index))
-            if workbook:
-                workbook_fragment = self.manager.make_entity('Document')
-                workbook_fragment.id = workbook.id
-                workbook_fragment.set('indexText', ', '.join(row.values()))
-                fragment = table.first('title') + '-' + str(index)
-                self.manager.emit_entity(workbook_fragment, fragment=fragment)
+            self.manager.emit_text_fragment(table, values, index)
 
-    def emit_row_tuples(self, table, rows, workbook=None):
+    def emit_row_tuples(self, table, rows):
         for index, row in enumerate(rows, 1):
+            row = list(row)
             entity = self.manager.make_entity('Row')
             entity.make_id(table.id, index)
             entity.set('index', index)
-            entity.add('cells', list(row))
+            entity.add('cells', registry.json.pack(row))
             entity.add('table', table)
-            table_fragment = self.manager.make_entity('Document')
-            table_fragment.id = table.id
-            table_fragment.set('indexText', ', '.join(row))
             self.manager.emit_entity(entity)
-            self.manager.emit_entity(table_fragment, fragment=str(index))
-            if workbook:
-                workbook_fragment = self.manager.make_entity('Document')
-                workbook_fragment.id = workbook.id
-                workbook_fragment.set('indexText', ', '.join(row))
-                fragment = table.first('title') + '-' + str(index)
-                self.manager.emit_entity(workbook_fragment, fragment=fragment)
+            self.manager.emit_text_fragment(table, row, index)
