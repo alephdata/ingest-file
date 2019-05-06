@@ -53,10 +53,9 @@ class SQLiteIngestor(Ingestor, TableSupport):
         conn = sqlite3.connect(file_path)
         try:
             for table_name in self.get_tables(conn):
-                table = self.manager.make_entity('Table')
+                table = self.manager.make_entity('Table', parent=entity)
                 table.make_id(entity, table_name)
                 table.set('title', table_name)
-                table.add('parent', entity)
                 rows = self.generate_rows(conn, table_name)
                 self.emit_row_dicts(table, rows)
                 self.manager.emit_entity(table)

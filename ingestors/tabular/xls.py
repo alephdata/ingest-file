@@ -60,10 +60,9 @@ class ExcelIngestor(Ingestor, TableSupport, OLESupport):
 
         try:
             for sheet in book.sheets():
-                table = self.manager.make_entity('Table')
+                table = self.manager.make_entity('Table', parent=entity)
                 table.make_id(entity, sheet.name)
                 table.set('title', sheet.name)
-                table.add('parent', entity)
                 self.emit_row_tuples(table, self.generate_csv(sheet))
                 self.manager.emit_entity(table)
         except XLRDError as err:

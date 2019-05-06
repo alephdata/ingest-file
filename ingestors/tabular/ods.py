@@ -68,9 +68,8 @@ class OpenOfficeSpreadsheetIngestor(Ingestor, TableSupport,
         entity.schema = model.get('Workbook')
         for sheet in doc.spreadsheet.getElementsByType(Table):
             name = sheet.getAttribute('name')
-            table = self.manager.make_entity('Table')
+            table = self.manager.make_entity('Table', parent=entity)
             table.make_id(entity, name)
             table.set('title', name)
-            table.add('parent', entity)
             self.emit_row_tuples(table, self.generate_csv(sheet))
             self.manager.emit_entity(table)

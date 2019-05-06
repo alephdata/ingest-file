@@ -11,7 +11,7 @@ from servicelayer.settings import QUEUE_MEDIUM
 
 from ingestors.directory import DirectoryIngestor
 from ingestors.exc import ProcessingException, SystemException
-from ingestors.util import is_file, safe_string
+from ingestors.util import is_directory, is_file, safe_string
 from ingestors import settings
 
 log = logging.getLogger(__name__)
@@ -74,7 +74,6 @@ class Manager(object):
         from pprint import pprint
         pprint(entity.to_dict())
         # writer = self.get_dataset()
-        # log.debug("Store entity [%(schema)s]: %(id)s", entity.to_dict())
         # writer.put(entity, fragment)
         # writer.close()
 
@@ -88,7 +87,7 @@ class Manager(object):
         return self.archive.load_file(entity.first('contentHash'))
 
     def auction(self, file_path, entity):
-        if not is_file(file_path):
+        if is_directory(file_path):
             entity.add('mimeType', DirectoryIngestor.MIME_TYPE)
             return DirectoryIngestor
 

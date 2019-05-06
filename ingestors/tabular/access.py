@@ -63,10 +63,9 @@ class AccessIngestor(Ingestor, TableSupport, ShellCommand):
     def ingest(self, file_path, entity):
         entity.schema = model.get('Workbook')
         for table_name in self.get_tables(file_path):
-            table = self.manager.make_entity('Table')
+            table = self.manager.make_entity('Table', parent=entity)
             table.make_id(entity, table_name)
             table.set('title', table_name)
-            table.add('parent', entity)
             rows = self.generate_rows(file_path, table_name)
             self.emit_row_dicts(table, rows)
             self.manager.emit_entity(table)
