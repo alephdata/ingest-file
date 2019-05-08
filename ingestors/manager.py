@@ -3,15 +3,15 @@ import time
 import magic
 import logging
 import balkhash
-from pkg_resources import iter_entry_points
+from tempfile import mkdtemp
 from followthemoney import model
-from servicelayer.queue import push_task
 from servicelayer.archive import init_archive
-from servicelayer.settings import QUEUE_MEDIUM
+from servicelayer.extensions import get_extensions
 
 from ingestors.directory import DirectoryIngestor
 from ingestors.exc import ProcessingException, SystemException
 from ingestors.util import is_directory, is_file, safe_string
+from ingestors.util import remove_directory
 from ingestors import settings
 
 log = logging.getLogger(__name__)
@@ -34,13 +34,14 @@ class Manager(object):
     STATUS_STOPPED = u'stopped'
 
     MAGIC = magic.Magic(mime=True)
-    INGESTORS = []
 
-    def __init__(self, dataset, context):
+    def __init__(self, queue, context):
+        self.queue = queue
         # TODO: Probably a good idea to make context readonly since we are
         # reusing it in child ingestors
-        self.dataset = dataset
         self.context = context
+        self.work_path = mkdtemp(prefix='ingestor-')
+        self._emit_count = 0
 
     @property
     def archive(self):
@@ -48,19 +49,12 @@ class Manager(object):
             settings._archive = init_archive()
         return settings._archive
 
-    @classmethod
-    def ingestors(cls):
-        if not len(cls.INGESTORS):
-            for ep in iter_entry_points('ingestors'):
-                cls.INGESTORS.append(ep.load())
-        return cls.INGESTORS
-
     def get_dataset(self):
-        return balkhash.init(self.dataset)
+        return balkhash.init(self.queue.dataset)
 
     def make_entity(self, schema, parent=None):
         schema = model.get(schema)
-        entity = model.make_entity(schema, key_prefix=self.dataset)
+        entity = model.make_entity(schema, key_prefix=self.queue.dataset)
         self.make_child(parent, entity)
         return entity
 
@@ -71,11 +65,12 @@ class Manager(object):
             child.add('ancestors', parent.id)
 
     def emit_entity(self, entity, fragment=None):
-        from pprint import pprint
-        pprint(entity.to_dict())
+        # from pprint import pprint
+        # pprint(entity.to_dict())
         # writer = self.get_dataset()
         # writer.put(entity, fragment)
         # writer.close()
+        self._emit_count += 1
 
     def emit_text_fragment(self, entity, text, fragment):
         doc = self.make_entity(entity.schema)
@@ -84,7 +79,8 @@ class Manager(object):
         self.emit_entity(doc, fragment=str(fragment))
 
     def get_filepath(self, entity):
-        return self.archive.load_file(entity.first('contentHash'))
+        return self.archive.load_file(entity.first('contentHash'),
+                                      temp_path=self.work_path)
 
     def auction(self, file_path, entity):
         if is_directory(file_path):
@@ -95,7 +91,7 @@ class Manager(object):
             entity.add('mimeType', self.MAGIC.from_file(file_path))
 
         best_score, best_cls = 0, None
-        for cls in self.__class__.ingestors():
+        for cls in get_extensions('ingestors'):
             score = cls.match(file_path, entity)
             if score > best_score:
                 best_score = score
@@ -106,8 +102,8 @@ class Manager(object):
         return best_cls
 
     def queue_entity(self, entity):
-        queue = self.context.get('queue', QUEUE_MEDIUM)
-        push_task(queue, self.dataset, entity.to_dict(), self.context)
+        log.debug("Queue: %r", entity)
+        self.queue.queue_task(entity.to_dict(), self.context)
 
     def archive_entity(self, entity, file_path):
         if is_file(file_path):
@@ -149,10 +145,15 @@ class Manager(object):
             log.warning("Failed [%r]: %s", entity, pexc)
         finally:
             self.emit_entity(entity)
+            self.finalize()
 
     def delegate(self, ingestor_class, file_path, entity):
         ingestor = ingestor_class(self)
-        try:
-            ingestor.ingest(file_path, entity)
-        finally:
-            ingestor.cleanup()
+        ingestor.ingest(file_path, entity)
+
+    def finalize(self):
+        log.debug("Emitted %d entities", self._emit_count)
+        status = self.queue.progress.get()
+        if status.get('pending') == 0:
+            log.debug('DONE: %s', self.queue.dataset)
+        remove_directory(self.work_path)

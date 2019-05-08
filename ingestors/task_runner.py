@@ -1,8 +1,8 @@
 import logging
 import threading
-
-from servicelayer.queue import poll_task, mark_task_finished
 from followthemoney import model
+from servicelayer.cache import get_redis
+from servicelayer.queue import ServiceQueue as Queue
 
 from ingestors.manager import Manager
 from ingestors import settings
@@ -14,25 +14,18 @@ class TaskRunner(object):
     """A long running task runner that uses Redis as a task queue"""
 
     @classmethod
-    def execute(cls, dataset, entity, context):
-        manager = Manager(dataset, context)
-        file_path = manager.get_filepath(entity)
-        manager.ingest(file_path, entity)
-
-    @classmethod
     def process(cls):
-        for task in poll_task():
-            # log.info("Received Task: ", str(task))
-            if task is None:
+        conn = get_redis()
+        while True:
+            task = Queue.get_operation_task(conn, Queue.OP_INGEST)
+            queue, payload, context = task
+            if payload is None:
                 return
-            try:
-                dataset, entity, context = task
-                entity = model.get_proxy(entity)
-                cls.execute(dataset, entity, context)
-            except Exception:
-                log.exception("Task failed to execute.")
-            finally:
-                mark_task_finished(dataset)
+            manager = Manager(queue, context)
+            entity = model.get_proxy(payload)
+            log.debug("Received: %r", entity)
+            file_path = manager.get_filepath(entity)
+            manager.ingest(file_path, entity)
 
     @classmethod
     def run(cls):

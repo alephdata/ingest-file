@@ -2,7 +2,7 @@ import os
 import click
 import logging
 from servicelayer.cache import get_redis
-from servicelayer import settings
+from servicelayer.queue import ServiceQueue
 
 from ingestors.manager import Manager
 from ingestors.directory import DirectoryIngestor
@@ -39,11 +39,10 @@ def killthekitten():
               help="foreign_id of the collection")
 @click.argument('path', type=click.Path(exists=True))
 def ingest(path, dataset, languages=None):
-    context = {
-        'languages': languages,
-        'queue': settings.QUEUE_HIGH
-    }
-    manager = Manager(dataset, context)
+    context = {'languages': languages}
+    conn = get_redis()
+    queue = ServiceQueue(conn, ServiceQueue.OP_INGEST, dataset)
+    manager = Manager(queue, context)
     if is_file(path):
         entity = manager.make_entity('Document')
         checksum = manager.archive_entity(entity, path)

@@ -1,7 +1,5 @@
 import logging
-from tempfile import mkdtemp
 from pantomime import normalize_mimetype, normalize_extension
-from ingestors.util import remove_directory
 
 log = logging.getLogger(__name__)
 
@@ -14,7 +12,7 @@ class Ingestor(object):
 
     def __init__(self, manager):
         self.manager = manager
-        self.work_path = mkdtemp(prefix='ingestor-')
+        self.work_path = manager.work_path
 
     def ingest(self, file_path, entity):
         """The ingestor implementation. Should be overwritten.
@@ -23,9 +21,6 @@ class Ingestor(object):
         Use the extracted data on `entity`.
         """
         raise NotImplementedError()
-
-    def cleanup(self):
-        remove_directory(self.work_path)
 
     @classmethod
     def match(cls, file_path, entity):
