@@ -9,12 +9,13 @@ from lxml import etree
 from email import utils
 from datetime import datetime
 from normality import safe_filename
+from followthemoney import model
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.email import EmailSupport
 from ingestors.support.temp import TempFileSupport
 from ingestors.exc import ProcessingException
-from ingestors.util import safe_string, safe_dict
+from ingestors.util import safe_string
 from ingestors.util import remove_directory
 
 log = logging.getLogger(__name__)
@@ -49,9 +50,8 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
                 log.warning("Cannot load zip member: %s", name)
         return out_file
 
-    def extract_hierarchy(self, name):
-        result = self.result
-        foreign_id = self.result.id
+    def extract_hierarchy(self, name, entity):
+        foreign_id = entity.id
         path = os.path.dirname(name)
         for name in path.split(os.sep):
             foreign_id = os.path.join(foreign_id, name)
@@ -60,9 +60,8 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
             if foreign_id in self._hierarchy:
                 result = self._hierarchy.get(foreign_id)
             else:
-                result = self.manager.handle_child(result, None,
-                                                   id=foreign_id,
-                                                   file_name=name)
+                result = self.manager.make_entity('Document', parent=entity)
+                result.make_id(entity.id, name)
                 self._hierarchy[foreign_id] = result
         return result
 
@@ -71,51 +70,48 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
         name = attachment.get('OPFAttachmentName')
         name = name or attachment.get('OPFAttachmentContentID')
         mime_type = attachment.get('OPFAttachmentContentType')
+        child = self.manager.make_entity('Document', parent=message)
+        child.add('mimeType', mime_type)
         if url is None and name is None:
             return
         if url is not None:
-            foreign_id = os.path.join(self.result.id, url)
             file_path = self.extract_file(zipf, url, temp_dir)
+            child.make_id(message.id, url)
         else:
-            foreign_id = os.path.join(message.id, name)
             file_path = os.path.join(temp_dir, safe_filename(name))
             fh = open(file_path, 'w')
             fh.close()
-        self.manager.handle_child(message,
-                                  file_path,
-                                  id=foreign_id,
-                                  file_name=name,
-                                  mime_type=mime_type)
+            child.make_id(message.id, name)
+        self.manager.handle_child(file_path, child)
 
-    def extract_message(self, zipf, name):
+    def extract_message(self, entity, zipf, name):
         if 'message_' not in name or not name.endswith('.xml'):
             return
-        parent = self.extract_hierarchy(name)
+        parent = self.extract_hierarchy(name, entity)
         message_dir = self.make_empty_directory()
         try:
             xml_path = self.extract_file(zipf, name, message_dir)
-            foreign_id = os.path.join(self.result.id, name)
-            message = self.manager.handle_child(parent,
-                                                xml_path,
-                                                id=foreign_id,
-                                                mime_type=MIME)
+            child = self.manager.make_entity('Document', parent=parent)
+            child.make_id(entity.id, parent.id, name)
+            child.add('mimeType', MIME)
+            self.manager.handle_child(xml_path, child)
             try:
                 doc = self.parse_xml(xml_path)
                 for el in doc.findall('.//messageAttachment'):
-                    self.extract_attachment(zipf, message, el, message_dir)
+                    self.extract_attachment(zipf, child, el, message_dir)
             except TypeError:
                 pass  # this will be reported for the individual file.
         finally:
             remove_directory(message_dir)
 
     def ingest(self, file_path, entity):
+        entity.schema = model.get('Package')
         self._hierarchy = {}
-        self.result.flag(self.result.FLAG_PACKAGE)
         try:
             with zipfile.ZipFile(file_path, 'r') as zipf:
                 for name in zipf.namelist():
                     try:
-                        self.extract_message(zipf, name)
+                        self.extract_message(entity, zipf, name)
                     except Exception:
                         log.exception('Error processing message: %s', name)
         except zipfile.BadZipfile:
@@ -159,7 +155,7 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
                 return name
 
     def ingest(self, file_path, entity):
-        self.result.flag(self.result.FLAG_EMAIL)
+        entity.schema = model.get('Email')
         try:
             doc = self.parse_xml(file_path)
         except TypeError:
@@ -186,17 +182,17 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
             date = time.mktime(date.timetuple())
             headers['Date'] = utils.formatdate(date)
 
-        self.result.headers = safe_dict(headers)
+        self.extract_headers_metadata(entity, headers)
 
-        self.update('title', props.pop('OPFMessageCopySubject', None))
-        self.update('title', props.pop('OPFMessageCopyThreadTopic', None))
+        entity.add('title', props.pop('OPFMessageCopySubject', None))
+        entity.add('title', props.pop('OPFMessageCopyThreadTopic', None))
         for tag in ('OPFMessageCopyFromAddresses',
                     'OPFMessageCopySenderAddress'):
-            self.update('author', self.get_contact_name(email, tag))
+            entity.add('author', self.get_contact_name(email, tag))
 
-        self.update('summary', props.pop('OPFMessageCopyPreview', None))
-        self.update('created_at', props.pop('OPFMessageCopySentTime', None))
-        self.update('modified_at', props.pop('OPFMessageCopyModDate', None))
+        entity.add('summary', props.pop('OPFMessageCopyPreview', None))
+        entity.add('authoredAt', props.pop('OPFMessageCopySentTime', None))
+        entity.add('modifiedAt', props.pop('OPFMessageCopyModDate', None))
 
         body = props.pop('OPFMessageCopyBody', None)
         html = props.pop('OPFMessageCopyHTMLBody', None)
@@ -204,7 +200,5 @@ class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
         has_html = '1E0' == props.pop('OPFMessageGetHasHTML', None)
         if has_html and safe_string(html):
             self.extract_html_content(entity, html)
-            self.result.flag(self.result.FLAG_HTML)
         else:
             entity.add('bodyText', body)
-            self.result.flag(self.result.FLAG_PLAINTEXT)
