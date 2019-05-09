@@ -7,6 +7,7 @@ from time import mktime
 from datetime import datetime
 from flanker.addresslib import address
 from normality import safe_filename, stringify
+from followthemoney.types import registry
 
 from ingestors.support.html import HTMLSupport
 from ingestors.support.temp import TempFileSupport
@@ -28,7 +29,8 @@ class EmailSupport(TempFileSupport, HTMLSupport):
 
         file_name = safe_filename(name, default='attachment')
         name = safe_string(name) or file_name
-        foreign_id = join_path(self.result.id, name)
+        child = self.manager.make_entity('Document', parent=entity)
+        child.make_id(entity.id, name)
 
         file_path = join_path(self.work_path, file_name)
         with open(file_path, 'wb') as fh:
@@ -39,11 +41,9 @@ class EmailSupport(TempFileSupport, HTMLSupport):
 
         if isinstance(mime_type, bytes):
             mime_type = mime_type.decode('utf-8')
+        child.add('mimeType', mime_type)
 
-        self.manager.handle_child(self.result, file_path,
-                                  id=foreign_id,
-                                  file_name=name,
-                                  mime_type=mime_type)
+        self.manager.handle_child(file_path, child)
 
     def check_email(self, text):
         """Does it roughly look like an email?"""
@@ -53,7 +53,7 @@ class EmailSupport(TempFileSupport, HTMLSupport):
             return True
         return False
 
-    def parse_emails(self, text):
+    def parse_emails(self, text, entity):
         """Parse an email list with the side effect of adding them to the
         relevant result lists."""
         parsed = address.parse_list(safe_string(text))
@@ -74,14 +74,16 @@ class EmailSupport(TempFileSupport, HTMLSupport):
                 email = email or name
                 name = None
 
-            self.result.emit_email(email)
-            self.result.emit_name(name)
+            # FIXME: connect the name and the email
+            entity.add('emailMentioned', email)
+            entity.add('namesMentioned', name)
             values.append((name, email))
         return values
 
     def extract_headers_metadata(self, entity, headers):
-        # self.result.headers = safe_dict(dict(headers))
-        headers = [(safe_string(k), safe_string(v)) for k, v in headers]
+        headers = dict(headers)
+        entity.add('headers', registry.json.pack(dict(headers)))
+        headers = [(safe_string(k), safe_string(v)) for k, v in headers.items()]  # noqa
         for field, value in headers:
             field = field.lower()
 
@@ -92,23 +94,23 @@ class EmailSupport(TempFileSupport, HTMLSupport):
                 entity.add('messageId', value)
 
             if field == 'in-reply-to':
-                self.result.emit_in_reply_to(value)
+                entity.add('inReplyTo', value)
             if field == 'references':
                 for email_addr in value.split():
-                    self.result.emit_in_reply_to(email_addr)
+                    entity.add('inReplyTo', email_addr)
 
             if field == 'date':
                 date = value
                 try:
                     date = email.utils.parsedate(date)
                     date = datetime.fromtimestamp(mktime(date))
-                    entity.add('created_at', date)
+                    entity.add('authoredAt', date)
                 except Exception as ex:
                     log.warning("Failed to parse [%s]: %s", date, ex)
 
             if field == 'from':
-                for (name, _) in self.parse_emails(value):
+                for (name, _) in self.parse_emails(value, entity):
                     entity.add('author', name)
 
             if field in ['to', 'cc', 'bcc']:
-                self.parse_emails(value)
+                self.parse_emails(value, entity)
