@@ -104,7 +104,7 @@ class EmailSupport(TempFileSupport, HTMLSupport):
                 try:
                     date = email.utils.parsedate(date)
                     date = datetime.fromtimestamp(mktime(date))
-                    entity.add('created_at', date)
+                    entity.add('authoredAt', date)
                 except Exception as ex:
                     log.warning("Failed to parse [%s]: %s", date, ex)
 
