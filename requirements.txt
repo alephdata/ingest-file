@@ -1,9 +1,9 @@
 banal>=0.4.2
 normality>=1.0.0
 pantomime>=0.3.3
-servicelayer>=1.2.0
-balkhash[leveldb]>=0.3.3
-followthemoney>=1.11.19
+servicelayer>=1.2.1
+balkhash[leveldb]>=0.4.0
+followthemoney>=1.11.22
 grpcio>=1.17.0
 
 # Development
