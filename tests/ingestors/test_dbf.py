@@ -11,8 +11,10 @@ class DBFIngestorTest(TestCase):
             entity.first('processingStatus'), self.manager.STATUS_SUCCESS
         )
         # 8 rows + 1 table
-        self.assertEqual(len(self.manager.entities), 8+1)
+        entities = self.get_emitted()
+        self.assertEqual(len(entities), 8+1)
         self.assertEqual(entity.schema, 'Table')
-        row0 = self.manager.entities[0]
-        self.assertIn('Azad Kashmir', row0.get('cells'))
-        self.assertIn('Pakistan', row0.get('cells'))
+        rows = self.get_emitted('Row')
+        cells = ''.join([e.first('cells') for e in rows])
+        self.assertIn('Azad Kashmir', cells)
+        self.assertIn('Pakistan', cells)

@@ -11,7 +11,8 @@ class CSVIngestorTest(TestCase):
             entity.first('processingStatus'), self.manager.STATUS_SUCCESS
         )
         # 256 rows + 1 table
-        self.assertEqual(len(self.manager.entities), 256+1)
+        entities = self.get_emitted()
+        self.assertEqual(len(entities), 256+1)
         self.assertEqual(entity.schema, 'Table')
 
     def test_nonutf_csv(self):
@@ -21,5 +22,6 @@ class CSVIngestorTest(TestCase):
             entity.first('processingStatus'), self.manager.STATUS_SUCCESS
         )
         # 20 rows + 1 table
-        self.assertEqual(len(self.manager.entities), 20+1)
+        entities = self.get_emitted()
+        self.assertEqual(len(entities), 20+1)
         self.assertEqual(entity.schema, 'Table')

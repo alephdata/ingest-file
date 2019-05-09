@@ -26,6 +26,7 @@ class TaskRunner(object):
             log.debug("Received: %r", entity)
             file_path = manager.get_filepath(entity)
             manager.ingest(file_path, entity)
+            manager.close()
 
     @classmethod
     def run(cls):

@@ -55,6 +55,7 @@ def ingest(path, dataset, languages=None):
         manager.queue_entity(entity)
     if is_directory(path):
         DirectoryIngestor.crawl(manager, path)
+    manager.close()
 
 
 if __name__ == "__main__":

@@ -42,3 +42,16 @@ class TestCase(unittest.TestCase):
         else:
             entity.make_id(fixture_path)
         return path, entity
+
+    def get_emitted(self, schema=None):
+        entities = list(self.manager.dataset.iterate())
+        if schema is not None:
+            entities = [e for e in entities if e.schema.is_a(schema)]
+        return entities
+
+    def get_emitted_by_id(self, id):
+        return self.manager.dataset.get(id)
+
+    def assertSuccess(self, entity):
+        self.assertEqual(entity.first('processingStatus'),
+                         self.manager.STATUS_SUCCESS)

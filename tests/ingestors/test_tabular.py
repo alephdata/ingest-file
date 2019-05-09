@@ -10,14 +10,15 @@ class TabularIngestorTest(TestCase):
         self.assertEqual(
             entity.first('processingStatus'), self.manager.STATUS_SUCCESS
         )
-        row1 = self.manager.entities[1]
-        self.assertEqual(row1.schema, 'Row')
-        self.assertIn('Mihai Viteazul', row1.get('cells'))
-        row0 = self.manager.entities[0]
-        self.assertIn('Name', row0.get('cells'))
-        sheet1 = self.manager.entities[3]
-        self.assertEqual(sheet1.schema, 'Table')
-        self.assertEqual(sheet1.first('title'), 'Sheet1')
+        entities = self.get_emitted('Row')
+        assert len(entities) == 5, len(entities)
+        cells = ''.join([e.first('cells') for e in entities])
+        self.assertIn('Mihai Viteazul', cells)
+
+        tables = self.get_emitted('Table')
+        assert len(tables) == 2, tables
+        titles = [t.first('title') for t in tables]
+        self.assertIn('Sheet1', titles)
         self.assertEqual(entity.schema, 'Workbook')
 
     def test_unicode_xls(self):
@@ -27,8 +28,9 @@ class TabularIngestorTest(TestCase):
             entity.first('processingStatus'), self.manager.STATUS_SUCCESS
         )
         self.assertEqual(entity.schema, 'Workbook')
-        sheet1 = next((x for x in self.manager.entities if x.schema == 'Table'), None)  # noqa
-        self.assertEqual(sheet1.first('title'), u'Лист1')
+        tables = self.get_emitted('Table')
+        tables = [t.first('title') for t in tables]
+        self.assertIn(u'Лист1', tables)
 
     def test_unicode_ods(self):
         fixture_path, entity = self.fixture('rom.ods')
@@ -36,6 +38,7 @@ class TabularIngestorTest(TestCase):
         self.assertEqual(
             entity.first('processingStatus'), self.manager.STATUS_SUCCESS
         )
-        sheet1 = next((x for x in self.manager.entities if x.schema == 'Table'), None)  # noqa
-        self.assertEqual(sheet1.first('title'), u'Лист1')
+        tables = self.get_emitted('Table')
+        tables = [t.first('title') for t in tables]
+        self.assertIn(u'Лист1', tables)
         self.assertEqual(entity.schema, 'Workbook')

@@ -164,9 +164,6 @@ class Manager(object):
         """Update the queue status, and delete any temp data."""
         self.queue.task_done()
         self.writer.flush()
-        self.dataset.close()
-        self._dataset = None
-        self._writer = None
         log.debug("Emitted %d entities", self._emit_count)
         status = self.queue.progress.get()
         if status.get('pending') == 0:
@@ -174,4 +171,7 @@ class Manager(object):
             indexq = Queue(self.queue.conn, Queue.OP_INDEX, self.queue.dataset)
             indexq.queue_task({}, {})
             self.queue.remove()
+
+    def close(self):
+        self.dataset.close()
         remove_directory(self.work_path)
