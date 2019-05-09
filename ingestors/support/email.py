@@ -81,8 +81,9 @@ class EmailSupport(TempFileSupport, HTMLSupport):
         return values
 
     def extract_headers_metadata(self, entity, headers):
+        headers = dict(headers)
         entity.add('headers', registry.json.pack(dict(headers)))
-        headers = [(safe_string(k), safe_string(v)) for k, v in headers]
+        headers = [(safe_string(k), safe_string(v)) for k, v in headers.items()]  # noqa
         for field, value in headers:
             field = field.lower()
 
@@ -108,8 +109,8 @@ class EmailSupport(TempFileSupport, HTMLSupport):
                     log.warning("Failed to parse [%s]: %s", date, ex)
 
             if field == 'from':
-                for (name, _) in self.parse_emails(value):
+                for (name, _) in self.parse_emails(value, entity):
                     entity.add('author', name)
 
             if field in ['to', 'cc', 'bcc']:
-                self.parse_emails(value)
+                self.parse_emails(value, entity)
