@@ -7,6 +7,7 @@ from tempfile import mkdtemp
 from followthemoney import model
 from servicelayer.archive import init_archive
 from servicelayer.extensions import get_extensions
+from servicelayer.queue import ServiceQueue as Queue
 
 from ingestors.directory import DirectoryIngestor
 from ingestors.exc import ProcessingException, SystemException
@@ -42,6 +43,8 @@ class Manager(object):
         self.context = context
         self.work_path = mkdtemp(prefix='ingestor-')
         self._emit_count = 0
+        self._writer = None
+        self._dataset = None
 
     @property
     def archive(self):
@@ -49,8 +52,17 @@ class Manager(object):
             settings._archive = init_archive()
         return settings._archive
 
-    def get_dataset(self):
-        return balkhash.init(self.queue.dataset)
+    @property
+    def dataset(self):
+        if self._dataset is None:
+            self._dataset = balkhash.init(self.queue.dataset)
+        return self._dataset
+
+    @property
+    def writer(self):
+        if self._writer is None:
+            self._writer = self.dataset.bulk()
+        return self._writer
 
     def make_entity(self, schema, parent=None):
         schema = model.get(schema)
@@ -67,10 +79,7 @@ class Manager(object):
     def emit_entity(self, entity, fragment=None):
         # from pprint import pprint
         # pprint(entity.to_dict())
-        # writer = self.get_dataset()
-        # writer.put(entity, fragment)
-        # writer.close()
-        self._emit_count += 1
+        self.writer.put(entity.to_dict(), fragment)
 
     def emit_text_fragment(self, entity, text, fragment):
         doc = self.make_entity(entity.schema)
@@ -139,7 +148,7 @@ class Manager(object):
             entity.set('processingStatus', self.STATUS_STOPPED)
             entity.set('processingError', safe_string(pexc))
             log.warning("Stopped [%r]: %s", entity, pexc)
-        except (ProcessingException, Exception) as pexc:
+        except ProcessingException as pexc:
             entity.set('processingStatus', self.STATUS_FAILURE)
             entity.set('processingError', safe_string(pexc))
             log.warning("Failed [%r]: %s", entity, pexc)
@@ -152,8 +161,17 @@ class Manager(object):
         ingestor.ingest(file_path, entity)
 
     def finalize(self):
+        """Update the queue status, and delete any temp data."""
+        self.queue.task_done()
+        self.writer.flush()
+        self.dataset.close()
+        self._dataset = None
+        self._writer = None
         log.debug("Emitted %d entities", self._emit_count)
         status = self.queue.progress.get()
         if status.get('pending') == 0:
-            log.debug('DONE: %s', self.queue.dataset)
+            log.debug('Ingest done, trigger indexing: %s', self.queue.dataset)
+            indexq = Queue(self.queue.conn, Queue.OP_INDEX, self.queue.dataset)
+            indexq.queue_task({}, {})
+            self.queue.remove()
         remove_directory(self.work_path)

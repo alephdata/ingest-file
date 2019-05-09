@@ -82,7 +82,6 @@ class ImageIngestor(Ingestor):
         try:
             image = Image.open(BytesIO(data))
             image.load()
-            image = self.parse_image(data)
             self.extract_exif(image)
 
             ocr = get_ocr()

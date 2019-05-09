@@ -18,9 +18,13 @@ def cli():
 
 
 @cli.command()
-def process():
+@click.option('-s', '--sync', default=False, help='Run without threads')
+def process(sync):
     """Start the queue and process tasks as they come. Blocks while waiting"""
-    TaskRunner.run()
+    if sync:
+        TaskRunner.process()
+    else:
+        TaskRunner.run()
 
 
 @cli.command()

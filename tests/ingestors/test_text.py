@@ -9,7 +9,7 @@ class TextIngestorTest(TestCase):
 
     def test_match(self):
         fixture_path, entity = self.fixture('utf.txt')
-        entity = self.manager.ingest(fixture_path, entity)
+        self.manager.ingest(fixture_path, entity)
 
         self.assertTrue(isinstance(entity, EntityProxy))
         self.assertEqual(entity.first('mimeType'), 'text/plain')
@@ -23,13 +23,13 @@ class TextIngestorTest(TestCase):
 
     def test_ingest_binary_mode(self):
         fixture_path, entity = self.fixture('non_utf.txt')
-        entity = self.manager.ingest(fixture_path, entity)
+        self.manager.ingest(fixture_path, entity)
 
         self.assertIn(u'größter', entity.first('bodyText'))
         self.assertEqual(entity.schema, 'PlainText')
 
     def test_ingest_extra_fixture(self):
         fixture_path, entity = self.fixture('udhr_ger.txt')
-        entity = self.manager.ingest(fixture_path, entity)
+        self.manager.ingest(fixture_path, entity)
         self.assertIsNotNone(entity.first('bodyText'))
         self.assertEqual(entity.schema, 'PlainText')

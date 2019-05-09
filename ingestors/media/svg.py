@@ -17,5 +17,5 @@ class SVGIngestor(Ingestor, EncodingSupport, HTMLSupport):
 
     def ingest(self, file_path, entity):
         entity.schema = model.get('HyperText')
-        html_body = self.read_file_decoded(file_path)
+        html_body = self.read_file_decoded(entity, file_path)
         self.extract_html_content(entity, html_body)

@@ -5,11 +5,15 @@ from ..support import TestCase
 class AccessIngestorTest(TestCase):
 
     def test_simple_access(self):
-        fixture_path = self.fixture('Books_be.mdb')
-        result = self.manager.ingest(fixture_path)
-        self.assertEqual(result.status, result.STATUS_SUCCESS)
-        self.assertEqual(len(result.children), 2)
-        child = result.children[0]
-        self.assertEqual(child.file_name, 'Authors.csv')
-        self.assertEqual(child.title, 'Authors')
-        self.assertEqual(len(child.rows), 3)
+        fixture_path, entity = self.fixture('Books_be.mdb')
+        self.manager.ingest(fixture_path, entity)
+        self.assertEqual(
+            entity.first('processingStatus'),
+            self.manager.STATUS_SUCCESS
+        )
+        self.assertEqual(len(self.manager.entities), 19)
+        assert entity.schema.name == 'Workbook', entity.schema
+        tables = [e for e in self.manager.entities if e.schema.name == 'Table']
+        tables = [t for t in tables if t.has('title')]
+        assert len(tables), tables
+        self.assertEqual(tables[0].first('title'), 'Authors')

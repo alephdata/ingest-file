@@ -8,24 +8,24 @@ class PackagesTest(TestCase):
 
     def test_zip(self):
         fixture_path, entity = self.fixture('test-documents.zip')
-        result = self.manager.ingest(fixture_path, entity)
+        self.manager.ingest(fixture_path, entity)
         self.assertEqual(
-            result.first('processingStatus'), self.manager.STATUS_SUCCESS
+            entity.first('processingStatus'), self.manager.STATUS_SUCCESS
         )
-        self.assertEqual(result.schema, 'Folder')
+        self.assertEqual(entity.schema, 'Folder')
 
     def test_rar(self):
         fixture_path, entity = self.fixture('test-documents.rar')
-        result = self.manager.ingest(fixture_path, entity)
+        self.manager.ingest(fixture_path, entity)
         self.assertEqual(
-            result.first('processingStatus'), self.manager.STATUS_SUCCESS
+            entity.first('processingStatus'), self.manager.STATUS_SUCCESS
         )
-        self.assertEqual(result.schema, 'Folder')
+        self.assertEqual(entity.schema, 'Folder')
 
     def test_tar(self):
         fixture_path, entity = self.fixture('test-documents.tar')
-        result = self.manager.ingest(fixture_path, entity)
+        self.manager.ingest(fixture_path, entity)
         self.assertEqual(
-            result.first('processingStatus'), self.manager.STATUS_SUCCESS
+            entity.first('processingStatus'), self.manager.STATUS_SUCCESS
         )
-        self.assertEqual(result.schema, 'Folder')
+        self.assertEqual(entity.schema, 'Folder')
