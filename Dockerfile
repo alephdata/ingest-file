@@ -18,12 +18,8 @@ RUN apt-get -qq -y update \
         imagemagick-common imagemagick mdbtools djvulibre-bin \
         libtiff5-dev libjpeg-dev libfreetype6-dev libwebp-dev \
         libtiff-tools ghostscript librsvg2-bin \
-        # tesseract
-        libtesseract-dev tesseract-ocr-eng libleptonica-dev \
         # pdf processing toolkit
         poppler-utils poppler-data pst-utils \
-        # document processing
-        libreoffice \
     && apt-get -qq -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

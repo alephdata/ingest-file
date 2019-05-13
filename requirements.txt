@@ -29,8 +29,8 @@ olefile>=0.44
 pillow>=5.1.0
 
 # OCR tooling
-tesserocr>=2.2.2
 google-cloud-vision
+# tesserocr>=2.2.2
 
 # Get rid of:
 # Used for LibreOffice converter service
