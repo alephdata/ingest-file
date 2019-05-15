@@ -74,7 +74,11 @@ class EmailSupport(TempFileSupport, HTMLSupport):
                 email = email or name
                 name = None
 
-            # FIXME: connect the name and the email
+            person = self.manager.make_entity('Person')
+            person.make_id(entity.id, name, email)
+            person.add('name', name)
+            person.add('email', email)
+            self.manager.emit_entity(person)
             entity.add('emailMentioned', email)
             entity.add('namesMentioned', name)
             values.append((name, email))
