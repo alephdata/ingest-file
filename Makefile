@@ -1,7 +1,11 @@
 DOCKER=docker-compose run --rm shell 
+IMAGE=alephdata/ingest-file:latest
 
 build:
-	docker-compose build
+	docker build -t $(IMAGE) .
+
+push:
+	docker push $(IMAGE)
 
 shell:
 	$(DOCKER) bash
