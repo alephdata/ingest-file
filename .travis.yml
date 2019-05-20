@@ -6,6 +6,18 @@ python:
 services:
   - docker
 
+env:
+  global:
+    - DOCKER_COMPOSE_VERSION=1.23.2
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
 install:
   - make build
   - pip install twine
@@ -16,8 +28,9 @@ script:
 
 after_success:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  # - docker push alephdata/ingestors
+  - make TAG=$TRAVIS_COMMIT push
   - if [[ $TRAVIS_TAG = $TRAVIS_BRANCH ]]; then
-      make dist ;
+      make TAG=$TRAVIS_TAG push ;
+      make push ;
       twine upload dist/* ;
     fi

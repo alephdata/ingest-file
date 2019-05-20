@@ -1,11 +1,12 @@
 DOCKER=docker-compose run --rm shell 
-IMAGE=alephdata/ingest-file:latest
+IMAGE=alephdata/ingest-file
+TAG=latest
 
 build:
-	docker build -t $(IMAGE) .
+	docker build -t $(IMAGE):$(TAG) .
 
 push:
-	docker push $(IMAGE)
+	docker push $(IMAGE):$(TAG)
 
 shell:
 	$(DOCKER) bash
@@ -25,4 +26,4 @@ dist: ## builds source and wheel package
 clean:
 	rm -fr dist/
 
-.PHONY: dist build test shell clean
+.PHONY: dist build test shell clean worker

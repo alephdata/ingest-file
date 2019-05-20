@@ -11,7 +11,7 @@ RUN apt-get -qq -y update \
         libxslt1-dev libpq-dev libldap2-dev libsasl2-dev \
         zlib1g-dev libicu-dev libxml2-dev \
         # package tools
-        unrar p7zip-full  \
+        unrar p7zip-full \
         # audio & video metadata
         libmediainfo-dev \
         # image processing, djvu
