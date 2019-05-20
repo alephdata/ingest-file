@@ -7,8 +7,7 @@ services:
   - docker
 
 install:
-  - docker pull alephdata/ingestors
-  - docker build --cache-from alephdata/ingestors -t alephdata/ingestors .
+  - make build
   - pip install twine
 
 # command to run tests, e.g. python setup.py test
@@ -17,7 +16,7 @@ script:
 
 after_success:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - docker push alephdata/ingestors
+  # - docker push alephdata/ingestors
   - if [[ $TRAVIS_TAG = $TRAVIS_BRANCH ]]; then
       make dist ;
       twine upload dist/* ;
