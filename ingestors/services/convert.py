@@ -54,7 +54,7 @@ class LocalDocumentConverter(DocumentConverter, ShellCommand):
         """Converts an office document to PDF."""
         instance_dir = make_directory(work_path, 'soffice_instance')
         out_dir = make_directory(work_path, 'soffice_output')
-        log.info('Converting [%s] to PDF...', entity.get('fileName'))
+        log.info('Converting [%s] to PDF...', entity.first('fileName'))
         instance_dir = '-env:UserInstallation=file://{}'.format(instance_dir)
         self.exec_command('soffice',
                           instance_dir,
@@ -86,11 +86,11 @@ class ServiceDocumentConverter(DocumentConverter):
 
     def _document_to_pdf(self, file_path, entity, work_path):
         """Converts an office document to PDF."""
-        log.info('Converting [%s] to PDF...', entity.get('fileName'))
+        log.info('Converting [%s] to PDF...', entity.first('fileName'))
         out_path = os.path.basename(file_path)
         out_path = join_path(work_path, '%s.pdf' % out_path)
-        file_name = entity.get('fileName') or 'data'
-        mime_type = entity.get('mimeType') or DEFAULT
+        file_name = entity.first('fileName') or 'data'
+        mime_type = entity.first('mimeType') or DEFAULT
         attempt = 1
         for attempt in service_retries():
             fh = open(file_path, 'rb')

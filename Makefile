@@ -10,6 +10,9 @@ push:
 shell:
 	$(DOCKER) bash
 
+worker:
+	docker-compose run --rm worker
+
 lint: ## check style with flake8
 	$(DOCKER) flake8 ingestors tests
 

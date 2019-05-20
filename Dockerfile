@@ -34,10 +34,12 @@ ENV LANG='en_US.UTF-8' \
 
 RUN pip3 install --no-cache-dir -q -U pip setuptools six wheel
 COPY requirements.txt /tmp/
-RUN pip3 install -r /tmp/requirements.txt
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
 COPY . /ingestors
 WORKDIR /ingestors
-RUN pip3 install -e /ingestors[dev]
+RUN pip3 install --no-cache-dir -e /ingestors[dev]
 
 ENV ARCHIVE_PATH=/data
+
+CMD ingestors process
