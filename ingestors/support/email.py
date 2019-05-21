@@ -78,7 +78,7 @@ class EmailSupport(TempFileSupport, HTMLSupport):
 
             entity.add('emailMentioned', email)
             entity.add('namesMentioned', name)
-            values.append((name, email))
+            values.append((name, email, legal_entity))
         return values
 
     def extract_headers_metadata(self, entity, headers):
@@ -90,6 +90,7 @@ class EmailSupport(TempFileSupport, HTMLSupport):
 
             if field == 'subject':
                 entity.add('title', value)
+                entity.add('subject', value)
 
             if field == 'message-id':
                 entity.add('messageId', value)
@@ -110,8 +111,11 @@ class EmailSupport(TempFileSupport, HTMLSupport):
                     log.warning("Failed to parse [%s]: %s", date, ex)
 
             if field == 'from':
-                for (name, _) in self.parse_emails(value, entity):
+                for (name, _, sender) in self.parse_emails(value, entity):
                     entity.add('author', name)
+                    entity.add('sender', sender)
 
             if field in ['to', 'cc', 'bcc']:
-                self.parse_emails(value, entity)
+                entity.add(field, value)
+                for (_, _, receipient) in self.parse_emails(value, entity):
+                    entity.add('recipients', receipient)
