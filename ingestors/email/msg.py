@@ -1,8 +1,8 @@
 import logging
 from collections import defaultdict
 from pantomime import normalize_mimetype
-from flanker import mime
-from flanker.mime.message.errors import DecodingError
+import email
+from email.errors import MessageError
 from followthemoney import model
 
 from ingestors.ingestor import Ingestor
@@ -27,61 +27,51 @@ class RFC822Ingestor(Ingestor, EmailSupport):
 
     def ingest(self, file_path, entity):
         with open(file_path, 'rb') as fh:
-            self.ingest_message(fh.read(), entity)
+            self.ingest_message(fh, entity)
 
-    def ingest_message(self, data, entity):
+    def ingest_message(self, fp, entity):
         entity.schema = model.get('Email')
         entity.set('bodyText', None)
         try:
-            msg = mime.from_string(data)
-            if msg.headers is not None:
-                self.extract_headers_metadata(entity, msg.headers.items())
-        except DecodingError as derr:
-            raise ProcessingException('Cannot parse email: %s' % derr)
-
-        try:
-            if msg.subject:
-                entity.add('title', str(msg.subject))
-        except DecodingError as derr:
-            log.warning("Decoding subject: %s", derr)
-
-        try:
-            if msg.message_id:
-                entity.add('messageId', str(msg.message_id))
-        except DecodingError as derr:
-            log.warning("Decoding message ID: %s", derr)
+            msg = email.message_from_binary_file(fp)
+            parser = email.parser.HeaderParser()
+            headers = parser.parsestr(msg.as_string())
+            if headers is not None:
+                self.extract_headers_metadata(entity, headers.items())
+        except MessageError as err:
+            raise ProcessingException('Cannot parse email: %s' % err)
 
         bodies = defaultdict(list)
 
-        for part in msg.walk(with_self=True):
+        for part in msg.walk():
             try:
-                if part.body is None:
+                body = part.get_payload(decode=True)
+                if not isinstance(body, bytes):
                     continue
-            except (DecodingError, ValueError) as de:
-                log.warning("Cannot decode part [%s]: %s", entity, de)
+            except (MessageError, ValueError) as err:
+                log.warning("Cannot decode part [%s]: %s", entity, err)
                 continue
 
-            file_name = part.detected_file_name
+            file_name = part.get_filename()
 
             # HACK HACK HACK - WTF flanker?
             # Disposition headers can have multiple filename declarations,
             # flanker decides to concatenate.
-            if file_name is not None and len(file_name) > 4:
-                half = len(file_name)//2
-                if file_name[:half] == file_name[half:]:
-                    file_name = file_name[:half]
+            # if file_name is not None and len(file_name) > 4:
+            #     half = len(file_name)//2
+            #     if file_name[:half] == file_name[half:]:
+            #         file_name = file_name[:half]
 
-            mime_type = str(part.detected_content_type)
+            mime_type = str(part.get_content_type())
             mime_type = normalize_mimetype(mime_type)
 
-            # if part.is_attachment():
-            #     self.ingest_attachment(entity,
-            #                            file_name,
-            #                            mime_type,
-            #                            part.body)
-
-            if part.is_body():
-                bodies[mime_type].append(part.body)
+            if part.get_content_maintype() == 'text':
+                bodies[mime_type].append(body.decode('utf-8'))
+            else:
+                self.ingest_attachment(entity,
+                                       file_name,
+                                       mime_type,
+                                       body)
 
         if 'text/html' in bodies:
             body = '\n\n'.join(bodies['text/html'])
@@ -90,3 +80,4 @@ class RFC822Ingestor(Ingestor, EmailSupport):
         if 'text/plain' in bodies:
             body = '\n\n'.join(bodies['text/plain'])
             entity.set('bodyHtml', body)
+            entity.set('bodyText', body)

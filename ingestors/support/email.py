@@ -1,12 +1,11 @@
 from __future__ import unicode_literals
 
 import re
-import email
 import logging
 from time import mktime
 from datetime import datetime
-from flanker.addresslib import address
-from normality import safe_filename, stringify
+from email import utils as email_utils
+from normality import safe_filename
 from followthemoney.types import registry
 
 from ingestors.support.html import HTMLSupport
@@ -56,17 +55,14 @@ class EmailSupport(TempFileSupport, HTMLSupport):
     def parse_emails(self, text, entity):
         """Parse an email list with the side effect of adding them to the
         relevant result lists."""
-        parsed = address.parse_list(safe_string(text))
+        parsed = email_utils.getaddresses([safe_string(text)])
 
         # If the snippet didn't parse, assume it is just a name.
         if not len(parsed):
             return [(text, None)]
 
         values = []
-        for addr in parsed:
-            name = stringify(addr.display_name)
-            email = stringify(addr.address)
-
+        for name, email in parsed:
             if not self.check_email(email):
                 email = None
 
@@ -107,7 +103,7 @@ class EmailSupport(TempFileSupport, HTMLSupport):
             if field == 'date':
                 date = value
                 try:
-                    date = email.utils.parsedate(date)
+                    date = email_utils.parsedate(date)
                     date = datetime.fromtimestamp(mktime(date))
                     entity.add('authoredAt', date)
                 except Exception as ex:
