@@ -19,7 +19,6 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
 
 install:
-  - make build
   - pip install twine
 
 # command to run tests, e.g. python setup.py test

@@ -72,3 +72,20 @@ def remove_directory(file_path):
         shutil.rmtree(file_path, True)
     except Exception:
         pass
+
+
+def filter_texts(texts):
+    """Remove text strings not worth indexing for full-text search."""
+    for text in texts:
+        if not isinstance(text, str):
+            continue
+        if not len(text.strip()):
+            continue
+        try:
+            # try to exclude numeric data from
+            # spreadsheets
+            float(text)
+            continue
+        except Exception:
+            pass
+        yield text
