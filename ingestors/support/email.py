@@ -74,11 +74,12 @@ class EmailSupport(TempFileSupport, HTMLSupport):
                 email = email or name
                 name = None
 
-            person = self.manager.make_entity('Person')
-            person.make_id(entity.id, name, email)
-            person.add('name', name)
-            person.add('email', email)
-            self.manager.emit_entity(person)
+            legal_entity = self.manager.make_entity('LegalEntity')
+            legal_entity.make_id(email)
+            legal_entity.add('name', name)
+            legal_entity.add('email', email)
+            self.manager.emit_entity(legal_entity)
+
             entity.add('emailMentioned', email)
             entity.add('namesMentioned', name)
             values.append((name, email))
