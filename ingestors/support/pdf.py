@@ -9,6 +9,7 @@ from normality import stringify
 from ingestors.services import get_ocr, get_convert
 from ingestors.support.temp import TempFileSupport
 from ingestors.services.util import ShellCommand
+from ingestors.exc import ProcessingException
 
 
 class PDFSupport(TempFileSupport, ShellCommand):
@@ -30,10 +31,13 @@ class PDFSupport(TempFileSupport, ShellCommand):
     def document_to_pdf(self, file_path, entity):
         """Convert an office document into a PDF file."""
         converter = get_convert()
-        return converter.document_to_pdf(file_path,
-                                         entity,
-                                         self.work_path,
-                                         self.manager.archive)
+        pdf_path = converter.document_to_pdf(file_path,
+                                             entity,
+                                             self.work_path,
+                                             self.manager.archive)
+        if pdf_path is None:
+            raise ProcessingException("Failed to convert to pdf: %s" % file_path)  # noqa
+        return pdf_path
 
     def pdf_extract_page(self, document, temp_dir, page):
         """Extract the contents of a single PDF page, using OCR if need be."""
