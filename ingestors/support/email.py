@@ -55,30 +55,31 @@ class EmailSupport(TempFileSupport, HTMLSupport):
     def parse_emails(self, text, entity):
         """Parse an email list with the side effect of adding them to the
         relevant result lists."""
-        parsed = email_utils.getaddresses([safe_string(text)])
-
-        # If the snippet didn't parse, assume it is just a name.
-        if not len(parsed):
-            return [(text, None)]
-
         values = []
-        for name, email in parsed:
-            if not self.check_email(email):
-                email = None
+        text = safe_string(text)
+        if text:
+            parsed = email_utils.getaddresses([text])
+            # If the snippet didn't parse, assume it is just a name.
+            if not len(parsed):
+                return [(text, None, None)]
+            for name, email in parsed:
+                if not self.check_email(email):
+                    email = None
 
-            if self.check_email(name):
-                email = email or name
-                name = None
+                if self.check_email(name):
+                    email = email or name
+                    name = None
 
-            legal_entity = self.manager.make_entity('LegalEntity')
-            legal_entity.make_id(email)
-            legal_entity.add('name', name)
-            legal_entity.add('email', email)
-            self.manager.emit_entity(legal_entity)
+                if email:
+                    legal_entity = self.manager.make_entity('LegalEntity')
+                    legal_entity.make_id(email)
+                    legal_entity.add('name', name)
+                    legal_entity.add('email', email)
+                    self.manager.emit_entity(legal_entity)
 
-            entity.add('emailMentioned', email)
-            entity.add('namesMentioned', name)
-            values.append((name, email, legal_entity))
+                    entity.add('emailMentioned', email)
+                    entity.add('namesMentioned', name)
+                    values.append((name, email, legal_entity))
         return values
 
     def extract_headers_metadata(self, entity, headers):
@@ -113,9 +114,11 @@ class EmailSupport(TempFileSupport, HTMLSupport):
             if field == 'from':
                 for (name, _, sender) in self.parse_emails(value, entity):
                     entity.add('author', name)
-                    entity.add('sender', sender)
+                    if sender:
+                        entity.add('sender', sender)
 
             if field in ['to', 'cc', 'bcc']:
                 entity.add(field, value)
                 for (_, _, receipient) in self.parse_emails(value, entity):
-                    entity.add('recipients', receipient)
+                    if receipient:
+                        entity.add('recipients', receipient)
