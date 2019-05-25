@@ -35,9 +35,9 @@ class PDFSupport(TempFileSupport, ShellCommand):
                                              entity,
                                              self.work_path,
                                              self.manager.archive)
-        if pdf_path is None:
-            raise ProcessingException("Failed to convert to pdf: %s" % file_path)  # noqa
-        return pdf_path
+        if pdf_path is not None:
+            return pdf_path
+        raise ProcessingException("Failed to convert to PDF.")
 
     def pdf_extract_page(self, document, temp_dir, page):
         """Extract the contents of a single PDF page, using OCR if need be."""

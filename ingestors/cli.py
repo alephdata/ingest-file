@@ -2,7 +2,7 @@ import os
 import click
 import logging
 from servicelayer.cache import get_redis
-from servicelayer.queue import ServiceQueue
+from servicelayer.process import ServiceQueue
 
 from ingestors.manager import Manager
 from ingestors.directory import DirectoryIngestor

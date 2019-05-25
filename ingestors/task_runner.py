@@ -2,7 +2,7 @@ import logging
 import threading
 from followthemoney import model
 from servicelayer.cache import get_redis
-from servicelayer.queue import ServiceQueue as Queue
+from servicelayer.process import ServiceQueue as Queue
 
 from ingestors.manager import Manager
 from ingestors import settings
@@ -18,25 +18,28 @@ class TaskRunner(object):
         try:
             manager = Manager(queue, context)
             entity = model.get_proxy(payload)
-            log.debug("Received: %r", entity)
-            file_path = manager.get_filepath(entity)
-            manager.ingest(file_path, entity)
+            log.debug("Ingest: %r", entity)
+            manager.ingest_entity(entity)
             manager.close()
+        except Exception:
+            log.exception("Processing failed.")
         finally:
             queue.task_done()
-            status = queue.progress.get()
-            if status.get('pending') < 1:
-                index_queue = Queue(queue.conn,
-                                    Queue.OP_INDEX,
-                                    queue.dataset,
-                                    priority=queue.priority)
-                index_queue.queue_task({}, {})
+            if queue.is_done():
+                log.info("Ingest job finished, queueing indexer...")
+                index = Queue(queue.conn,
+                              Queue.OP_INDEX,
+                              queue.dataset,
+                              priority=queue.priority)
+                index.queue_task({}, {})
+                queue.remove()
 
     @classmethod
-    def process(cls):
+    def process(cls, timeout=5):
         conn = get_redis()
         while True:
-            task = Queue.get_operation_task(conn, Queue.OP_INGEST)
+            task = Queue.get_operation_task(conn, Queue.OP_INGEST,
+                                            timeout=timeout)
             queue, payload, context = task
             if queue is None:
                 continue

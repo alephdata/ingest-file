@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 from servicelayer import env
 from servicelayer.cache import get_redis, make_key
 from servicelayer.util import backoff, service_retries
+from servicelayer.settings import REDIS_LONG
 
 from ingestors.exc import ProcessingException
 from ingestors.services.util import ShellCommand
@@ -33,10 +34,11 @@ class DocumentConverter(ABC):
                 return archive.load_file(pdf_hash, temp_path=work_path)
 
         pdf_file = self._document_to_pdf(file_path, entity, work_path)
-        content_hash = archive.archive_file(pdf_file)
-        entity.set('pdfHash', content_hash)
-        conn.set(key, content_hash)
-        return pdf_file
+        if pdf_file is not None:
+            content_hash = archive.archive_file(pdf_file)
+            entity.set('pdfHash', content_hash)
+            conn.set(key, content_hash, ex=REDIS_LONG)
+            return pdf_file
 
     @abstractmethod
     def _document_to_pdf(self, file_path, entity, work_path):
@@ -102,9 +104,12 @@ class ServiceDocumentConverter(DocumentConverter):
                                     stream=True)
                 res.raise_for_status()
                 with open(out_path, 'wb') as fh:
+                    bytes_written = 0
                     for chunk in res.iter_content(chunk_size=None):
+                        bytes_written += len(chunk)
                         fh.write(chunk)
-                return out_path
+                    if bytes_written > 100:
+                        return out_path
             except RequestException as exc:
                 if isinstance(exc, HTTPError):
                     if exc.response.status_code == 400:

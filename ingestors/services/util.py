@@ -4,7 +4,7 @@ import subprocess
 from servicelayer import env
 from distutils.spawn import find_executable
 
-from ingestors.exc import SystemException, ProcessingException
+from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ class ShellCommand(object):
     def exec_command(self, command, *args):
         binary = self.find_command(command)
         if binary is None:
-            raise SystemException("Program not found: %s" % command)
+            raise RuntimeError("Program not found: %s" % command)
         cmd = [binary]
         cmd.extend(args)
         try:

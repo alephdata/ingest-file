@@ -8,6 +8,7 @@ from languagecodes import list_to_alpha3
 from servicelayer import env
 from servicelayer.rpc import TextRecognizerService
 from servicelayer.cache import get_redis, make_key
+from servicelayer.settings import REDIS_LONG
 
 log = logging.getLogger(__name__)
 
@@ -38,9 +39,9 @@ class OCRService(ABC):
 
         text = self._extract_text(data, languages=languages)
         if text is not None:
+            conn.set(key, text, ex=REDIS_LONG)
             log.info('OCR: %s chars (from %s bytes)',
                      len(text), len(data))
-        conn.set(key, text)
         return text
 
 
@@ -107,7 +108,7 @@ class ServiceOCRService(OCRService, TextRecognizerService):
     def _extract_text(self, data, languages=None):
         text = self.Recognize(data, languages=languages)
         if text is not None:
-            return text.text
+            return text.text or ''
 
 
 class GoogleOCRService(OCRService):

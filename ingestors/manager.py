@@ -1,5 +1,4 @@
 import os
-import time
 import magic
 import logging
 import balkhash
@@ -7,10 +6,9 @@ from tempfile import mkdtemp
 from followthemoney import model
 from servicelayer.archive import init_archive
 from servicelayer.extensions import get_extensions
-from servicelayer.queue import ServiceQueue as Queue
 
 from ingestors.directory import DirectoryIngestor
-from ingestors.exc import ProcessingException, SystemException
+from ingestors.exc import ProcessingException
 from ingestors.util import is_directory, is_file, safe_string
 from ingestors.util import remove_directory
 from ingestors import settings
@@ -80,16 +78,13 @@ class Manager(object):
         # from pprint import pprint
         # pprint(entity.to_dict())
         self.writer.put(entity.to_dict(), fragment)
+        self._emit_count += 1
 
     def emit_text_fragment(self, entity, text, fragment):
         doc = self.make_entity(entity.schema)
         doc.id = entity.id
         doc.add('indexText', text)
         self.emit_entity(doc, fragment=str(fragment))
-
-    def get_filepath(self, entity):
-        return self.archive.load_file(entity.first('contentHash'),
-                                      temp_path=self.work_path)
 
     def auction(self, file_path, entity):
         if is_directory(file_path):
@@ -127,6 +122,18 @@ class Manager(object):
         child.add('fileName', file_name)
         self.queue_entity(child)
 
+    def ingest_entity(self, entity):
+        for content_hash in entity.get('contentHash'):
+            file_path = self.archive.load_file(content_hash,
+                                               temp_path=self.work_path)
+            if file_path is None:
+                continue
+            if not os.path.exists(file_path):
+                continue
+            self.ingest(file_path, entity)
+            return
+        self.finalize(entity)
+
     def ingest(self, file_path, entity, **kwargs):
         """Main execution step of an ingestor."""
         try:
@@ -134,44 +141,24 @@ class Manager(object):
             log.info("Ingestor [%r]: %s", entity, ingestor_class.__name__)
             self.delegate(ingestor_class, file_path, entity)
             entity.set('processingStatus', self.STATUS_SUCCESS)
-        except SystemException as pexc:
-            retries = kwargs.get('retries', 0)
-            backoff = kwargs.get('backoff', RETRY_BACKOFF_SECONDS)
-            if retries < MAX_RETRIES:
-                time.sleep(backoff)
-                retries = retries + 1
-                backoff = backoff * RETRY_BACKOFF_FACTOR
-                self.ingest(
-                    file_path, entity, retries=retries, backoff=backoff
-                )
-                return
-            entity.set('processingStatus', self.STATUS_STOPPED)
-            entity.set('processingError', safe_string(pexc))
-            log.warning("Stopped [%r]: %s", entity, pexc)
         except ProcessingException as pexc:
             entity.set('processingStatus', self.STATUS_FAILURE)
             entity.set('processingError', safe_string(pexc))
-            log.warning("Failed [%r]: %s", entity, pexc)
+            log.exception("Failed to process: %r", entity)
         finally:
-            self.emit_entity(entity)
-            self.finalize()
+            self.finalize(entity)
+
+    def finalize(self, entity):
+        self.emit_entity(entity)
+        self.writer.flush()
+        log.debug("Emitted %d entities", self._emit_count)
+        self._emit_count = 0
 
     def delegate(self, ingestor_class, file_path, entity):
         ingestor = ingestor_class(self)
         ingestor.ingest(file_path, entity)
 
-    def finalize(self):
-        """Update the queue status, and delete any temp data."""
-        self.queue.task_done()
-        self.writer.flush()
-        log.debug("Emitted %d entities", self._emit_count)
-        status = self.queue.progress.get()
-        if status.get('pending') == 0:
-            log.debug('Ingest done, trigger indexing: %s', self.queue.dataset)
-            indexq = Queue(self.queue.conn, Queue.OP_INDEX, self.queue.dataset)
-            indexq.queue_task({}, {})
-            self.queue.remove()
-
     def close(self):
+        self.writer.flush()
         self.dataset.close()
         remove_directory(self.work_path)

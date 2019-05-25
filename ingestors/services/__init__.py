@@ -5,7 +5,6 @@ from ingestors.services.ocr import ServiceOCRService
 from ingestors.services.ocr import GoogleOCRService
 from ingestors.services.convert import LocalDocumentConverter
 from ingestors.services.convert import ServiceDocumentConverter
-from ingestors.exc import SystemException
 
 
 def get_ocr():
@@ -18,7 +17,7 @@ def get_ocr():
         elif LocalOCRService.is_available():
             settings._ingestors_ocr = LocalOCRService()
         else:
-            raise SystemException("OCR is not available")
+            raise RuntimeError("OCR is not available")
     return settings._ingestors_ocr
 
 
@@ -31,5 +30,5 @@ def get_convert():
         elif LocalDocumentConverter.is_available():
             settings._ingestors_convert = LocalDocumentConverter()
         else:
-            raise SystemException("Document conversion is not available")
+            raise RuntimeError("Document conversion is not available")
     return settings._ingestors_convert
