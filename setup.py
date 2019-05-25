@@ -14,15 +14,6 @@ setup(
     package_dir={'ingestors': 'ingestors'},
     include_package_data=True,
     install_requires=[],
-    extras_require={
-        'dev': [
-            'bumpversion>=0.5.3',
-            'wheel>=0.29.0',
-            'flake8>=2.6.0',
-            'nose',
-            'coverage>=4.1'
-        ]
-    },
     license="MIT",
     zip_safe=False,
     keywords='ingestors',

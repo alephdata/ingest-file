@@ -8,10 +8,10 @@ build:
 push:
 	docker push $(IMAGE):$(TAG)
 
-shell:
+shell: build
 	$(DOCKER) bash
 
-worker:
+worker: build
 	docker-compose run --rm worker
 
 lint: ## check style with flake8

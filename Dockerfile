@@ -33,12 +33,13 @@ ENV LANG='en_US.UTF-8' \
     LC_ALL='en_US.UTF-8'
 
 RUN pip3 install --no-cache-dir -q -U pip setuptools six wheel
+RUN pip3 install nose coverage
 COPY requirements.txt /tmp/
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
 COPY . /ingestors
 WORKDIR /ingestors
-RUN pip3 install --no-cache-dir -e /ingestors[dev]
+RUN pip3 install --no-cache-dir -e /ingestors
 
 ENV ARCHIVE_PATH=/data
 
