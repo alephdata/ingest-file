@@ -6,7 +6,7 @@ import types
 
 from servicelayer.cache import get_fakeredis
 from servicelayer.archive import init_archive
-from servicelayer.queue import ServiceQueue
+from servicelayer.process import ServiceQueue
 from ingestors.manager import Manager
 from ingestors.util import is_file
 
