@@ -2,7 +2,7 @@ import logging
 import threading
 from followthemoney import model
 from servicelayer.cache import get_redis
-from servicelayer.process import ServiceQueue as Queue
+from servicelayer.process import ServiceQueue
 
 from ingestors.manager import Manager
 from ingestors import settings
@@ -23,23 +23,24 @@ class TaskRunner(object):
             manager.close()
         except Exception:
             log.exception("Processing failed.")
-        finally:
-            queue.task_done()
-            if queue.is_done():
-                log.info("Ingest job finished, queueing indexer...")
-                index = Queue(queue.conn,
-                              Queue.OP_INDEX,
-                              queue.dataset,
-                              priority=queue.priority)
-                index.queue_task({}, {})
-                queue.remove()
+
+        queue.task_done()
+        if queue.is_done():
+            log.info("Ingest %r finished, queue index...", queue.dataset)
+            index = ServiceQueue(queue.conn,
+                                 ServiceQueue.OP_INDEX,
+                                 queue.dataset,
+                                 priority=queue.priority)
+            index.queue_task({}, {})
+            queue.remove()
 
     @classmethod
     def process(cls, timeout=5):
         conn = get_redis()
         while True:
-            task = Queue.get_operation_task(conn, Queue.OP_INGEST,
-                                            timeout=timeout)
+            task = ServiceQueue.get_operation_task(conn,
+                                                   ServiceQueue.OP_INGEST,
+                                                   timeout=timeout)
             queue, payload, context = task
             if queue is None:
                 continue
