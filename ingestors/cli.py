@@ -1,13 +1,12 @@
-import os
 import click
 import logging
+import pathlib
 from servicelayer.cache import get_redis
 from servicelayer.process import ServiceQueue
 
 from ingestors.manager import Manager
 from ingestors.directory import DirectoryIngestor
 from ingestors.task_runner import TaskRunner
-from ingestors.util import is_file, is_directory
 
 log = logging.getLogger(__name__)
 
@@ -47,13 +46,14 @@ def ingest(path, dataset, languages=None):
     conn = get_redis()
     queue = ServiceQueue(conn, ServiceQueue.OP_INGEST, dataset)
     manager = Manager(queue, context)
-    if is_file(path):
+    path = pathlib.Path(path)
+    if path.is_file():
         entity = manager.make_entity('Document')
         checksum = manager.archive_entity(entity, path)
         entity.make_id(checksum)
-        entity.set('fileName', os.path.basename(path))
+        entity.set('fileName', path.name)
         manager.queue_entity(entity)
-    if is_directory(path):
+    if path.is_dir():
         DirectoryIngestor.crawl(manager, path)
     manager.close()
 

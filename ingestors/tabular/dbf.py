@@ -35,7 +35,7 @@ class DBFIngestor(Ingestor, TableSupport):
     def ingest(self, file_path, entity):
         entity.schema = model.get('Table')
         try:
-            table = Table(file_path).open()
+            table = Table(file_path.as_posix()).open()
             self.emit_row_dicts(entity, self.generate_rows(table))
         except DbfError as err:
             raise ProcessingException('Cannot open DBF file: %s' % err)

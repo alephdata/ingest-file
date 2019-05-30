@@ -1,4 +1,3 @@
-import os
 import logging
 import requests
 from normality import stringify
@@ -71,8 +70,8 @@ class LocalDocumentConverter(DocumentConverter, ShellCommand):
                           '--outdir', out_dir,
                           file_path)
 
-        for out_file in os.listdir(out_dir):
-            return join_path(out_dir, out_file)
+        for out_file in out_dir.iterdir():
+            return out_file
 
         msg = "Failed to convert to PDF: {}".format(file_path)
         raise ProcessingException(msg)
@@ -89,7 +88,7 @@ class ServiceDocumentConverter(DocumentConverter):
     def _document_to_pdf(self, file_path, entity, work_path):
         """Converts an office document to PDF."""
         log.info('Converting [%s] to PDF...', entity.first('fileName'))
-        out_path = os.path.basename(file_path)
+        out_path = file_path.name
         out_path = join_path(work_path, '%s.pdf' % out_path)
         file_name = entity.first('fileName') or 'data'
         mime_type = entity.first('mimeType') or DEFAULT

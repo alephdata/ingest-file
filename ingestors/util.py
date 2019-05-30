@@ -1,5 +1,5 @@
-import os
 import shutil
+import pathlib
 from banal import decode_path
 from normality import stringify
 from normality.cleaning import remove_unsafe_chars
@@ -37,33 +37,17 @@ def safe_dict(data):
 
 def join_path(*args):
     args = [decode_path(part) for part in args if part is not None]
-    return os.path.join(*args)
-
-
-def is_file(file_path):
-    """Check if a thing is a file, with null guard."""
-    file_path = decode_path(file_path)
-    if file_path is None:
-        return False
-    return os.path.isfile(file_path)
-
-
-def is_directory(file_path):
-    """Check if a thing is a file, with null guard."""
-    file_path = decode_path(file_path)
-    if file_path is None:
-        return False
-    return os.path.isdir(file_path)
+    return pathlib.Path(*args)
 
 
 def make_directory(*parts):
     """Create a directory, be quiet if it already exists."""
     file_path = join_path(*parts)
     try:
-        os.makedirs(file_path)
+        file_path.mkdir(parents=True)
     except Exception:
         pass
-    return decode_path(file_path)
+    return file_path
 
 
 def remove_directory(file_path):
