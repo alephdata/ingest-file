@@ -20,6 +20,9 @@ lint: ## check style with flake8
 test: build ## run tests quickly with the default Python
 	$(DOCKER) sh -c "pip install /ingestors && nosetests --with-coverage --cover-package=ingestors"
 
+stop:
+	docker-compose down --remove-orphans
+
 dist: ## builds source and wheel package
 	$(DOCKER) python3 setup.py sdist bdist_wheel
 
