@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 import unittest
 import types
-from collections import Counter
 import pathlib
 
 from servicelayer.cache import get_fakeredis
