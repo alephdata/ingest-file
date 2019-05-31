@@ -1,4 +1,3 @@
-import os
 import shutil
 import logging
 from followthemoney import model
@@ -18,15 +17,14 @@ class PackageSupport(TempFileSupport, EncodingSupport):
             name = name.decode(encoding, 'ignore')
 
         out_path = join_path(base_dir, name)
-        # out_path = os.path.normpath(out_path)
-        if not out_path.startswith(base_dir):
+        if base_dir not in out_path.parents:
             return
-        if os.path.exists(out_path):
+        if out_path.exists():
             return
 
-        out_dir = os.path.dirname(out_path)
+        out_dir = out_path.parent
         make_directory(out_dir)
-        if os.path.isdir(out_path):
+        if out_path.is_dir():
             return
 
         return out_path
@@ -35,7 +33,7 @@ class PackageSupport(TempFileSupport, EncodingSupport):
         out_path = self.ensure_path(base_dir, name, encoding=encoding)
         if out_path is None:
             return
-        file_name = os.path.basename(out_path)
+        file_name = out_path.name
         try:
             log.debug("Unpack: %s", file_name)
             with open(out_path, 'wb') as out_fh:

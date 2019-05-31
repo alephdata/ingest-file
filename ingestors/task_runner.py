@@ -50,7 +50,7 @@ class TaskRunner(object):
     def run(cls):
         log.info("Processing queue (%s threads)", settings.INGESTOR_THREADS)
         threads = []
-        for i in range(settings.INGESTOR_THREADS):
+        for _ in range(settings.INGESTOR_THREADS):
             t = threading.Thread(target=cls.process)
             t.daemon = True
             t.start()

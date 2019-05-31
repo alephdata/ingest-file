@@ -1,15 +1,16 @@
-import os
 import magic
 import logging
-import balkhash
+import pathlib
 from tempfile import mkdtemp
+
+import balkhash
 from followthemoney import model
 from servicelayer.archive import init_archive
 from servicelayer.extensions import get_extensions
 
 from ingestors.directory import DirectoryIngestor
 from ingestors.exc import ProcessingException
-from ingestors.util import is_directory, is_file, safe_string
+from ingestors.util import safe_string
 from ingestors.util import remove_directory
 from ingestors import settings
 
@@ -87,12 +88,12 @@ class Manager(object):
         self.emit_entity(doc, fragment=str(fragment))
 
     def auction(self, file_path, entity):
-        if is_directory(file_path):
+        if file_path.is_dir():
             entity.add('mimeType', DirectoryIngestor.MIME_TYPE)
             return DirectoryIngestor
 
         if not entity.has('mimeType'):
-            entity.add('mimeType', self.MAGIC.from_file(file_path))
+            entity.add('mimeType', self.MAGIC.from_file(file_path.as_posix()))
 
         best_score, best_cls = 0, None
         for cls in get_extensions('ingestors'):
@@ -110,15 +111,15 @@ class Manager(object):
         self.queue.queue_task(entity.to_dict(), self.context)
 
     def archive_entity(self, entity, file_path):
-        if is_file(file_path):
+        if file_path.is_file():
             checksum = self.archive.archive_file(file_path)
             entity.set('contentHash', checksum)
-            entity.set('fileSize', os.path.getsize(file_path))
+            entity.set('fileSize', file_path.stat().st_size)
             return checksum
 
     def handle_child(self, file_path, child):
         self.archive_entity(child, file_path)
-        file_name = os.path.basename(file_path)
+        file_name = file_path.name
         child.add('fileName', file_name)
         self.queue_entity(child)
 
@@ -128,7 +129,8 @@ class Manager(object):
                                                temp_path=self.work_path)
             if file_path is None:
                 continue
-            if not os.path.exists(file_path):
+            file_path = pathlib.Path(file_path)
+            if not file_path.exists():
                 continue
             self.ingest(file_path, entity)
             return
@@ -136,6 +138,7 @@ class Manager(object):
 
     def ingest(self, file_path, entity, **kwargs):
         """Main execution step of an ingestor."""
+        file_path = pathlib.Path(file_path)
         try:
             ingestor_class = self.auction(file_path, entity)
             log.info("Ingestor [%r]: %s", entity, ingestor_class.__name__)

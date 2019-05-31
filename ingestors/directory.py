@@ -1,8 +1,6 @@
-import os
 from followthemoney import model
 
 from ingestors.ingestor import Ingestor
-from ingestors.util import join_path, decode_path
 
 
 class DirectoryIngestor(Ingestor):
@@ -18,24 +16,23 @@ class DirectoryIngestor(Ingestor):
 
     def ingest(self, file_path, entity):
         """Ingestor implementation."""
-        file_path = decode_path(file_path)
         entity.schema = model.get('Folder')
 
-        if file_path is None or not os.path.isdir(file_path):
+        if file_path is None or not file_path.is_dir():
             return
 
         self.crawl(self.manager, file_path, parent=entity)
 
     @classmethod
     def crawl(cls, manager, file_path, parent=None):
-        for name in os.listdir(file_path):
-            name = decode_path(name)
-            if name in cls.SKIP_ENTRIES:
+        for path in file_path.iterdir():
+            name = path.name
+            if name is None or name in cls.SKIP_ENTRIES:
                 continue
-            sub_path = join_path(file_path, name)
+            sub_path = file_path.joinpath(name)
             child = manager.make_entity('Document', parent=parent)
             child.add('fileName', name)
-            if os.path.isdir(sub_path):
+            if sub_path.is_dir():
                 if parent is not None:
                     child.make_id(parent.id, name)
                 else:

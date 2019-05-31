@@ -1,6 +1,6 @@
-import os
-import glob
 import uuid
+import pathlib
+
 from followthemoney import model
 from normality import collapse_spaces  # noqa
 from pdflib import Document
@@ -25,7 +25,7 @@ class PDFSupport(TempFileSupport, ShellCommand):
     def pdf_alternative_extract(self, entity, pdf_path):
         checksum = self.manager.archive.archive_file(pdf_path)
         entity.set('pdfHash', checksum)
-        pdf = Document(pdf_path.encode('utf-8'))
+        pdf = Document(bytes(pdf_path))
         self.pdf_extract(entity, pdf)
 
     def document_to_pdf(self, file_path, entity):
@@ -36,17 +36,17 @@ class PDFSupport(TempFileSupport, ShellCommand):
                                              self.work_path,
                                              self.manager.archive)
         if pdf_path is not None:
-            return pdf_path
+            return pathlib.Path(pdf_path)
         raise ProcessingException("Failed to convert to PDF.")
 
     def pdf_extract_page(self, document, temp_dir, page):
         """Extract the contents of a single PDF page, using OCR if need be."""
         texts = page.lines
-        image_path = os.path.join(temp_dir, str(uuid.uuid4()))
-        page.extract_images(path=image_path.encode('utf-8'), prefix=b'img')
+        image_path = temp_dir.joinpath(str(uuid.uuid4()))
+        page.extract_images(path=bytes(image_path), prefix=b'img')
         ocr = get_ocr()
         languages = self.manager.context.get('languages')
-        for image_file in glob.glob(os.path.join(image_path, "*.png")):
+        for image_file in image_path.glob("*.png"):
             with open(image_file, 'rb') as fh:
                 data = fh.read()
                 text = ocr.extract_text(data, languages=languages)

@@ -39,5 +39,5 @@ class ShellCommand(object):
             raise ProcessingException('Failed: %s' % ' '.join(cmd))
 
     def assert_outfile(self, path):
-        if not os.path.exists(path):
+        if not path.exists():
             raise ProcessingException('File missing: {}'.format(path))

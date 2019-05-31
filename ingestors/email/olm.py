@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-import os
 import time
 import shutil
 import logging
@@ -8,6 +7,8 @@ import zipfile
 from lxml import etree
 from email import utils
 from datetime import datetime
+import pathlib
+
 from normality import safe_filename
 from followthemoney import model
 
@@ -40,8 +41,9 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
     EXCLUDE = ['com.microsoft.__Messages']
 
     def extract_file(self, zipf, name, temp_dir):
-        base_name = safe_filename(os.path.basename(name))
-        out_file = os.path.join(temp_dir, base_name)
+        path = pathlib.Path(name)
+        base_name = safe_filename(path.name)
+        out_file = temp_dir.joinpath(base_name)
         with open(out_file, 'w+b') as outfh:
             try:
                 with zipf.open(name) as infh:
@@ -51,17 +53,17 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
         return out_file
 
     def extract_hierarchy(self, name, entity):
-        foreign_id = entity.id
-        path = os.path.dirname(name)
-        for name in path.split(os.sep):
-            foreign_id = os.path.join(foreign_id, name)
+        foreign_id = pathlib.PurePath(entity.id)
+        path = pathlib.Path(name).parent
+        for name in path.as_posix().split('/'):
+            foreign_id = foreign_id.joinpath(name)
             if name in self.EXCLUDE:
                 continue
             if foreign_id in self._hierarchy:
                 result = self._hierarchy.get(foreign_id)
             else:
                 result = self.manager.make_entity('Document', parent=entity)
-                result.make_id(entity.id, name)
+                result.make_id(entity.id, foreign_id.as_posix())
                 self._hierarchy[foreign_id] = result
         return result
 
@@ -78,7 +80,7 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
             file_path = self.extract_file(zipf, url, temp_dir)
             child.make_id(message.id, url)
         else:
-            file_path = os.path.join(temp_dir, safe_filename(name))
+            file_path = temp_dir.joinpath(safe_filename(name))
             fh = open(file_path, 'w')
             fh.close()
             child.make_id(message.id, name)
