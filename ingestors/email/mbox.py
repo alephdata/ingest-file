@@ -31,7 +31,7 @@ class MboxFileIngestor(RFC822Ingestor):
                 continue
 
             child = self.manager.make_entity('Email')
-            child.make_id(entity, i)
+            child.make_id(entity.id, i)
             child.add('mimeType', 'message/rfc822')
             self.manager.handle_child(msg_path, child)
 

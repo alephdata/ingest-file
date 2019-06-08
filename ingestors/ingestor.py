@@ -12,7 +12,6 @@ class Ingestor(object):
 
     def __init__(self, manager):
         self.manager = manager
-        self.work_path = manager.work_path
 
     def ingest(self, file_path, entity):
         """The ingestor implementation. Should be overwritten.

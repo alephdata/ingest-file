@@ -1,6 +1,6 @@
 import magic
 import logging
-import pathlib
+from pathlib import Path
 from tempfile import mkdtemp
 
 import balkhash
@@ -40,7 +40,7 @@ class Manager(object):
         # TODO: Probably a good idea to make context readonly since we are
         # reusing it in child ingestors
         self.context = context
-        self.work_path = mkdtemp(prefix='ingestor-')
+        self.work_path = Path(mkdtemp(prefix='ingestor-'))
         self._emit_count = 0
         self._writer = None
         self._dataset = None
@@ -129,7 +129,7 @@ class Manager(object):
                                                temp_path=self.work_path)
             if file_path is None:
                 continue
-            file_path = pathlib.Path(file_path)
+            file_path = Path(file_path).resolve()
             if not file_path.exists():
                 continue
             self.ingest(file_path, entity)
@@ -138,7 +138,7 @@ class Manager(object):
 
     def ingest(self, file_path, entity, **kwargs):
         """Main execution step of an ingestor."""
-        file_path = pathlib.Path(file_path)
+        file_path = Path(file_path).resolve()
         try:
             ingestor_class = self.auction(file_path, entity)
             log.info("Ingestor [%r]: %s", entity, ingestor_class.__name__)
@@ -158,8 +158,7 @@ class Manager(object):
         self._emit_count = 0
 
     def delegate(self, ingestor_class, file_path, entity):
-        ingestor = ingestor_class(self)
-        ingestor.ingest(file_path, entity)
+        ingestor_class(self).ingest(file_path, entity)
 
     def close(self):
         self.writer.flush()
