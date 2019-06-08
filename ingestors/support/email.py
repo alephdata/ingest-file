@@ -10,7 +10,7 @@ from followthemoney.types import registry
 
 from ingestors.support.html import HTMLSupport
 from ingestors.support.temp import TempFileSupport
-from ingestors.util import join_path, safe_string
+from ingestors.util import safe_string
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class EmailSupport(TempFileSupport, HTMLSupport):
         child = self.manager.make_entity('Document', parent=entity)
         child.make_id(entity.id, name)
 
-        file_path = join_path(self.work_path, file_name)
+        file_path = self.make_work_file(file_name)
         with open(file_path, 'wb') as fh:
             if isinstance(body, str):
                 body = body.encode('utf-8')

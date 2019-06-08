@@ -2,10 +2,10 @@ from followthemoney import model
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.pdf import PDFSupport
-from ingestors.util import join_path
+from ingestors.support.temp import TempFileSupport
 
 
-class DjVuIngestor(Ingestor, PDFSupport):
+class DjVuIngestor(Ingestor, PDFSupport, TempFileSupport):
     """Read DejaVu E-Books."""
     MIME_TYPES = [
         'image/vnd.djvu',
@@ -17,7 +17,7 @@ class DjVuIngestor(Ingestor, PDFSupport):
     def ingest(self, file_path, entity):
         """Ingestor implementation."""
         entity.schema = model.get('Pages')
-        pdf_path = join_path(self.work_path, 'page.pdf')
+        pdf_path = self.make_work_file('page.pdf')
         self.exec_command('ddjvu',
                           '-format=pdf',
                           '-quality=100',

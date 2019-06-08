@@ -3,12 +3,12 @@ import mailbox
 from followthemoney import model
 
 from ingestors.email.msg import RFC822Ingestor
-from ingestors.util import join_path
+from ingestors.support.temp import TempFileSupport
 
 log = logging.getLogger(__name__)
 
 
-class MboxFileIngestor(RFC822Ingestor):
+class MboxFileIngestor(RFC822Ingestor, TempFileSupport):
     DEFAULT_MIME = 'application/mbox'
     MIME_TYPES = [DEFAULT_MIME]
     EXTENSIONS = ['mbox']
@@ -22,7 +22,7 @@ class MboxFileIngestor(RFC822Ingestor):
 
         for i, msg in enumerate(mbox.itervalues(), 1):
             # Is there a risk of https://bugs.python.org/issue27321 ?
-            msg_path = join_path(self.work_path, '%s.eml' % i)
+            msg_path = self.make_work_file('%s.eml' % i)
             try:
                 with open(msg_path, 'wb') as fh:
                     fh.write(msg.as_bytes())

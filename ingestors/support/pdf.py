@@ -33,7 +33,7 @@ class PDFSupport(TempFileSupport, ShellCommand):
         converter = get_convert()
         pdf_path = converter.document_to_pdf(file_path,
                                              entity,
-                                             self.work_path,
+                                             self.manager.work_path,
                                              self.manager.archive)
         if pdf_path is not None:
             return pathlib.Path(pdf_path)

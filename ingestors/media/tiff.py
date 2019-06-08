@@ -3,12 +3,12 @@ from followthemoney import model
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.pdf import PDFSupport
-from ingestors.util import join_path
+from ingestors.support.temp import TempFileSupport
 
 log = logging.getLogger(__name__)
 
 
-class TIFFIngestor(Ingestor, PDFSupport):
+class TIFFIngestor(Ingestor, PDFSupport, TempFileSupport):
     """TIFF appears to not really be an image format. Who knew?"""
 
     MIME_TYPES = [
@@ -23,7 +23,7 @@ class TIFFIngestor(Ingestor, PDFSupport):
 
     def ingest(self, file_path, entity):
         entity.schema = model.get('Pages')
-        pdf_path = join_path(self.work_path, 'tiff.pdf')
+        pdf_path = self.make_work_file('tiff.pdf')
         self.exec_command('tiff2pdf',
                           file_path,
                           '-x', '300',
