@@ -23,7 +23,8 @@ class OfficeOpenXMLIngestor(Ingestor, OOXMLSupport, PDFSupport):
     ]
     EXTENSIONS = [
         'docx', 'docm', 'dotx', 'dotm',
-        'potx', 'pptx', 'ppsx', 'pptm', 'ppsm', 'potm'
+        'potx', 'pptx', 'ppsx', 'pptm',
+        'ppsm', 'potm'
     ]
     SCORE = 7
 

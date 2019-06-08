@@ -17,7 +17,6 @@ from ingestors.support.email import EmailSupport
 from ingestors.support.temp import TempFileSupport
 from ingestors.exc import ProcessingException
 from ingestors.util import safe_string
-from ingestors.util import remove_directory
 
 log = logging.getLogger(__name__)
 MIME = 'application/xml+opfmessage'
@@ -40,10 +39,10 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
     SCORE = 10
     EXCLUDE = ['com.microsoft.__Messages']
 
-    def extract_file(self, zipf, name, temp_dir):
+    def extract_file(self, zipf, name):
         path = pathlib.Path(name)
         base_name = safe_filename(path.name)
-        out_file = temp_dir.joinpath(base_name)
+        out_file = self.make_work_file(base_name)
         with open(out_file, 'w+b') as outfh:
             try:
                 with zipf.open(name) as infh:
@@ -52,59 +51,50 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
                 log.warning("Cannot load zip member: %s", name)
         return out_file
 
-    def extract_hierarchy(self, name, entity):
+    def extract_hierarchy(self, entity, name):
         foreign_id = pathlib.PurePath(entity.id)
-        path = pathlib.Path(name).parent
+        path = pathlib.Path(name)
         for name in path.as_posix().split('/'):
             foreign_id = foreign_id.joinpath(name)
             if name in self.EXCLUDE:
                 continue
-            if foreign_id in self._hierarchy:
-                result = self._hierarchy.get(foreign_id)
-            else:
-                result = self.manager.make_entity('Document', parent=entity)
-                result.make_id(entity.id, foreign_id.as_posix())
-                self._hierarchy[foreign_id] = result
-        return result
+            entity = self.manager.make_entity('Folder', parent=entity)
+            entity.make_id(foreign_id.as_posix())
+            self.manager.emit_entity(entity)
+        return entity
 
-    def extract_attachment(self, zipf, message, attachment, temp_dir):
+    def extract_attachment(self, zipf, message, attachment):
         url = attachment.get('OPFAttachmentURL')
         name = attachment.get('OPFAttachmentName')
         name = name or attachment.get('OPFAttachmentContentID')
-        mime_type = attachment.get('OPFAttachmentContentType')
         child = self.manager.make_entity('Document', parent=message)
-        child.add('mimeType', mime_type)
-        if url is None and name is None:
-            return
         if url is not None:
-            file_path = self.extract_file(zipf, url, temp_dir)
-            child.make_id(message.id, url)
-        else:
-            file_path = temp_dir.joinpath(safe_filename(name))
-            fh = open(file_path, 'w')
-            fh.close()
-            child.make_id(message.id, name)
-        self.manager.handle_child(file_path, child)
+            file_path = self.extract_file(zipf, url)
+            checksum = self.manager.archive_store(file_path)
+            child.make_id(name, checksum)
+            child.add('fileName', attachment.get('OPFAttachmentName'))
+            child.add('fileName', attachment.get('OPFAttachmentContentID'))
+            child.add('mimeType', attachment.get('OPFAttachmentContentType'))
+            child.add('contentHash', checksum)
+            self.manager.queue_entity(child)
 
-    def extract_message(self, entity, zipf, name):
+    def extract_message(self, root, zipf, name):
         if 'message_' not in name or not name.endswith('.xml'):
             return
-        parent = self.extract_hierarchy(name, entity)
-        message_dir = self.make_empty_directory()
+        parent = self.extract_hierarchy(root, name)
+        xml_path = self.extract_file(zipf, name)
+        checksum = self.manager.archive_store(xml_path)
+        child = self.manager.make_entity('Document', parent=parent)
+        child.make_id(checksum)
+        child.add('contentHash', checksum)
+        child.add('mimeType', MIME)
+        self.manager.queue_entity(child)
         try:
-            xml_path = self.extract_file(zipf, name, message_dir)
-            child = self.manager.make_entity('Document', parent=parent)
-            child.make_id(entity.id, parent.id, name)
-            child.add('mimeType', MIME)
-            self.manager.handle_child(xml_path, child)
-            try:
-                doc = self.parse_xml(xml_path)
-                for el in doc.findall('.//messageAttachment'):
-                    self.extract_attachment(zipf, child, el, message_dir)
-            except TypeError:
-                pass  # this will be reported for the individual file.
-        finally:
-            remove_directory(message_dir)
+            doc = self.parse_xml(xml_path)
+            for el in doc.findall('.//messageAttachment'):
+                self.extract_attachment(zipf, child, el)
+        except TypeError:
+            pass  # this will be reported for the individual file.
 
     def ingest(self, file_path, entity):
         entity.schema = model.get('Package')

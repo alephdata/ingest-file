@@ -12,7 +12,7 @@ class PackagesTest(TestCase):
         self.assertEqual(
             entity.first('processingStatus'), self.manager.STATUS_SUCCESS
         )
-        self.assertEqual(entity.schema, 'Folder')
+        self.assertEqual(entity.schema, 'Package')
 
     def test_rar(self):
         fixture_path, entity = self.fixture('test-documents.rar')
@@ -20,7 +20,7 @@ class PackagesTest(TestCase):
         self.assertEqual(
             entity.first('processingStatus'), self.manager.STATUS_SUCCESS
         )
-        self.assertEqual(entity.schema, 'Folder')
+        self.assertEqual(entity.schema, 'Package')
 
     def test_tar(self):
         fixture_path, entity = self.fixture('test-documents.tar')
@@ -28,4 +28,4 @@ class PackagesTest(TestCase):
         self.assertEqual(
             entity.first('processingStatus'), self.manager.STATUS_SUCCESS
         )
-        self.assertEqual(entity.schema, 'Folder')
+        self.assertEqual(entity.schema, 'Package')

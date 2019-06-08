@@ -55,7 +55,7 @@ class AudioIngestor(Ingestor, MediaInfoDateMixIn):
                     entity.add('samplingRate', track.sampling_rate)
                 entity.add('duration', track.duration)
         except Exception as ex:
-            raise ProcessingException("Could not process Audio file: %r", ex)
+            raise ProcessingException("Could not process audio: %r", ex)
 
     @classmethod
     def match(cls, file_path, entity):

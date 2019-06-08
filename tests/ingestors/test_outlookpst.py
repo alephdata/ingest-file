@@ -12,4 +12,4 @@ class OutlookPSTTest(TestCase):
         self.assertEqual(
             entity.first('processingStatus'), self.manager.STATUS_SUCCESS
         )
-        self.assertEqual(entity.schema, 'Folder')
+        self.assertEqual(entity.schema, 'Package')

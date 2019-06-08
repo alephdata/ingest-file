@@ -1,3 +1,4 @@
+import logging
 from followthemoney import model
 
 from ingestors.ingestor import Ingestor
@@ -5,6 +6,8 @@ from ingestors.support.temp import TempFileSupport
 from ingestors.services.util import ShellCommand
 from ingestors.support.ole import OLESupport
 from ingestors.directory import DirectoryIngestor
+
+log = logging.getLogger(__name__)
 
 
 class OutlookPSTIngestor(Ingestor, TempFileSupport, OLESupport, ShellCommand):
@@ -30,6 +33,7 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport, OLESupport, ShellCommand):
                               file_path)
             self.manager.delegate(DirectoryIngestor, temp_dir, entity)
         except Exception:
+            log.exception("Failed to unpack PST.")
             # Handle partially extracted archives.
             self.manager.delegate(DirectoryIngestor, temp_dir, entity)
             raise

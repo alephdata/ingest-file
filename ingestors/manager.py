@@ -88,11 +88,10 @@ class Manager(object):
         self.emit_entity(doc, fragment=str(fragment))
 
     def auction(self, file_path, entity):
-        if file_path.is_dir():
-            entity.add('mimeType', DirectoryIngestor.MIME_TYPE)
-            return DirectoryIngestor
-
         if not entity.has('mimeType'):
+            if file_path.is_dir():
+                entity.add('mimeType', DirectoryIngestor.MIME_TYPE)
+                return DirectoryIngestor
             entity.add('mimeType', self.MAGIC.from_file(file_path.as_posix()))
 
         best_score, best_cls = 0, None
@@ -110,18 +109,9 @@ class Manager(object):
         log.debug("Queue: %r", entity)
         self.queue.queue_task(entity.to_dict(), self.context)
 
-    def archive_entity(self, entity, file_path):
+    def archive_store(self, file_path):
         if file_path.is_file():
-            checksum = self.archive.archive_file(file_path)
-            entity.set('contentHash', checksum)
-            entity.set('fileSize', file_path.stat().st_size)
-            return checksum
-
-    def handle_child(self, file_path, child):
-        self.archive_entity(child, file_path)
-        file_name = file_path.name
-        child.add('fileName', file_name)
-        self.queue_entity(child)
+            return self.archive.archive_file(file_path)
 
     def ingest_entity(self, entity):
         for content_hash in entity.get('contentHash'):
@@ -139,6 +129,9 @@ class Manager(object):
     def ingest(self, file_path, entity, **kwargs):
         """Main execution step of an ingestor."""
         file_path = Path(file_path).resolve()
+        if file_path.is_file() and not entity.has('fileSize'):
+            entity.add('fileSize', file_path.stat().st_size)
+
         try:
             ingestor_class = self.auction(file_path, entity)
             log.info("Ingestor [%r]: %s", entity, ingestor_class.__name__)

@@ -31,9 +31,9 @@ class RARIngestor(PackageSupport, Ingestor):
                         fh = rf.open(name)
                         self.extract_member(temp_dir, name, fh,
                                             encoding=encoding)
-                    except Exception as ex:
+                    except Exception:
                         # TODO: should this be a fatal error?
-                        log.debug("Failed to unpack [%r]: %s", name, ex)
+                        log.exception("Failed to unpack: %r", name)
         except rarfile.NeedFirstVolume:
             raise ProcessingException('Cannot load splitted RAR files')
         except rarfile.Error as err:

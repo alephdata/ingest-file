@@ -26,7 +26,7 @@ class DocumentConverter(ABC):
         conn = get_redis()
         key = make_key('pdf', entity.get('contentHash'))
         if conn.exists(key):
-            log.info("Using [%s] PDF from cache", entity.get('fileName'))
+            log.info("Using [%s] PDF from cache", entity.first('fileName'))
             pdf_hash = stringify(conn.get(key))
             entity.set('pdfHash', pdf_hash)
             if pdf_hash is not None:

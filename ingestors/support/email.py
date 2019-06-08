@@ -27,10 +27,6 @@ class EmailSupport(TempFileSupport, HTMLSupport):
             return
 
         file_name = safe_filename(name, default='attachment')
-        name = safe_string(name) or file_name
-        child = self.manager.make_entity('Document', parent=entity)
-        child.make_id(entity.id, name)
-
         file_path = self.make_work_file(file_name)
         with open(file_path, 'wb') as fh:
             if isinstance(body, str):
@@ -40,9 +36,14 @@ class EmailSupport(TempFileSupport, HTMLSupport):
 
         if isinstance(mime_type, bytes):
             mime_type = mime_type.decode('utf-8')
-        child.add('mimeType', mime_type)
 
-        self.manager.handle_child(file_path, child)
+        checksum = self.manager.archive_store(file_path)
+        child = self.manager.make_entity('Document', parent=entity)
+        child.make_id(name, checksum)
+        child.add('contentHash', checksum)
+        child.add('fileName', name)
+        child.add('mimeType', mime_type)
+        self.manager.queue_entity(child)
 
     def check_email(self, text):
         """Does it roughly look like an email?"""

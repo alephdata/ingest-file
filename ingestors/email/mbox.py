@@ -22,18 +22,18 @@ class MboxFileIngestor(RFC822Ingestor, TempFileSupport):
 
         for i, msg in enumerate(mbox.itervalues(), 1):
             # Is there a risk of https://bugs.python.org/issue27321 ?
-            msg_path = self.make_work_file('%s.eml' % i)
             try:
+                msg_path = self.make_work_file('%s.eml' % i)
                 with open(msg_path, 'wb') as fh:
                     fh.write(msg.as_bytes())
+                checksum = self.manager.archive_store(msg_path)
+                child = self.manager.make_entity('Email', parent=entity)
+                child.make_id(checksum)
+                child.add('contentHash', checksum)
+                child.add('mimeType', 'message/rfc822')
+                self.manager.queue_entity(child)
             except Exception:
                 log.exception("[%r] Cannot extract message %s", entity, i)
-                continue
-
-            child = self.manager.make_entity('Email')
-            child.make_id(entity.id, i)
-            child.add('mimeType', 'message/rfc822')
-            self.manager.handle_child(msg_path, child)
 
     @classmethod
     def match(cls, file_path, entity):

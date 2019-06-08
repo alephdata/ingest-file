@@ -16,7 +16,8 @@ class DirectoryIngestor(Ingestor):
 
     def ingest(self, file_path, entity):
         """Ingestor implementation."""
-        entity.schema = model.get('Folder')
+        if entity.schema == model.get('Document'):
+            entity.schema = model.get('Folder')
 
         if file_path is None or not file_path.is_dir():
             return
@@ -42,6 +43,7 @@ class DirectoryIngestor(Ingestor):
                 manager.emit_entity(child)
                 cls.crawl(manager, sub_path, parent=child)
             else:
-                checksum = manager.archive_entity(child, sub_path)
-                child.make_id(checksum)
+                checksum = manager.archive_store(sub_path)
+                child.make_id(name, checksum)
+                child.set('contentHash', checksum)
                 manager.queue_entity(child)
