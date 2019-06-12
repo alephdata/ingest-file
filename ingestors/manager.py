@@ -16,22 +16,15 @@ from ingestors import settings
 
 log = logging.getLogger(__name__)
 
-MAX_RETRIES = 3
-RETRY_BACKOFF_SECONDS = 5
-RETRY_BACKOFF_FACTOR = 2
-
 
 class Manager(object):
     """Handles the lifecycle of an ingestor. This can be subclassed to embed it
     into a larger processing framework."""
 
-    STATUS_PENDING = u'pending'
     #: Indicates that during the processing no errors or failures occured.
     STATUS_SUCCESS = u'success'
     #: Indicates occurance of errors during the processing.
     STATUS_FAILURE = u'failure'
-    #: Indicates a complete ingestor stop due to system issue.
-    STATUS_STOPPED = u'stopped'
 
     MAGIC = magic.Magic(mime=True)
 
