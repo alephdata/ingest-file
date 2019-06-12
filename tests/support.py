@@ -7,7 +7,11 @@ import pathlib
 from servicelayer.cache import get_fakeredis
 from servicelayer.archive import init_archive
 from servicelayer.process import ServiceQueue
+from servicelayer import settings
 from ingestors.manager import Manager
+
+# Force tests to use fake-redis
+settings.REDIS_URL = None
 
 
 def emit_entity(self, entity, fragment=None):
