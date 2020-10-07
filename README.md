@@ -1,7 +1,5 @@
 # ingestors
 
-[![Build Status](https://travis-ci.org/alephdata/ingestors.svg?branch=master)](https://travis-ci.org/alephdata/ingestors)
-
 ``ingestors`` extract useful information from documents of different types in
 a structured standard format. It retains folder structures across directories,
 compressed archives and emails.
@@ -108,20 +106,6 @@ An ingestor can be in one of the statuses:
 
 Along with the statuses, an ingestor having spawned children, provides
 information the number of children and their status.
-
-### Events
-
-An ingestor provides callbacks in the form of:
-
-* `before()`, to be called before the file processing is started. This callback
-  is provided with the context of the file to be processed (checksum information,
-  filename, time it started, status etc.)
-* `after()`, to be called after the file processing is done. This callback is
-  provided with the context of the processed file and the results (spawned
-  children, time it ended, status, etc.)
-
-Any of these callbacks can be overwritten to store the context in a persistent
-way or be passed on towards additional processing.
 
 ### Results
 
