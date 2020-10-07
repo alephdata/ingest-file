@@ -7,14 +7,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: satackey/action-docker-layer-caching@v0.0.8
-        continue-on-error: true
       - name: Set up
         run: |
           docker --version
           docker-compose --version
           echo "${GITHUB_REF}"
           docker login -u ${{ secrets.docker_user }} -p ${{ secrets.docker_password }}
+          docker-compose pull redis postgres convert-document
+      - uses: satackey/action-docker-layer-caching@v0.0.8
+        continue-on-error: true
       - name: Build docker image
         run: |
           make build
