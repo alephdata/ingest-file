@@ -22,7 +22,7 @@ jobs:
           echo "${GITHUB_REF}"
       - name: Build docker image
         run: |
-          docker build -t alephdata/ingest-file:${GITHUB_SHA} services/ingest-file
+          make TAG=${GITHUB_SHA} build
           docker tag alephdata/ingest-file:${GITHUB_SHA} alephdata/ingest-file:latest
       - name: Docker pull and start
         run: |
