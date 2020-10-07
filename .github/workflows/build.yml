@@ -13,7 +13,7 @@ jobs:
           docker-compose --version
           echo "${GITHUB_REF}"
           docker login -u ${{ secrets.docker_user }} -p ${{ secrets.docker_password }}
-          docker-compose pull redis postgres convert-document
+          docker-compose pull -q redis postgres convert-document
       - uses: satackey/action-docker-layer-caching@v0.0.8
         continue-on-error: true
       - name: Build docker image
