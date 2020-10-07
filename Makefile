@@ -11,7 +11,7 @@ pull:
 	$(COMPOSE) pull --include-deps --ignore-pull-failures
 
 build:
-	$(COMPOSE) build
+	$(COMPOSE) build --pull
 
 push:
 	docker push $(IMAGE):$(TAG)
@@ -22,11 +22,10 @@ services:
 shell: services
 	$(DOCKER) /bin/bash
 
-test:
+test: services
 	$(DOCKER) nosetests --with-coverage --cover-package=ingestors
 
-restart:
-	$(COMPOSE) build ingest-file convert-document
+restart: build
 	$(COMPOSE) up --force-recreate --no-deps --detach convert-document ingest-file
 
 tail:
@@ -36,13 +35,12 @@ stop:
 	$(COMPOSE) down --remove-orphans
 
 clean:
-	rm -rf dist build .eggs ui/build
+	rm -rf dist build
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -f {} +
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -type d -name __pycache__ -exec rm -r {} \+
-	find ui/src -name '*.css' -exec rm -f {} +
 
 dev: 
-	pip install -q bump2version babel jinja2
+	pip install -q bump2version
