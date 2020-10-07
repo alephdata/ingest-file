@@ -22,7 +22,7 @@ services:
   ingest-file:
     build:
       context: .
-    image: alephdata/ingest-file:${TAG:-3.9.3}
+    image: alephdata/ingest-file:${TAG:-latest}
     hostname: ingest
     tmpfs:
       - /tmp:mode=777
