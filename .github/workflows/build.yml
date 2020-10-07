@@ -7,12 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      - uses: satackey/action-docker-layer-caching@v0.0.8
+        continue-on-error: true
       - name: Set up
         run: |
           docker --version
           docker-compose --version
-          docker-compose pull --parallel
           echo "${GITHUB_REF}"
+          docker login -u ${{ secrets.docker_user }} -p ${{ secrets.docker_password }}
       - name: Build docker image
         run: |
           make build
@@ -21,11 +23,10 @@ jobs:
           make services
       - name: Run tests
         run: make test
-      # - name: Push docker image (hash)
-      #   run: |
-      #     docker tag alephdata/ingest-file alephdata/ingest-file:${GITHUB_SHA}
-      #     docker login -u ${{ secrets.docker_user }} -p ${{ secrets.docker_password }}
-      #     docker push alephdata/ingest-file:${GITHUB_SHA}
+      - name: Push docker image (hash)
+        run: |
+          docker tag alephdata/ingest-file alephdata/ingest-file:${GITHUB_SHA}
+          docker push alephdata/ingest-file:${GITHUB_SHA}
       # - name: Push docker images for tags
       #   if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
       #   run: |
