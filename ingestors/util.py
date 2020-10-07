@@ -1,61 +1,11 @@
-import os
 import shutil
-from banal import decode_path
+import locale
+import socket
+import random
+from pathlib import Path
 from normality import stringify
-from normality.cleaning import remove_unsafe_chars
-
-
-def safe_string(data, encoding_default='utf-8', encoding=None):
-    """Stringify and round-trip through encoding."""
-    data = stringify(data,
-                     encoding_default=encoding_default,
-                     encoding=encoding)
-    data = remove_unsafe_chars(data)
-    if data is None:
-        return
-    data = data.encode(encoding_default, 'replace')
-    data = data.decode(encoding_default, 'strict')
-    return data
-
-
-def safe_dict(data):
-    """Clean a dictionary to make sure it contains only valid,
-    non-null keys and values."""
-    if data is None:
-        return
-
-    safe = {}
-    for key, value in data.items():
-        key = safe_string(key)
-        value = safe_string(value)
-        if key is not None and value is not None:
-            safe[key] = value
-
-    if len(safe):
-        return safe
-
-
-def join_path(*args):
-    args = [decode_path(part) for part in args if part is not None]
-    return os.path.join(*args)
-
-
-def is_file(file_path):
-    """Check if a thing is a file, with null guard."""
-    file_path = decode_path(file_path)
-    if file_path is None:
-        return False
-    return os.path.isfile(file_path)
-
-
-def make_directory(*parts):
-    """Create a directory, be quiet if it already exists."""
-    file_path = join_path(*parts)
-    try:
-        os.makedirs(file_path)
-    except Exception:
-        pass
-    return decode_path(file_path)
+from urllib.parse import urlparse
+from contextlib import contextmanager
 
 
 def remove_directory(file_path):
@@ -64,3 +14,54 @@ def remove_directory(file_path):
         shutil.rmtree(file_path, True)
     except Exception:
         pass
+
+
+def filter_text(text):
+    """Remove text strings not worth indexing for full-text search."""
+    text = stringify(text)
+    if text is None:
+        return False
+    if not len(text.strip()):
+        return False
+    try:
+        # try to exclude numeric data from spreadsheets
+        float(text)
+        return False
+    except Exception:
+        pass
+    # TODO: should we check there's any alphabetic characters in the
+    # text to avoid snippets entirely comprised of non-text chars?
+    return True
+
+
+def path_string(path):
+    """Convert possible path objects to strings."""
+    if isinstance(path, Path):
+        return path.as_posix()
+    return path
+
+
+def explicit_resolve(url):
+    """Explicitly resolve round-robin DNS names into a random IP address.
+
+    This is a weird mitigation for the fact that docker-compose and Python
+    requests don't seem to do DNS round robin correctly between them. It
+    seems nicer than messing with the urllib3 connection pool, but it would
+    break if a deployment used a proxy with host-based resolution between
+    the ingestors and the convert-doc service. So... don't do that.
+    """
+    parsed = urlparse(url)
+    _, _, ips = socket.gethostbyname_ex(parsed.hostname)
+    netloc = "{}:{}".format(random.choice(ips), parsed.port)
+    return parsed._replace(netloc=netloc).geturl()
+
+
+@contextmanager
+def temp_locale(temp):
+    try:
+        currlocale = locale.getlocale()
+    except ValueError:
+        currlocale = ("en_US", "UTF-8")
+    locale.setlocale(locale.LC_CTYPE, temp)
+    yield
+    locale.setlocale(locale.LC_CTYPE, currlocale)

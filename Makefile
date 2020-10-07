@@ -1,26 +1,14 @@
-DOCKER=docker run -v $(PWD)/dist:/ingestors/dist \
-									-v $(PWD)/ingestors:/ingestors/ingestors \
-									-v $(PWD)/tests:/ingestors/tests \
-									-v /:/host \
-									-ti alephdata/ingestors
+IMAGE=alephdata/ingest-file
+TAG=latest
 
 build:
-	# docker pull alephdata/ingestors
-	docker build -t alephdata/ingestors .
+	docker build -t $(IMAGE):$(TAG) .
 
-shell:
-	$(DOCKER) bash
+push:
+	docker push $(IMAGE):$(TAG)
 
-lint: ## check style with flake8
-	$(DOCKER) flake8 ingestors tests
+upgrade:
+	pip install -U -r /ingestors/requirements.in
+	pip freeze --exclude-editable | grep -vi pygobject | grep -vi pyxdg >/ingestors/requirements.txt
 
-test: build ## run tests quickly with the default Python
-	$(DOCKER) nosetests --with-coverage --cover-package=ingestors
-
-dist: ## builds source and wheel package
-	$(DOCKER) python3 setup.py sdist bdist_wheel
-
-clean:
-	rm -fr dist/
-
-.PHONY: dist build test shell clean
+.PHONY: build push

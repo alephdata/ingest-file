@@ -1,59 +1,64 @@
+import os
+import io
+import csv
 import logging
 import subprocess
-from normality import safe_filename
+from collections import OrderedDict
+from followthemoney import model
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.shell import ShellSupport
-from ingestors.exc import ProcessingException, SystemException
-from ingestors.util import join_path
+from ingestors.support.table import TableSupport
+from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
 
-class AccessIngestor(Ingestor, ShellSupport):
+class AccessIngestor(Ingestor, TableSupport, ShellSupport):
     MIME_TYPES = [
-        'application/msaccess',
-        'application/x-msaccess',
-        'application/vnd.msaccess',
-        'application/vnd.ms-access',
-        'application/mdb',
-        'application/x-mdb'
+        "application/msaccess",
+        "application/x-msaccess",
+        "application/vnd.msaccess",
+        "application/vnd.ms-access",
+        "application/mdb",
+        "application/x-mdb",
     ]
-    EXTENSIONS = ['mdb']
+    EXTENSIONS = ["mdb"]
     SCORE = 8
 
     def get_tables(self, local_path):
-        mdb_tables = self.find_command('mdb-tables')
+        mdb_tables = self.find_command("mdb-tables")
         if mdb_tables is None:
-            raise SystemException('mdb-tools is not available')
+            raise RuntimeError("mdb-tools is not available")
         try:
             output = subprocess.check_output([mdb_tables, local_path])
             return [
-                t.strip().decode('utf-8')
-                for t in output.split(b' ') if len(t.strip())
+                t.strip().decode("utf-8") for t in output.split(b" ") if len(t.strip())
             ]
         except subprocess.CalledProcessError as cpe:
             log.warning("Failed to open MDB: %s", cpe)
-            raise ProcessingException("Failed to extract Access database.")
+            raise ProcessingException("Failed to extract Access DB.") from cpe
 
-    def dump_table(self, file_path, table_name, csv_path):
-        mdb_export = self.find_command('mdb-export')
+    def generate_rows(self, file_path, table_name):
+        mdb_export = self.find_command("mdb-export")
         if mdb_export is None:
-            raise SystemException('mdb-tools is not available')
-        args = [mdb_export, '-b', 'strip', file_path, table_name]
-        with open(csv_path, 'w') as fh:
-            subprocess.call(args, stdout=fh)
-        return csv_path
+            raise RuntimeError("mdb-tools is not available")
+        args = [mdb_export, "-b", "strip", file_path, table_name]
+        proc = subprocess.Popen(args, stdout=subprocess.PIPE)
+        output = io.TextIOWrapper(proc.stdout, newline=os.linesep)
+        headers = None
+        for row in csv.reader((line for line in output), delimiter=","):
+            if headers is None:
+                headers = row
+                continue
+            yield OrderedDict(zip(headers, row))
 
-    def ingest(self, file_path):
-        self.result.flag(self.result.FLAG_WORKBOOK)
+    def ingest(self, file_path, entity):
+        entity.schema = model.get("Workbook")
         for table_name in self.get_tables(file_path):
-            csv_name = safe_filename(table_name, extension='csv')
-            csv_path = join_path(self.work_path, csv_name)
-            self.dump_table(file_path, table_name, csv_path)
-            child_id = join_path(self.result.id, table_name)
-            self.manager.handle_child(self.result, csv_path,
-                                      id=child_id,
-                                      title=table_name,
-                                      file_name=csv_name,
-                                      mime_type='text/csv')
+            table = self.manager.make_entity("Table", parent=entity)
+            table.make_id(entity, table_name)
+            table.set("title", table_name)
+            rows = self.generate_rows(file_path, table_name)
+            self.emit_row_dicts(table, rows)
+            self.manager.emit_entity(table)

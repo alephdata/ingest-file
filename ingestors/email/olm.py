@@ -1,47 +1,35 @@
-from __future__ import unicode_literals
-
-import os
-import time
 import shutil
 import logging
 import zipfile
-from lxml import etree
-from email import utils
-from datetime import datetime
-from normality import safe_filename
+import pathlib
+from pprint import pprint  # noqa
+from normality import safe_filename, stringify
+from followthemoney import model
+from servicelayer.archive.util import ensure_path
 
 from ingestors.ingestor import Ingestor
-from ingestors.support.email import EmailSupport
+from ingestors.support.xml import XMLSupport
 from ingestors.support.temp import TempFileSupport
+from ingestors.support.timestamp import TimestampSupport
+from ingestors.support.email import EmailSupport, EmailIdentity
 from ingestors.exc import ProcessingException
-from ingestors.util import safe_string, safe_dict
-from ingestors.util import remove_directory
 
 log = logging.getLogger(__name__)
-MIME = 'application/xml+opfmessage'
+MIME = "application/xml+opfmessage"
 
 
-class OPFParser(object):
-
-    def parse_xml(self, file_path):
-        parser = etree.XMLParser(huge_tree=True)
-        try:
-            return etree.parse(file_path, parser)
-        except etree.XMLSyntaxError:
-            # probably corrupt
-            raise TypeError()
-
-
-class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
+class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, XMLSupport):
     MIME_TYPES = []
-    EXTENSIONS = ['olm']
+    EXTENSIONS = ["olm"]
     SCORE = 10
-    EXCLUDE = ['com.microsoft.__Messages']
+    EXCLUDE = ["com.microsoft.__Messages"]
 
-    def extract_file(self, zipf, name, temp_dir):
-        base_name = safe_filename(os.path.basename(name))
-        out_file = os.path.join(temp_dir, base_name)
-        with open(out_file, 'w+b') as outfh:
+    def extract_file(self, zipf, name):
+        """Extract a message file from the OLM zip archive"""
+        path = pathlib.Path(name)
+        base_name = safe_filename(path.name)
+        out_file = self.make_work_file(base_name)
+        with open(out_file, "w+b") as outfh:
             try:
                 with zipf.open(name) as infh:
                     shutil.copyfileobj(infh, outfh)
@@ -49,162 +37,138 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, OPFParser):
                 log.warning("Cannot load zip member: %s", name)
         return out_file
 
-    def extract_hierarchy(self, name):
-        result = self.result
-        foreign_id = self.result.id
-        path = os.path.dirname(name)
-        for name in path.split(os.sep):
-            foreign_id = os.path.join(foreign_id, name)
+    def extract_hierarchy(self, entity, name):
+        """Given a file path, create all its ancestor folders as entities"""
+        foreign_id = pathlib.PurePath(entity.id)
+        path = ensure_path(name)
+        for name in path.as_posix().split("/")[:-1]:
+            foreign_id = foreign_id.joinpath(name)
             if name in self.EXCLUDE:
                 continue
-            if foreign_id in self._hierarchy:
-                result = self._hierarchy.get(foreign_id)
-            else:
-                result = self.manager.handle_child(result, None,
-                                                   id=foreign_id,
-                                                   file_name=name)
-                self._hierarchy[foreign_id] = result
-        return result
+            entity = self.manager.make_entity("Folder", parent=entity)
+            entity.add("fileName", name)
+            entity.make_id(foreign_id.as_posix())
+            self.manager.emit_entity(entity)
+        return entity
 
-    def extract_attachment(self, zipf, message, attachment, temp_dir):
-        url = attachment.get('OPFAttachmentURL')
-        name = attachment.get('OPFAttachmentName')
-        name = name or attachment.get('OPFAttachmentContentID')
-        mime_type = attachment.get('OPFAttachmentContentType')
-        if url is None and name is None:
-            return
+    def extract_attachment(self, zipf, message, attachment):
+        """Create an entity for an attachment; assign its parent and put it
+        on the task queue to be processed"""
+        url = attachment.get("OPFAttachmentURL")
+        name = attachment.get("OPFAttachmentName")
+        name = name or attachment.get("OPFAttachmentContentID")
+        child = self.manager.make_entity("Document", parent=message)
         if url is not None:
-            foreign_id = os.path.join(self.result.id, url)
-            file_path = self.extract_file(zipf, url, temp_dir)
-        else:
-            foreign_id = os.path.join(message.id, name)
-            file_path = os.path.join(temp_dir, safe_filename(name))
-            fh = open(file_path, 'w')
-            fh.close()
-        self.manager.handle_child(message,
-                                  file_path,
-                                  id=foreign_id,
-                                  file_name=name,
-                                  mime_type=mime_type)
+            file_path = self.extract_file(zipf, url)
+            mime_type = attachment.get("OPFAttachmentContentType")
+            checksum = self.manager.store(file_path, mime_type=mime_type)
+            child.make_id(name, checksum)
+            child.add("fileName", attachment.get("OPFAttachmentName"))
+            child.add("fileName", attachment.get("OPFAttachmentContentID"))
+            child.add("mimeType", mime_type)
+            child.add("contentHash", checksum)
+            self.manager.queue_entity(child)
 
-    def extract_message(self, zipf, name):
-        if 'message_' not in name or not name.endswith('.xml'):
+    def extract_message(self, root, zipf, name):
+        # Individual messages are stored as message_xxx.xml files. We want to
+        # process these files and skip the others
+        if "message_" not in name or not name.endswith(".xml"):
             return
-        parent = self.extract_hierarchy(name)
-        message_dir = self.make_empty_directory()
+        # Create the parent folders as entities with proper hierarchy
+        parent = self.extract_hierarchy(root, name)
+        # Extract the xml file itself and put it on the task queue to be
+        # ingested by OutlookOLMMessageIngestor as an individual message
+        xml_path = self.extract_file(zipf, name)
+        checksum = self.manager.store(xml_path, mime_type=MIME)
+        child = self.manager.make_entity("Document", parent=parent)
+        child.make_id(checksum)
+        child.add("contentHash", checksum)
+        child.add("mimeType", MIME)
+        self.manager.queue_entity(child)
         try:
-            xml_path = self.extract_file(zipf, name, message_dir)
-            foreign_id = os.path.join(self.result.id, name)
-            message = self.manager.handle_child(parent,
-                                                xml_path,
-                                                id=foreign_id,
-                                                mime_type=MIME)
-            try:
-                doc = self.parse_xml(xml_path)
-                for el in doc.findall('.//messageAttachment'):
-                    self.extract_attachment(zipf, message, el, message_dir)
-            except TypeError:
-                pass  # this will be reported for the individual file.
-        finally:
-            remove_directory(message_dir)
+            doc = self.parse_xml_path(xml_path)
+            # find all attachments mentioned in the current xml file, assign
+            # them their parent and put them on the queue to be processed
+            for el in doc.findall(".//messageAttachment"):
+                self.extract_attachment(zipf, child, el)
+        except ProcessingException:
+            pass
 
-    def ingest(self, file_path):
+    def ingest(self, file_path, entity):
+        entity.schema = model.get("Package")
         self._hierarchy = {}
-        self.result.flag(self.result.FLAG_PACKAGE)
         try:
-            with zipfile.ZipFile(file_path, 'r') as zipf:
+            # OLM files are zip archives with emails stored as xml files
+            with zipfile.ZipFile(file_path, "r") as zipf:
                 for name in zipf.namelist():
                     try:
-                        self.extract_message(zipf, name)
+                        self.extract_message(entity, zipf, name)
                     except Exception:
-                        log.exception('Error processing message: %s', name)
+                        log.exception("Error processing message: %s", name)
         except zipfile.BadZipfile:
-            raise ProcessingException('Invalid OLM file.')
+            raise ProcessingException("Invalid OLM file.")
 
 
-class OutlookOLMMessageIngestor(Ingestor, OPFParser, EmailSupport):
+class OutlookOLMMessageIngestor(
+    Ingestor, XMLSupport, EmailSupport, TimestampSupport
+):  # noqa
     MIME_TYPES = [MIME]
     EXTENSIONS = []
     SCORE = 15
 
-    def get_email_addresses(self, doc, tag):
-        path = './%s/emailAddress' % tag
+    def get_contacts(self, doc, tag):
+        path = "./%s/emailAddress" % tag
         for address in doc.findall(path):
-            email = safe_string(address.get('OPFContactEmailAddressAddress'))
-            if not self.check_email(email):
-                email = None
-            self.result.emit_email(email)
-            name = safe_string(address.get('OPFContactEmailAddressName'))
-            if self.check_email(name):
-                name = None
-            if name or email:
-                yield (name, email)
+            name = address.get("OPFContactEmailAddressName")
+            email = address.get("OPFContactEmailAddressAddress")
+            yield EmailIdentity(self.manager, name, email)
 
-    def get_contacts(self, doc, tag, display=False):
-        emails = []
-        for (name, email) in self.get_email_addresses(doc, tag):
-            if name is None:
-                emails.append(email)
-            elif email is None:
-                emails.append(name)
-            else:
-                emails.append('%s <%s>' % (name, email))
+    def get_date(self, props, tag):
+        return self.parse_timestamp(props.pop(tag, None))
 
-        if len(emails):
-            return '; '.join(emails)
-
-    def get_contact_name(self, doc, tag):
-        for (name, email) in self.get_email_addresses(doc, tag):
-            if name is not None:
-                return name
-
-    def ingest(self, file_path):
-        self.result.flag(self.result.FLAG_EMAIL)
+    def ingest(self, file_path, entity):
+        entity.schema = model.get("Email")
         try:
-            doc = self.parse_xml(file_path)
-        except TypeError:
-            raise ProcessingException("Cannot parse OPF XML file.")
+            doc = self.parse_xml_path(file_path)
+        except TypeError as te:
+            raise ProcessingException("Cannot parse OPF XML file.") from te
 
-        if len(doc.findall('//email')) != 1:
+        if len(doc.findall("//email")) != 1:
             raise ProcessingException("More than one email in file.")
 
-        email = doc.find('//email')
+        email = doc.find("//email")
         props = email.getchildren()
-        props = {c.tag: safe_string(c.text) for c in props if c.text}
-        headers = {
-            'Subject': props.get('OPFMessageCopySubject'),
-            'Message-ID': props.pop('OPFMessageCopyMessageID', None),
-            'From': self.get_contacts(email, 'OPFMessageCopyFromAddresses'),
-            'Sender': self.get_contacts(email, 'OPFMessageCopySenderAddress'),
-            'To': self.get_contacts(email, 'OPFMessageCopyToAddresses'),
-            'CC': self.get_contacts(email, 'OPFMessageCopyCCAddresses'),
-            'BCC': self.get_contacts(email, 'OPFMessageCopyBCCAddresses'),
-        }
-        date = props.get('OPFMessageCopySentTime')
-        if date is not None:
-            date = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S')
-            date = time.mktime(date.timetuple())
-            headers['Date'] = utils.formatdate(date)
+        props = {c.tag: stringify(c.text) for c in props if c.text}
+        # from pprint import pformat
+        # log.info(pformat(props))
 
-        self.result.headers = safe_dict(headers)
+        entity.add("subject", props.pop("OPFMessageCopySubject", None))
+        entity.add("threadTopic", props.pop("OPFMessageCopyThreadTopic", None))
+        entity.add("summary", props.pop("OPFMessageCopyPreview", None))
+        # message IDs are already parsed, no need to clean prior:
+        entity.add("messageId", props.pop("OPFMessageCopyMessageID", None))
+        entity.add("date", self.get_date(props, "OPFMessageCopySentTime"))
+        entity.add("modifiedAt", self.get_date(props, "OPFMessageCopyModDate"))
 
-        self.update('title', props.pop('OPFMessageCopySubject', None))
-        self.update('title', props.pop('OPFMessageCopyThreadTopic', None))
-        for tag in ('OPFMessageCopyFromAddresses',
-                    'OPFMessageCopySenderAddress'):
-            self.update('author', self.get_contact_name(email, tag))
+        senders = self.get_contacts(email, "OPFMessageCopySenderAddress")
+        self.apply_identities(entity, senders, "emitters", "sender")
 
-        self.update('summary', props.pop('OPFMessageCopyPreview', None))
-        self.update('created_at', props.pop('OPFMessageCopySentTime', None))
-        self.update('modified_at', props.pop('OPFMessageCopyModDate', None))
+        froms = self.get_contacts(email, "OPFMessageCopyFromAddresses")
+        self.apply_identities(entity, froms, "emitters", "from")
 
-        body = props.pop('OPFMessageCopyBody', None)
-        html = props.pop('OPFMessageCopyHTMLBody', None)
+        tos = self.get_contacts(email, "OPFMessageCopyToAddresses")
+        self.apply_identities(entity, tos, "recipients", "to")
 
-        has_html = '1E0' == props.pop('OPFMessageGetHasHTML', None)
-        if has_html and safe_string(html):
-            self.extract_html_content(html)
-            self.result.flag(self.result.FLAG_HTML)
-        else:
-            self.extract_plain_text_content(body)
-            self.result.flag(self.result.FLAG_PLAINTEXT)
+        ccs = self.get_contacts(email, "OPFMessageCopyCCAddresses")
+        self.apply_identities(entity, ccs, "recipients", "cc")
+
+        bccs = self.get_contacts(email, "OPFMessageCopyBCCAddresses")
+        self.apply_identities(entity, bccs, "recipients", "bcc")
+
+        entity.add("bodyText", props.pop("OPFMessageCopyBody", None))
+        html = props.pop("OPFMessageCopyHTMLBody", None)
+        has_html = "1E0" == props.pop("OPFMessageGetHasHTML", None)
+        if has_html and stringify(html):
+            self.extract_html_content(entity, html, extract_metadata=False)
+
+        self.resolve_message_ids(entity)

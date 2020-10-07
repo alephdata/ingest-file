@@ -1,81 +1,104 @@
-from __future__ import unicode_literals
-
 import logging
+from msglite import Message
 from olefile import isOleFile
-from email.parser import Parser
+from normality import stringify
+from followthemoney import model
+from email.utils import parsedate_to_datetime
 
 from ingestors.ingestor import Ingestor
-from ingestors.support.email import EmailSupport
+from ingestors.support.email import EmailSupport, EmailIdentity
 from ingestors.support.ole import OLESupport
-from ingestors.email.outlookmsg_lib import Message
-from ingestors.util import safe_string, safe_dict
+from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
 
 class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport):
     MIME_TYPES = [
-        'appliation/msg',
-        'appliation/x-msg',
-        'message/rfc822'
+        "application/msg",
+        "application/x-msg",
+        "application/vnd.ms-outlook",
+        "msg/rfc822",
     ]
-    EXTENSIONS = [
-        'msg'
-    ]
+    EXTENSIONS = ["msg"]
     SCORE = 10
 
-    def _parse_headers(self, message):
-        headers = message.getField('007D')
-        if headers is not None:
-            try:
-                message = Parser().parsestr(headers, headersonly=True)
-                self.extract_headers_metadata(message.items())
-                return
-            except Exception:
-                log.warning("Cannot parse headers: %s" % headers)
+    def get_identity(self, name, email):
+        return EmailIdentity(self.manager, name, email)
 
-        self.result.headers = safe_dict({
-            'Subject': message.getField('0037'),
-            'BCC': message.getField('0E02'),
-            'CC': message.getField('0E03'),
-            'To': message.getField('0E04'),
-            'From': message.getField('1046'),
-            'Message-ID': message.getField('1035'),
-        })
+    def ingest(self, file_path, entity):
+        entity.schema = model.get("Email")
+        try:
+            msg = Message(file_path.as_posix())
+        except Exception as exc:
+            msg = "Cannot open message file: %s" % exc
+            raise ProcessingException(msg) from exc
 
-    def ingest(self, file_path):
-        message = Message(file_path)
-        self._parse_headers(message)
-        self.extract_plain_text_content(message.getField('1000'))
-        self.update('message_id', message.getField('1035'))
+        self.extract_olefileio_metadata(msg.ole, entity)
+        self.ingest_message(msg, entity)
 
-        # all associated person names, i.e. sender, recipient etc.
-        NAME_FIELDS = ['0C1A', '0E04', '0040', '004D']
-        EMAIL_FIELDS = ['0C1F', '0076', '0078', '1046', '3003',
-                        '0065', '3FFC', '403E']
-        for field in NAME_FIELDS + EMAIL_FIELDS:
-            self.parse_emails(message.getField(field))
+    def ingest_message(self, msg, entity):
+        try:
+            self.extract_msg_headers(entity, msg.header)
+        except Exception:
+            log.exception("Cannot parse Outlook-stored headers")
 
-        self.update('title', message.getField('0037'))
-        self.update('title', message.getField('0070'))
-        self.update('author', message.getField('0C1A'))
+        entity.add("subject", msg.subject)
+        entity.add("threadTopic", msg.getStringField("0070"))
+        entity.add("encoding", msg.encoding)
+        entity.add("bodyText", msg.body)
+        entity.add("bodyHtml", msg.htmlBody)
+        entity.add("messageId", self.parse_message_ids(msg.message_id))
 
-        # from pprint import pprint
-        # pprint(self.result.to_dict())
+        if not entity.has("inReplyTo"):
+            entity.add("inReplyTo", self.parse_references(msg.references, []))
 
-        self.extract_olefileio_metadata(message)
-        self.result.flag(self.result.FLAG_EMAIL)
-        self.result.flag(self.result.FLAG_PLAINTEXT)
-        for attachment in message.attachments:
-            name = safe_string(attachment.longFilename)
-            name = name or safe_string(attachment.shortFilename)
-            self.ingest_attachment(name,
-                                   attachment.mimeType,
-                                   attachment.data)
+        try:
+            date = parsedate_to_datetime(msg.date).isoformat()
+            entity.add("date", date)
+        except Exception:
+            log.warning("Could not parse date: %s", msg.date)
+
+        # sender name and email
+        sender = self.get_identities(msg.sender)
+        self.apply_identities(entity, sender, "emitters", "sender")
+
+        # received by
+        sender = self.get_identity(
+            msg.getStringField("0040"), msg.getStringField("0076")
+        )
+        self.apply_identities(entity, sender, "emitters")
+
+        froms = self.get_identities(msg.getStringField("1046"))
+        self.apply_identities(entity, froms, "emitters", "from")
+
+        tos = self.get_identities(msg.to)
+        self.apply_identities(entity, tos, "recipients", "to")
+
+        ccs = self.get_identities(msg.cc)
+        self.apply_identities(entity, ccs, "recipients", "cc")
+
+        bccs = self.get_identities(msg.bcc)
+        self.apply_identities(entity, bccs, "recipients", "bcc")
+
+        self.resolve_message_ids(entity)
+        for attachment in msg.attachments:
+            if attachment.type == "msg":
+                child = self.manager.make_entity("Email", parent=entity)
+                child.make_id(entity.id, attachment.data.prefix)
+                child.add("fileName", attachment.longFilename)
+                child.add("fileName", attachment.shortFilename)
+                child.add("mimeType", "application/vnd.ms-outlook")
+                self.ingest_message(attachment.data, child)
+                self.manager.emit_entity(child, fragment=attachment.data.prefix)
+            if attachment.type == "data":
+                name = stringify(attachment.longFilename)
+                name = name or stringify(attachment.shortFilename)
+                self.ingest_attachment(entity, name, attachment.type, attachment.data)
 
     @classmethod
-    def match(cls, file_path, result=None):
-        if isOleFile(file_path):
-            return super(OutlookMsgIngestor, cls).match(file_path,
-                                                        result=result)
-        return -1
+    def match(cls, file_path, entity):
+        score = super(OutlookMsgIngestor, cls).match(file_path, entity)
+        if score > 0 and not isOleFile(file_path):
+            return -1
+        return score

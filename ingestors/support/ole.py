@@ -1,52 +1,58 @@
 import logging
+from pprint import pprint  # noqa
 from olefile import isOleFile, OleFileIO
+
+from ingestors.support.timestamp import TimestampSupport
+from ingestors.support.encoding import EncodingSupport
 
 log = logging.getLogger(__name__)
 
 
-class OLESupport(object):
+class OLESupport(TimestampSupport, EncodingSupport):
     """Provides helpers for Microsoft OLE files."""
 
-    def extract_ole_metadata(self, file_path):
-        with open(file_path, 'rb') as fh:
+    def decode_meta(self, meta, prop):
+        try:
+            value = getattr(meta, prop, None)
+            if not isinstance(value, bytes):
+                return
+            encoding = "cp%s" % meta.codepage
+            return self.decode_string(value, encoding)
+        except Exception:
+            log.warning("Could not read metadata: %s", prop)
+
+    def extract_ole_metadata(self, file_path, entity):
+        with open(file_path, "rb") as fh:
             if not isOleFile(fh):
                 return
             fh.seek(0)
             try:
                 ole = OleFileIO(fh)
-                self.extract_olefileio_metadata(ole)
+                self.extract_olefileio_metadata(ole, entity)
             except (RuntimeError, IOError):
                 # OLE reading can go fully recursive, at which point it's OK
                 # to just eat this runtime error quietly.
-                log.warning("Failed to read OLE data: %s", self.result)
+                log.warning("Failed to read OLE data: %r", entity)
             except Exception:
-                log.exception("Failed to read OLE data: %s", self.result)
+                log.exception("Failed to read OLE data: %r", entity)
 
-    def extract_olefileio_metadata(self, ole):
+    def extract_olefileio_metadata(self, ole, entity):
         try:
-            self.update('created_at', ole.root.getctime())
+            entity.add("authoredAt", self.parse_timestamp(ole.root.getctime()))
         except Exception:
             log.warning("Failed to parse OLE ctime.")
         try:
-            self.update('modified_at', ole.root.getmtime())
+            entity.add("modifiedAt", self.parse_timestamp(ole.root.getmtime()))
         except Exception:
             log.warning("Failed to parse OLE mtime.")
 
-        try:
-            meta = ole.get_metadata()
-            self.update('title', meta.title)
-            self.update('author', meta.author)
-            self.update('author', meta.last_saved_by)
-            self.update('summary', meta.notes)
-            self.update('generator', meta.creating_application)
-            self.update('created_at', meta.create_time)
-            self.update('modified_at', meta.last_saved_time)
-            self.result.emit_name(meta.company)
-            self.result.emit_language(meta.language)
-            # self.result.emit_keyword(meta.keywords)
-
-        except Exception:
-            log.exception("OLE parsing error.")
-
-        # from pprint import pprint
-        # pprint(self.result.to_dict())
+        meta = ole.get_metadata()
+        entity.add("title", self.decode_meta(meta, "title"))
+        entity.add("author", self.decode_meta(meta, "author"))
+        entity.add("author", self.decode_meta(meta, "last_saved_by"))
+        entity.add("author", self.decode_meta(meta, "company"))
+        entity.add("summary", self.decode_meta(meta, "notes"))
+        entity.add("generator", self.decode_meta(meta, "creating_application"))
+        entity.add("authoredAt", self.decode_meta(meta, "create_time"))
+        entity.add("modifiedAt", self.decode_meta(meta, "last_saved_time"))
+        entity.add("language", self.decode_meta(meta, "language"))

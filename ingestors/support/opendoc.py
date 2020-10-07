@@ -1,42 +1,34 @@
 import logging
-from datetime import datetime
 from odf.opendocument import load
 
+from ingestors.support.timestamp import TimestampSupport
 from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
 
-class OpenDocumentSupport(object):
+class OpenDocumentSupport(TimestampSupport):
     """Provides helpers for Libre/Open Office tools."""
 
-    def parse_odf_date(self, date):
-        try:
-            return datetime.strptime(date, '%Y-%m-%dT%H:%M:%S')
-        except ValueError:
-            return None
-
-    def parse_opendocument(self, file_path):
+    def parse_opendocument(self, file_path, entity):
         try:
             doc = load(file_path)
-        except Exception:
-            raise ProcessingException("Cannot open document.")
+        except Exception as exc:
+            raise ProcessingException("Cannot open document.") from exc
 
         for child in doc.meta.childNodes:
             value = str(child)
-            if child.tagName == 'dc:title':
-                self.update('title', value)
-            if child.tagName == 'dc:description':
-                self.update('summary', value)
-            if child.tagName == 'dc:creator':
-                self.update('author', value)
-            if child.tagName == 'dc:date':
-                self.update('date', self.parse_odf_date(value))
-            if child.tagName == 'meta:creation-date':
-                self.update('created_at', self.parse_odf_date(value))
-            if child.tagName == 'meta:generator':
-                self.update('generator', value)
+            if child.tagName == "dc:title":
+                entity.add("title", value)
+            if child.tagName == "dc:description":
+                entity.add("summary", value)
+            if child.tagName == "dc:creator":
+                entity.add("author", value)
+            if child.tagName == "dc:date":
+                entity.add("date", self.parse_timestamp(value))
+            if child.tagName == "meta:creation-date":
+                entity.add("authoredAt", self.parse_timestamp(value))
+            if child.tagName == "meta:generator":
+                entity.add("generator", value)
 
-        # from pprint import pprint
-        # pprint(self.result.to_dict())
         return doc

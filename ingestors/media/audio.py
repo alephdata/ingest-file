@@ -1,62 +1,75 @@
 import logging
+from followthemoney import model
 from pymediainfo import MediaInfo
 
 from ingestors.ingestor import Ingestor
-from ingestors.media.util import MediaInfoDateMixIn
+from ingestors.support.timestamp import TimestampSupport
+from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
 
-class AudioIngestor(Ingestor, MediaInfoDateMixIn):
+class AudioIngestor(Ingestor, TimestampSupport):
     MIME_TYPES = [
-        'audio/mpeg',
-        'audio/mp3',
-        'audio/x-m4a',
-        'audio/x-hx-aac-adts',
-        'audio/x-wav',
-        'audio/mp4',
-        'audio/ogg',
-        'audio/vnd.wav',
-        'audio/flac',
-        'audio/x-ms-wma',
-        'audio/webm',
+        "audio/mpeg",
+        "audio/mp3",
+        "audio/x-m4a",
+        "audio/x-hx-aac-adts",
+        "audio/x-wav",
+        "audio/mp4",
+        "audio/ogg",
+        "audio/vnd.wav",
+        "audio/flac",
+        "audio/x-ms-wma",
+        "audio/webm",
     ]
     EXTENSIONS = [
-        'wav',
-        'mp3',
-        'aac',
-        'ac3',
-        'm4a',
-        'm4b',
-        'ogg',
-        'opus',
-        'flac',
-        'wma',
+        "wav",
+        "mp3",
+        "aac",
+        "ac3",
+        "m4a",
+        "m4b",
+        "ogg",
+        "opus",
+        "flac",
+        "wma",
     ]
     SCORE = 3
 
-    def ingest(self, file_path):
-        self.result.flag(self.result.FLAG_AUDIO)
-        log.info("[%s] flagged as audio.", self.result)
-        metadata = MediaInfo.parse(file_path)
-        for track in metadata.tracks:
-            self.update('title', track.title)
-            self.update('generator', track.writing_application)
-            self.update('generator', track.writing_library)
-            self.update('generator', track.publisher)
-            self.update('created_at', self.parse_date(track.recorded_date))
-            self.update('created_at', self.parse_date(track.tagged_date))
-            self.update('created_at', self.parse_date(track.encoded_date))
-            modified_at = self.parse_date(track.file_last_modification_date)
-            self.update('modified_at', modified_at)
-            if track.sampling_rate:
-                self.update('sampling_rate', str(track.sampling_rate/1000.0))
-            self.update('duration', track.duration)
+    def ingest(self, file_path, entity):
+        try:
+            entity.schema = model.get("Audio")
+            metadata = MediaInfo.parse(file_path)
+            for track in metadata.tracks:
+                entity.add("title", track.title)
+                entity.add("generator", track.writing_application)
+                entity.add("generator", track.writing_library)
+                entity.add("generator", track.publisher)
+                entity.add(
+                    "authoredAt", self.parse_timestamp(track.recorded_date)
+                )  # noqa
+                entity.add(
+                    "authoredAt", self.parse_timestamp(track.tagged_date)
+                )  # noqa
+                entity.add(
+                    "authoredAt", self.parse_timestamp(track.encoded_date)
+                )  # noqa
+                modified_at = self.parse_timestamp(
+                    track.file_last_modification_date
+                )  # noqa
+                entity.add("modifiedAt", modified_at)
+                if track.sampling_rate:
+                    entity.add("samplingRate", track.sampling_rate)
+                entity.add("duration", track.duration)
+        except Exception as ex:
+            raise ProcessingException("Could not read audio: %r", ex) from ex
 
     @classmethod
-    def match(cls, file_path, result=None):
-        score = super(AudioIngestor, cls).match(file_path, result=result)
+    def match(cls, file_path, entity):
+        score = super(AudioIngestor, cls).match(file_path, entity)
         if score <= 0:
-            if result.mime_type.startswith('audio/'):
+            for mime_type in entity.get("mimeType"):
+                if mime_type.startswith("audio/"):
                     return cls.SCORE * 2
         return score
