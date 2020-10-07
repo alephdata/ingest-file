@@ -3,8 +3,6 @@ version: "3.2"
 services:
   postgres:
     image: postgres:10.0
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ingest
       POSTGRES_PASSWORD: ingest
@@ -13,8 +11,6 @@ services:
   redis:
     image: redis:alpine
     command: ["redis-server", "--save", "3600", "10"]
-    volumes:
-      - redis-data:/data
 
   convert-document:
     image: alephdata/convert-document:38f168c2eb86013de95861c895bfdae0c4de7611
@@ -30,8 +26,10 @@ services:
     hostname: ingest
     tmpfs:
       - /tmp:mode=777
+      - /data:mode=777
+    environment:
+      FTM_STORE_URI: postgresql://ingest:ingest@postgres/ingest
     volumes:
-      - archive-data:/data
       - "./ingestors:/ingestors/ingestors"
       - "./tests:/ingestors/tests"
       - "./data:/ingestors/data"
@@ -41,8 +39,3 @@ services:
       - postgres
       - redis
       - convert-document
-
-volumes:
-  archive-data: {}
-  postgres-data: {}
-  redis-data: {}
