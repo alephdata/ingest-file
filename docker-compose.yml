@@ -1,0 +1,48 @@
+version: "3.2"
+
+services:
+  postgres:
+    image: postgres:10.0
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ingest
+      POSTGRES_PASSWORD: ingest
+      POSTGRES_DATABASE: ingest
+
+  redis:
+    image: redis:alpine
+    command: ["redis-server", "--save", "3600", "10"]
+    volumes:
+      - redis-data:/data
+
+  convert-document:
+    image: alephdata/convert-document:38f168c2eb86013de95861c895bfdae0c4de7611
+    read_only: true
+    restart: on-failure
+    user: app
+    tmpfs: /tmp
+
+  ingest-file:
+    build:
+      context: .
+    image: alephdata/ingest-file:${TAG:-3.9.3}
+    hostname: ingest
+    tmpfs:
+      - /tmp:mode=777
+    volumes:
+      - archive-data:/data
+      - "./ingestors:/ingestors/ingestors"
+      - "./tests:/ingestors/tests"
+      - "./data:/ingestors/data"
+      - "./requirements.txt:/ingestors/requirements.txt"
+      - "/:/host"
+    depends_on:
+      - postgres
+      - redis
+      - convert-document
+
+volumes:
+  archive-data: {}
+  postgres-data: {}
+  redis-data: {}
