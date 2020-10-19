@@ -13,7 +13,7 @@ services:
     command: ["redis-server", "--save", "3600", "10"]
 
   convert-document:
-    image: alephdata/convert-document:38f168c2eb86013de95861c895bfdae0c4de7611
+    image: alephdata/convert-document:428b493ec1a57b3551222556c5ad2c60b129c157
     read_only: true
     restart: on-failure
     user: app
