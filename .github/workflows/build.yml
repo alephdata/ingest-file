@@ -12,8 +12,9 @@ jobs:
           docker --version
           docker-compose --version
           echo "${GITHUB_REF}"
-          docker login -u ${{ secrets.docker_user }} -p ${{ secrets.docker_password }}
-          docker-compose pull -q redis postgres convert-document ingest-file
+
+          docker pull -q ghcr.io/alephdata/ingest-file:master
+          docker-compose pull -q redis postgres convert-document
       # - uses: satackey/action-docker-layer-caching@v0.0.8
       #   continue-on-error: true
       - name: Start services
@@ -26,8 +27,11 @@ jobs:
         run: make test
       - name: Push docker image (hash)
         run: |
-          docker tag alephdata/ingest-file:latest alephdata/ingest-file:${GITHUB_SHA}
-          docker push alephdata/ingest-file:${GITHUB_SHA}
+          echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+          docker tag ghcr.io/alephdata/ingest-file:latest ghcr.io/alephdata/ingest-file:${GITHUB_SHA}
+          docker push ghcr.io/alephdata/ingest-file:${GITHUB_SHA}
+          docker tag ghcr.io/alephdata/ingest-file:latest ghcr.io/alephdata/ingest-file:master
+          docker push ghcr.io/alephdata/ingest-file:master
       - name: Push docker images for tags
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         run: |
