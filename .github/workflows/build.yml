@@ -13,10 +13,8 @@ jobs:
           docker-compose --version
           echo "${GITHUB_REF}"
 
-          docker pull -q ghcr.io/alephdata/ingest-file:master
           docker-compose pull -q redis postgres convert-document
-      # - uses: satackey/action-docker-layer-caching@v0.0.8
-      #   continue-on-error: true
+      # docker pull -q ghcr.io/alephdata/ingest-file:master
       - name: Start services
         run: |
           make services
