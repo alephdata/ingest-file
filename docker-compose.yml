@@ -22,6 +22,8 @@ services:
   ingest-file:
     build:
       context: .
+      cache_from:
+        - alephdata/ingest-file:latest
     image: alephdata/ingest-file:${TAG:-latest}
     hostname: ingest
     tmpfs:
