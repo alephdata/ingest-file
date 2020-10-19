@@ -14,7 +14,7 @@ jobs:
           echo "${GITHUB_REF}"
 
           docker-compose pull -q redis postgres convert-document
-      # docker pull -q ghcr.io/alephdata/ingest-file:master
+      # docker pull -q ghcr.io/alephdata/ingest-file:cache
       - name: Start services
         run: |
           make services
@@ -27,9 +27,9 @@ jobs:
         run: |
           echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
           docker tag ghcr.io/alephdata/ingest-file:latest ghcr.io/alephdata/ingest-file:${GITHUB_SHA}
+          docker tag ghcr.io/alephdata/ingest-file:latest ghcr.io/alephdata/ingest-file:cache
           docker push ghcr.io/alephdata/ingest-file:${GITHUB_SHA}
-          docker tag ghcr.io/alephdata/ingest-file:latest ghcr.io/alephdata/ingest-file:master
-          docker push ghcr.io/alephdata/ingest-file:master
+          docker push ghcr.io/alephdata/ingest-file:cache
       - name: Push docker images for tags
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         run: |
