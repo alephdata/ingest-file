@@ -13,7 +13,7 @@ services:
     command: ["redis-server", "--save", "3600", "10"]
 
   convert-document:
-    image: alephdata/convert-document:428b493ec1a57b3551222556c5ad2c60b129c157
+    image: ghcr.io/alephdata/convert-document
     read_only: true
     restart: on-failure
     user: app
