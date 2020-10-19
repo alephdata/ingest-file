@@ -46,18 +46,10 @@ class AudioIngestor(Ingestor, TimestampSupport):
                 entity.add("generator", track.writing_application)
                 entity.add("generator", track.writing_library)
                 entity.add("generator", track.publisher)
-                entity.add(
-                    "authoredAt", self.parse_timestamp(track.recorded_date)
-                )  # noqa
-                entity.add(
-                    "authoredAt", self.parse_timestamp(track.tagged_date)
-                )  # noqa
-                entity.add(
-                    "authoredAt", self.parse_timestamp(track.encoded_date)
-                )  # noqa
-                modified_at = self.parse_timestamp(
-                    track.file_last_modification_date
-                )  # noqa
+                entity.add("authoredAt", self.parse_timestamp(track.recorded_date))
+                entity.add("authoredAt", self.parse_timestamp(track.tagged_date))
+                entity.add("authoredAt", self.parse_timestamp(track.encoded_date))
+                modified_at = self.parse_timestamp(track.file_last_modification_date)
                 entity.add("modifiedAt", modified_at)
                 if track.sampling_rate:
                     entity.add("samplingRate", track.sampling_rate)

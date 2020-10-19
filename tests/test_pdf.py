@@ -50,9 +50,7 @@ class PDFIngestorTest(TestCase):
         self.assertTrue(
             any(
                 "A Note to the Reader" in x
-                for x in self.manager.dataset.get(entity_id=entity.id).get(
-                    "indexText"
-                )  # noqa
+                for x in self.manager.dataset.get(entity_id=entity.id).get("indexText")
             )
         )
 

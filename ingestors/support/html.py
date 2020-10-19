@@ -16,7 +16,7 @@ class HTMLSupport(TimestampSupport):
     # this is from lxml/apihelpers.pxi
     RE_XML_ENCODING = re.compile(
         r'^(<\?xml[^>]+)\s+encoding\s*=\s*["\'][^"\']*["\'](\s*\?>|)', re.U
-    )  # noqa
+    )
 
     def get_meta(self, doc, field):
         for field_attr in ("property", "name"):

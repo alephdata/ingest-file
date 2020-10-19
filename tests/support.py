@@ -42,7 +42,7 @@ class TestCase(unittest.TestCase):
         self.manager = Manager(dataset, stage, {})
         self.manager.entities = []
         self.manager.emit_entity = types.MethodType(emit_entity, self.manager)
-        self.manager.queue_entity = types.MethodType(queue_entity, self.manager)  # noqa
+        self.manager.queue_entity = types.MethodType(queue_entity, self.manager)
         self.archive = init_archive()
         self.manager._archive = self.archive
 

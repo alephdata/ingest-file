@@ -109,9 +109,7 @@ class OutlookOLMArchiveIngestor(Ingestor, TempFileSupport, XMLSupport):
             raise ProcessingException("Invalid OLM file.")
 
 
-class OutlookOLMMessageIngestor(
-    Ingestor, XMLSupport, EmailSupport, TimestampSupport
-):  # noqa
+class OutlookOLMMessageIngestor(Ingestor, XMLSupport, EmailSupport, TimestampSupport):
     MIME_TYPES = [MIME]
     EXTENSIONS = []
     SCORE = 15

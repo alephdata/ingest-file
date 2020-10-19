@@ -25,9 +25,7 @@ class DocumentIngestorTest(TestCase):
         self.assertTrue(
             any(
                 "The Level 3 Bookmark" in x
-                for x in self.manager.dataset.get(entity_id=entity.id).get(
-                    "indexText"
-                )  # noqa
+                for x in self.manager.dataset.get(entity_id=entity.id).get("indexText")
             )
         )
         self.assertIn(

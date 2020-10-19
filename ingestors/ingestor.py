@@ -24,9 +24,7 @@ class Ingestor(object):
 
     @classmethod
     def match(cls, file_path, entity):
-        mime_types = [
-            normalize_mimetype(m, default=None) for m in cls.MIME_TYPES
-        ]  # noqa
+        mime_types = [normalize_mimetype(m, default=None) for m in cls.MIME_TYPES]
         mime_types = [m for m in mime_types if m is not None]
         for mime_type in entity.get("mimeType"):
             if mime_type in mime_types:

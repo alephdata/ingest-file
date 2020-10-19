@@ -11,7 +11,5 @@ class DejaVuIngestorTest(TestCase):
         self.assertEqual(entity.first("mimeType"), "image/vnd.djvu")
 
         self.assertEqual(len(self.manager.entities), 11 + 1)
-        self.assertIn(
-            u"Executive Orders", self.manager.entities[0].first("bodyText")
-        )  # noqa
+        self.assertIn(u"Executive Orders", self.manager.entities[0].first("bodyText"))
         self.assertEqual(entity.schema, "Pages")

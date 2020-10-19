@@ -15,8 +15,8 @@ class OOXMLSupport(TimestampSupport, XMLSupport):
 
     PROP_FILE = "docProps/core.xml"
     CP_NS = "{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}"  # noqa
-    DC_NS = "{http://purl.org/dc/elements/1.1/}"  # noqa
-    DCT_NS = "{http://purl.org/dc/terms/}"  # noqa
+    DC_NS = "{http://purl.org/dc/elements/1.1/}"
+    DCT_NS = "{http://purl.org/dc/terms/}"
 
     def parse_ooxml_core(self, file_path):
         try:

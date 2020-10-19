@@ -13,7 +13,7 @@ class DjVuIngestor(Ingestor, PDFSupport, TempFileSupport):
         "image/x.djvu",
         "image/x-djvu",
         "image/djvu",
-    ]  # noqa
+    ]
 
     def ingest(self, file_path, entity):
         """Ingestor implementation."""
