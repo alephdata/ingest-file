@@ -24,7 +24,7 @@ services:
       context: .
       cache_from:
         - alephdata/ingest-file:latest
-        - ghcr.io/alephdata/ingest-file:master
+        - ghcr.io/alephdata/ingest-file:cache
     image: alephdata/ingest-file:${TAG:-latest}
     hostname: ingest
     tmpfs:
