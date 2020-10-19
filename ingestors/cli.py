@@ -23,9 +23,7 @@ def cli():
 
 
 @cli.command()
-@click.option(
-    "-s", "--sync", is_flag=True, default=False, help="Run without threads"
-)  # noqa
+@click.option("-s", "--sync", is_flag=True, default=False, help="Run without threads")
 def process(sync):
     """Start the queue and process tasks as they come. Blocks while waiting"""
     worker = IngestWorker(stages=STAGES)
