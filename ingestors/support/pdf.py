@@ -1,6 +1,8 @@
 import io
 import logging
 from pprint import pprint  # noqa
+from datetime import datetime
+from normality import stringify
 from followthemoney import model
 
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
@@ -19,6 +21,7 @@ from pdfminer.pdfdocument import PDFDocument
 from ingestors.support.ocr import OCRSupport
 from ingestors.support.xmp import XMPParser
 from ingestors.support.convert import DocumentConvertSupport
+from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +34,7 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         fp = io.BytesIO()
         try:
             full_data = image.stream.get_data()
-        except ValueError:
+        except (ValueError, PDFException):
             full_data = image.stream.get_rawdata()
 
         # if ext == ".jpg":
@@ -48,6 +51,7 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         #     else:
         #         fp.write(raw_data)
         if ImageWriter.is_jbig2_image(image):
+            print("IMAGE IS JBIG2")
             input_stream = io.BytesIO()
             input_stream.write(full_data)
             input_stream.seek(0)
@@ -55,7 +59,11 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
             segments = reader.get_segments()
             writer = JBIG2StreamWriter(fp)
             writer.write_file(segments)
+            with open("out.jbig2", "wb") as fh:
+                writer = JBIG2StreamWriter(fh)
+                writer.write_file(segments)
         elif image.bits == 1:
+            print("IMAGE IS BMP")
             bmp = BMPWriter(fp, 1, width, height)
             i = 0
             width = (width + 7) // 8
@@ -63,6 +71,7 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
                 bmp.write_line(y, full_data[i : i + width])
                 i += width
         elif image.bits == 8 and LITERAL_DEVICE_RGB in image.colorspace:
+            print("IMAGE IS BMP RGB")
             bmp = BMPWriter(fp, 24, width, height)
             i = 0
             width = width * 3
@@ -70,12 +79,14 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
                 bmp.write_line(y, full_data[i : i + width])
                 i += width
         elif image.bits == 8 and LITERAL_DEVICE_GRAY in image.colorspace:
+            print("IMAGE IS BMP GRAY")
             bmp = BMPWriter(fp, 8, width, height)
             i = 0
             for y in range(height):
                 bmp.write_line(y, full_data[i : i + width])
                 i += width
         else:
+            print("IMAGE IS OTHER", image.bit)
             return full_data
         return fp.getvalue()
 
@@ -96,9 +107,9 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
 
     def extract_page(self, document, interpreter, page, device, page_no):
         languages = self.manager.context.get("languages")
-        interpreter.process_page(page)
-        layout = device.get_result()
         try:
+            interpreter.process_page(page)
+            layout = device.get_result()
             text = "".join(self.render_item(layout, languages))
         except (PSException, PDFException):
             log.exception("[%r] Error parsing page: %s", document, page_no)
@@ -113,10 +124,38 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         self.manager.emit_entity(entity)
         self.manager.emit_text_fragment(document, text, entity.id)
 
+    def parse_pdf_date(self, date):
+        date = stringify(date)
+        if date is None:
+            return
+        if date.startswith("D:"):
+            date = date[2:]
+        try:
+            dt = datetime.strptime(date[:14], "%Y%m%d%H%M%S")
+            return dt.isoformat()
+        except ValueError:
+            return
+
     def pdf_metadata(self, entity, doc):
+        #     entity.add("messageId", xmp["xmpmm"].get("documentid"))
+        #         entity.add("title", xmp["dc"].get("title"))
+        #         entity.add("generator", xmp["pdf"].get("producer"))
+        #         entity.add("language", xmp["dc"].get("language"))
+        #         entity.add("authoredAt", xmp["xmp"].get("createdate"))
+        #         entity.add("modifiedAt", xmp["xmp"].get("modifydate"))
+        #     except Exception as ex:
+        #         log.warning("Error reading XMP: %r", ex)
+        # def extract_metadata(self, pdf, entity):
+        #     meta = pdf.metadata
+        #     if meta is not None:
+        #         entity.add("title", meta.get("title"))
+        #         entity.add("author", meta.get("author"))
+        #         entity.add("generator", meta.get("creator"))
+        #         entity.add("generator", meta.get("producer"))
+        #         entity.add("keywords", meta.get("subject"))
+
         for info in doc.info:
-            for key, value in info.items():
-                pass
+            pprint(info)
 
         if "Metadata" in doc.catalog:
             metadata = resolve1(doc.catalog["Metadata"]).get_data()
@@ -128,7 +167,8 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         laparams = LAParams()
         device = PDFPageAggregator(rsrcmgr, laparams=laparams)
         interpreter = PDFPageInterpreter(rsrcmgr, device)
-        with open(pdf_path, "rb") as fh:
+        fh = open(pdf_path, "rb")
+        try:
             parser = PDFParser(fh)
             doc = PDFDocument(parser, "")
             doc.is_extractable = True
@@ -136,6 +176,11 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
                 self.pdf_metadata(entity, doc)
             for page_no, page in enumerate(PDFPage.create_pages(doc), 1):
                 self.extract_page(entity, interpreter, page, device, page_no)
+        except (PSException, PDFException) as exc:
+            raise ProcessingException("Error reading PDF: %s" % exc) from exc
+        finally:
+            device.close()
+            fh.close()
 
     def pdf_alternative_extract(self, entity, pdf_path):
         checksum = self.manager.store(pdf_path)
