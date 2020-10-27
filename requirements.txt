@@ -28,7 +28,7 @@ rarfile==4.0
 xlrd==1.2.0
 openpyxl==3.0.5
 odfpy==1.4.1
-cchardet==2.1.6
+cchardet==2.1.7
 lxml==4.6.1
 olefile==0.46
 pillow==8.0.1
