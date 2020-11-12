@@ -36,4 +36,4 @@ vobject==0.9.6.1
 msglite==0.29.0
 
 cryptography==3.2.1
-requests[security]==2.24.0
+requests[security]==2.25.0
