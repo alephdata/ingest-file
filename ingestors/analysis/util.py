@@ -3,6 +3,7 @@ from normality import collapse_spaces
 
 
 ANALYZABLE = model.get("Analyzable")
+DOCUMENT = model.get("Document")
 TAG_PERSON = ANALYZABLE.get("peopleMentioned")
 TAG_COMPANY = ANALYZABLE.get("companiesMentioned")
 TAG_LANGUAGE = ANALYZABLE.get("detectedLanguage")

@@ -11,7 +11,7 @@ from ingestors.analysis.extract import extract_entities
 from ingestors.analysis.patterns import extract_patterns
 from ingestors.analysis.language import detect_languages
 from ingestors.analysis.util import TAG_COMPANY, TAG_PERSON
-from ingestors.analysis.util import text_chunks, ANALYZABLE
+from ingestors.analysis.util import text_chunks, ANALYZABLE, DOCUMENT
 
 log = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class Analyzer(object):
                 label = registry.name.pick(values)
 
             schema = self.MENTIONS.get(prop)
-            if schema is not None:
+            if schema is not None and self.entity.schema.is_a(DOCUMENT):
                 mention = model.make_entity("Mention")
                 mention.make_id("mention", self.entity.id, prop, key)
                 mention_ids.add(mention.id)
@@ -70,7 +70,7 @@ class Analyzer(object):
                 writer.put(mention)
                 # pprint(mention.to_dict())
 
-            self.entity.add(prop, label, cleaned=True)
+            self.entity.add(prop, label, cleaned=True, quiet=True)
 
         if len(self.aggregator):
             log.debug(
