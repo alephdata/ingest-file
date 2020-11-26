@@ -52,6 +52,8 @@ setup(
             "svg = ingestors.media.svg:SVGIngestor",
             "audio = ingestors.media.audio:AudioIngestor",
             "video = ingestors.media.video:VideoIngestor",
+            "ftm = ingestors.misc.ftm:FtMIngestor",
+            "json = ingestors.misc.jsonfile:JSONIngestor",
         ],
         "console_scripts": ["ingestors = ingestors.cli:cli"],
     },

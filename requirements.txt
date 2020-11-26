@@ -1,7 +1,7 @@
 banal==1.0.1
 normality==2.1.1
 pantomime==0.4.1
-followthemoney==2.1.11
+followthemoney==2.1.13
 followthemoney-store[postgresql]==2.2.3
 servicelayer[google,amazon]==1.15.1
 languagecodes==1.0.7
@@ -34,6 +34,7 @@ olefile==0.46
 pillow==8.0.1
 vobject==0.9.6.1
 msglite==0.29.0
+icalendar==4.0.7
 
 cryptography==3.2.1
 requests[security]==2.25.0

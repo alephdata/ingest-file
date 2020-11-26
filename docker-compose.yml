@@ -37,6 +37,7 @@ services:
       - "./tests:/ingestors/tests"
       - "./data:/ingestors/data"
       - "./requirements.txt:/ingestors/requirements.txt"
+      - "./setup.py:/ingestors/setup.py"
       - "~:/host"
     depends_on:
       - postgres
