@@ -39,6 +39,7 @@ setup(
             "olemsg = ingestors.email.outlookmsg:OutlookMsgIngestor",
             "msg = ingestors.email.msg:RFC822Ingestor",
             "vcard = ingestors.email.vcard:VCardIngestor",
+            "calendar = ingestors.email.calendar:CalendarIngestor",
             "csv = ingestors.tabular.csv:CSVIngestor",
             "access = ingestors.tabular.access:AccessIngestor",
             "sqlite = ingestors.tabular.sqlite:SQLiteIngestor",
