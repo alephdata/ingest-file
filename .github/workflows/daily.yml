@@ -1,0 +1,23 @@
+name: daily
+
+on:
+  push: {}
+  schedule:
+    - cron: "0 4 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up
+        run: |
+          docker --version
+          docker-compose --version
+      - name: Build docker cache
+        run: |
+          docker build --pull --no-cache -t ghcr.io/alephdata/ingest-file:cache .
+      - name: Push docker cache (hash)
+        run: |
+          echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+          docker push ghcr.io/alephdata/ingest-file:cache
