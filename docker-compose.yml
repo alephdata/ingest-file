@@ -25,7 +25,7 @@ services:
       cache_from:
         - alephdata/ingest-file:latest
         - ghcr.io/alephdata/ingest-file:cache
-    image: alephdata/ingest-file:${TAG:-latest}
+    image: ghcr.io/alephdata/ingest-file
     hostname: ingest
     tmpfs:
       - /tmp:mode=777
