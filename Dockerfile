@@ -35,6 +35,7 @@ RUN apt-get -qq -y update \
     # tesseract-ocr-ita_old \
     # tesseract-ocr-jpn \
     tesseract-ocr-kan \
+    tesseract-ocr-kat \
     # tesseract-ocr-kor \
     tesseract-ocr-lav \
     tesseract-ocr-lit \
@@ -53,6 +54,7 @@ RUN apt-get -qq -y update \
     tesseract-ocr-heb \
     tesseract-ocr-hin \
     tesseract-ocr-hrv \
+    tesseract-ocr-hye \
     tesseract-ocr-hun \
     # tesseract-ocr-ben \
     tesseract-ocr-bul \
@@ -71,6 +73,7 @@ RUN apt-get -qq -y update \
     tesseract-ocr-ara \
     tesseract-ocr-aze \
     tesseract-ocr-bel \
+    tesseract-ocr-uzb \
     && apt-get -qq -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -127,7 +130,19 @@ RUN python3 -m spacy download es_core_news_sm \
     && python3 -m spacy link es_core_news_sm spa
 RUN python3 -m spacy download pt_core_news_sm \
     && python3 -m spacy link pt_core_news_sm por
-ENV INGESTORS_NER_MODELS=eng:deu:fra:spa:por
+RUN python3 -m spacy download ro_core_news_sm \
+    && python3 -m spacy link ro_core_news_sm ron
+RUN python3 -m spacy download el_core_news_sm \
+    && python3 -m spacy link el_core_news_sm ell
+RUN python3 -m spacy download pl_core_news_sm \
+    && python3 -m spacy link pl_core_news_sm pol
+RUN python3 -m spacy download it_core_news_sm \
+    && python3 -m spacy link it_core_news_sm ita
+RUN python3 -m spacy download lt_core_news_sm \
+    && python3 -m spacy link lt_core_news_sm lit
+RUN python3 -m spacy download zh_core_web_sm \
+    && python3 -m spacy link zh_core_web_sm zho
+ENV INGESTORS_NER_MODELS=eng:deu:fra:spa:por:ron:ell:pol:ita:lit:zho
 
 COPY . /ingestors
 WORKDIR /ingestors
