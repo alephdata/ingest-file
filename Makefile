@@ -20,6 +20,7 @@ services:
 	$(COMPOSE) up -d --remove-orphans postgres redis
 
 shell: services
+	$(COMPOSE) up -d --remove-orphans convert-document
 	$(DOCKER) /bin/bash
 
 test: services
