@@ -17,7 +17,7 @@ push:
 	docker push $(IMAGE):$(TAG)
 
 services:
-	$(COMPOSE) up -d --remove-orphans postgres convert-document redis
+	$(COMPOSE) up -d --remove-orphans postgres redis
 
 shell: services
 	$(DOCKER) /bin/bash
