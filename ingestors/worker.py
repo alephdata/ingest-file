@@ -1,7 +1,9 @@
 import logging
 from followthemoney import model
 from servicelayer.worker import Worker
+from servicelayer.logs import apply_task_context
 
+from ingestors import __version__
 from ingestors.store import get_dataset
 from ingestors.manager import Manager
 from ingestors.analysis import Analyzer
@@ -13,19 +15,6 @@ OP_ANALYZE = "analyze"
 
 class IngestWorker(Worker):
     """A long running task runner that uses Redis as a task queue"""
-
-    def dispatch_next(self, task, entity_ids):
-        if not len(entity_ids):
-            return
-        pipeline = task.context.get("pipeline")
-        if pipeline is None or not len(pipeline):
-            return
-        next_stage = pipeline.pop(0)
-        stage = task.job.get_stage(next_stage)
-        context = task.context
-        context["pipeline"] = pipeline
-        log.info("Sending %s entities to: %s", len(entity_ids), next_stage)
-        stage.queue({"entity_ids": entity_ids}, context)
 
     def _ingest(self, dataset, task):
         manager = Manager(dataset, task.stage, task.context)
@@ -52,14 +41,17 @@ class IngestWorker(Worker):
         return list(entity_ids)
 
     def handle(self, task):
+        apply_task_context(task, version=__version__)
         name = task.context.get("ftmstore", task.job.dataset.name)
         dataset = get_dataset(name, task.stage.stage)
         try:
             if task.stage.stage == OP_INGEST:
                 entity_ids = self._ingest(dataset, task)
-                self.dispatch_next(task, entity_ids)
+                payload = {"entity_ids": entity_ids}
+                self.dispatch_pipeline(task, payload)
             elif task.stage.stage == OP_ANALYZE:
                 entity_ids = self._analyze(dataset, task)
-                self.dispatch_next(task, entity_ids)
+                payload = {"entity_ids": entity_ids}
+                self.dispatch_pipeline(task, payload)
         finally:
             dataset.close()

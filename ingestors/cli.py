@@ -19,7 +19,7 @@ STAGES = [OP_ANALYZE, OP_INGEST]
 
 @click.group()
 def cli():
-    configure_logging()
+    configure_logging(level=logging.DEBUG)
 
 
 @cli.command()
