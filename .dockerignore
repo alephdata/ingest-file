@@ -3,3 +3,5 @@
 LICENSE
 README.md
 __pycache__
+convert
+docker-compose.yml
