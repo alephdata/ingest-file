@@ -3,7 +3,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 LABEL org.opencontainers.image.title "Aleph document converters"
 LABEL org.opencontainers.image.licenses MIT
-LABEL org.opencontainers.image.source https://github.com/alephdata/convert-document
+LABEL org.opencontainers.image.source https://github.com/alephdata/ingest-file
 
 RUN apt-get -qq -y update \
     && apt-get -qq -y upgrade \

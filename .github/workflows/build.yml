@@ -15,7 +15,7 @@ jobs:
 
           docker-compose pull -q redis postgres
           docker pull -q ghcr.io/alephdata/ingest-file:cache
-          # docker pull -q ghcr.io/alephdata/convert-document:cache
+          docker pull -q ghcr.io/alephdata/convert-document:cache
       - name: Start services
         run: |
           make services
