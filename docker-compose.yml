@@ -40,7 +40,6 @@ services:
       - "./tests:/ingestors/tests"
       - "./data:/ingestors/data"
       - "./requirements.txt:/ingestors/requirements.txt"
-      - "./requirements.in:/ingestors/requirements.in"
       - "./setup.py:/ingestors/setup.py"
       - "~:/host"
     depends_on:

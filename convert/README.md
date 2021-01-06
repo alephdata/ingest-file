@@ -25,7 +25,7 @@ curl -o out.pdf -F format=pdf -F 'file=@mydoc.doc' http://localhost:3000/convert
 To build, run:
 
 ```shell
-docker build --rm -t alephdata/convert-document .
+make build
 ```
 
 To get a development shell:

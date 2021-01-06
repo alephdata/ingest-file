@@ -6,8 +6,8 @@ LABEL org.opencontainers.image.licenses MIT
 LABEL org.opencontainers.image.source https://github.com/alephdata/convert-document
 
 RUN apt-get -qq -y update \
-    && apt-get -q -y dist-upgrade \
-    && apt-get -q -y install locales libreoffice libreoffice-writer psmisc curl \
+    && apt-get -qq -y upgrade \
+    && apt-get -qq -y install locales libreoffice libreoffice-writer psmisc curl \
     libreoffice-impress libreoffice-common fonts-opensymbol hyphen-fr hyphen-de \
     hyphen-en-us hyphen-it hyphen-ru fonts-dejavu fonts-dejavu-core fonts-dejavu-extra \
     fonts-droid-fallback fonts-dustin fonts-f500 fonts-fanwood fonts-freefont-ttf \
