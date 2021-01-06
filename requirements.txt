@@ -37,4 +37,4 @@ msglite==0.29.0
 icalendar==4.0.7
 
 cryptography==3.3.1
-requests[security]==2.25.0
+requests[security]==2.25.1
