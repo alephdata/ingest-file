@@ -16,13 +16,6 @@ build:
 push:
 	docker push $(IMAGE):$(TAG)
 
-upgrade: build
-	$(DOCKER) make deps
-
-deps:
-	pip install -U -r /ingestors/requirements.in
-	pip freeze --exclude-editable | grep -v spacy-models >/ingestors/requirements.txt
-
 services:
 	$(COMPOSE) up -d --remove-orphans postgres convert-document redis
 

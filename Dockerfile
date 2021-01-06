@@ -5,8 +5,28 @@ LABEL org.opencontainers.image.title "FollowTheMoney File Ingestors"
 LABEL org.opencontainers.image.licenses MIT
 LABEL org.opencontainers.image.source https://github.com/alephdata/ingest-file
 
+# Enable non-free archive for `unrar`.
+# RUN echo "deb http://http.us.debian.org/debian stretch non-free" >/etc/apt/sources.list.d/nonfree.list
 RUN apt-get -qq -y update \
-    && apt-get -qq -y install \
+    && apt-get -qq -y install build-essential locales ca-certificates \
+    # python deps (mostly to install their dependencies)
+    python3-pip python3-dev python3-pil \
+    # tesseract
+    tesseract-ocr libtesseract-dev libleptonica-dev pkg-config\
+    # libraries
+    libxslt1-dev libpq-dev libldap2-dev libsasl2-dev \
+    zlib1g-dev libicu-dev libxml2-dev \
+    # package tools
+    unrar p7zip-full \
+    # audio & video metadata
+    libmediainfo-dev \
+    # image processing, djvu
+    imagemagick-common imagemagick mdbtools djvulibre-bin \
+    libtiff5-dev libjpeg-dev libfreetype6-dev libwebp-dev \
+    libtiff-tools ghostscript librsvg2-bin \
+    # pdf processing toolkit
+    poppler-utils poppler-data pst-utils \
+    ### tesseract 
     tesseract-ocr-eng \
     tesseract-ocr-swa \
     tesseract-ocr-swe \
@@ -74,31 +94,7 @@ RUN apt-get -qq -y update \
     tesseract-ocr-aze \
     tesseract-ocr-bel \
     tesseract-ocr-uzb \
-    && apt-get -qq -y autoremove \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Enable non-free archive for `unrar`.
-# RUN echo "deb http://http.us.debian.org/debian stretch non-free" >/etc/apt/sources.list.d/nonfree.list
-RUN apt-get -qq -y update \
-    && apt-get -qq -y install build-essential locales ca-certificates \
-    # python deps (mostly to install their dependencies)
-    python3-pip python3-dev python3-pil \
-    # tesseract
-    tesseract-ocr libtesseract-dev libleptonica-dev pkg-config\
-    # libraries
-    libxslt1-dev libpq-dev libldap2-dev libsasl2-dev \
-    zlib1g-dev libicu-dev libxml2-dev \
-    # package tools
-    unrar p7zip-full \
-    # audio & video metadata
-    libmediainfo-dev \
-    # image processing, djvu
-    imagemagick-common imagemagick mdbtools djvulibre-bin \
-    libtiff5-dev libjpeg-dev libfreetype6-dev libwebp-dev \
-    libtiff-tools ghostscript librsvg2-bin \
-    # pdf processing toolkit
-    poppler-utils poppler-data pst-utils \
+    ###
     && apt-get -qq -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
@@ -113,7 +109,7 @@ ENV LANG='en_US.UTF-8' \
 RUN groupadd -g 1000 -r app \
     && useradd -m -u 1000 -s /bin/false -g app app
 
-RUN pip3 install --no-cache-dir -U pip "setuptools<50"
+RUN pip3 install --no-cache-dir -U pip setuptools
 COPY requirements.txt /tmp/
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
