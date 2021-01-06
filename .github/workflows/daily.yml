@@ -16,7 +16,9 @@ jobs:
       - name: Build docker cache
         run: |
           docker build --pull --no-cache -t ghcr.io/alephdata/ingest-file:cache .
+          docker build --pull --no-cache -t ghcr.io/alephdata/convert-document:cache convert
       - name: Push docker cache (hash)
         run: |
           echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
           docker push ghcr.io/alephdata/ingest-file:cache
+          docker push ghcr.io/alephdata/convert-document:cache

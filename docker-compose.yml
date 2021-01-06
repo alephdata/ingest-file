@@ -13,6 +13,10 @@ services:
     command: ["redis-server", "--save", "3600", "10"]
 
   convert-document:
+    build:
+      context: convert
+      cache_from:
+        - ghcr.io/alephdata/convert-document:cache
     image: ghcr.io/alephdata/convert-document
     read_only: true
     restart: on-failure
@@ -23,7 +27,6 @@ services:
     build:
       context: .
       cache_from:
-        - alephdata/ingest-file:latest
         - ghcr.io/alephdata/ingest-file:cache
     image: ghcr.io/alephdata/ingest-file
     hostname: ingest

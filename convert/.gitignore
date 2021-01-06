@@ -1,0 +1,3 @@
+fixtures/.*
+fixtures/*.pdf
+out.pdf
