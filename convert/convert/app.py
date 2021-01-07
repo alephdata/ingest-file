@@ -5,22 +5,18 @@ from pantomime import FileName, normalize_mimetype, mimetype_extension
 from pantomime.types import PDF
 
 from convert.process import ProcessConverter
-from convert.unoconv import UnoconvConverter
 from convert.formats import load_mime_extensions
-from convert.util import CONVERT_DIR
+from convert.lock import FileLock
+from convert.util import CONVERT_DIR, MAX_TIMEOUT
 from convert.util import SystemFailure, ConversionFailure
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger("convert")
 app = Flask("convert")
+lock = FileLock()
 extensions = load_mime_extensions()
 method = os.environ.get("CONVERTER_METHOD", "unoconv")
-if method == "unoconv":
-    converter = UnoconvConverter()
-else:
-    converter = ProcessConverter()
-    converter.kill()
-converter.unlock()
+converter = ProcessConverter()
 
 
 @app.route("/")
@@ -29,16 +25,16 @@ converter.unlock()
 def check_health():
     try:
         if not converter.check_healthy():
-            return ("BUSY", 500)
+            return ("DEAD", 503)
         return ("OK", 200)
     except Exception:
         log.exception("Converter is not healthy.")
-        return ("DEAD", 500)
+        return ("DEAD", 503)
 
 
 @app.route("/health/ready")
 def check_ready():
-    if converter.is_locked:
+    if lock.is_locked:
         return ("BUSY", 503)
     return ("OK", 200)
 
@@ -46,18 +42,18 @@ def check_ready():
 @app.route("/reset")
 def reset():
     converter.kill()
-    converter.unlock()
+    lock.unlock()
     return ("OK", 200)
 
 
 @app.route("/convert", methods=["POST"])
 def convert():
     upload_file = None
-    if not converter.lock():
+    if not lock.lock():
         return ("BUSY", 503)
     try:
         converter.prepare()
-        timeout = int(request.args.get("timeout", 7200))
+        timeout = int(request.args.get("timeout", MAX_TIMEOUT))
         upload = request.files.get("file")
         file_name = FileName(upload.filename)
         mime_type = normalize_mimetype(upload.mimetype)
@@ -73,9 +69,9 @@ def convert():
     except ConversionFailure as ex:
         converter.kill()
         return (str(ex), 400)
-    except (SystemFailure, Exception) as ex:
+    except Exception as ex:
         converter.kill()
-        log.warn("Error: %s", ex)
+        log.warning("Error: %s", ex)
         return (str(ex), 500)
     finally:
-        converter.unlock()
+        lock.unlock()

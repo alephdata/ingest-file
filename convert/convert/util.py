@@ -3,8 +3,8 @@ import shutil
 from tempfile import gettempdir
 
 CONVERT_DIR = os.path.join(gettempdir(), "convert")
-LOCK_FILE = os.path.join(gettempdir(), "convert.lock")
 INSTANCE_DIR = os.path.join(gettempdir(), "soffice")
+MAX_TIMEOUT = 3600
 
 
 class ConversionFailure(Exception):

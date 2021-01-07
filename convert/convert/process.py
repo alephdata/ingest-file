@@ -1,17 +1,25 @@
 import os
+import time
 import logging
 import subprocess
-from convert.common import Converter
-from convert.util import CONVERT_DIR, flush_path
+from psutil import process_iter, TimeoutExpired, NoSuchProcess
+
+from convert.util import CONVERT_DIR, flush_path, MAX_TIMEOUT
 from convert.util import ConversionFailure
 
 OUT_DIR = os.path.join(CONVERT_DIR, "out")
 log = logging.getLogger(__name__)
 
 
-class ProcessConverter(Converter):
+class ProcessConverter:
     def check_healthy(self):
-        return True
+        proc = self.get_proc()
+        if proc is None:
+            return True
+        timed_out = time.time() - MAX_TIMEOUT
+        if proc.create_time() > timed_out:
+            return True
+        return False
 
     def prepare(self):
         self.kill()
@@ -51,3 +59,26 @@ class ProcessConverter(Converter):
             self.kill()
 
         raise ConversionFailure("Cannot generate PDF.")
+
+    def kill(self):
+        # The Alfred Hitchcock approach to task management:
+        # https://www.youtube.com/watch?v=0WtDmbr9xyY
+        for i in range(10):
+            proc = self.get_proc()
+            if proc is None:
+                break
+            log.info("Disposing converter process.")
+            try:
+                proc.kill()
+                proc.wait(timeout=10)
+            except NoSuchProcess:
+                log.info("Process has disappeared")
+            except (TimeoutExpired, Exception) as exc:
+                log.error("Failed to kill: %r (%s)", proc, exc)
+                os._exit(23)
+
+    def get_proc(self):
+        for proc in process_iter(["cmdline", "create_time"]):
+            name = " ".join(proc.cmdline())
+            if "soffice.bin" in name:
+                return proc
