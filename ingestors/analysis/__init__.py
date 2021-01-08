@@ -1,4 +1,5 @@
 import logging
+from itertools import chain
 from pprint import pprint  # noqa
 from followthemoney import model
 from followthemoney.types import registry
@@ -7,6 +8,7 @@ from followthemoney.namespace import Namespace
 
 from ingestors import settings
 from ingestors.analysis.aggregate import TagAggregatorFasttext
+from ingestors.analysis.aggregate import TagAggregator
 from ingestors.analysis.extract import extract_entities
 from ingestors.analysis.patterns import extract_patterns
 from ingestors.analysis.language import detect_languages
@@ -24,7 +26,8 @@ class Analyzer(object):
         self.ns = Namespace(context.get("namespace", dataset.name))
         self.entity = model.make_entity(entity.schema)
         self.entity.id = entity.id
-        self.aggregator = TagAggregatorFasttext()
+        self.aggregator_entities = TagAggregatorFasttext()
+        self.aggregator_patterns = TagAggregatorFasttext()
 
     def feed(self, entity):
         if not settings.ANALYZE_ENTITIES:
@@ -39,19 +42,25 @@ class Analyzer(object):
         for text in text_chunks(texts):
             detect_languages(self.entity, text)
             for (prop, tag) in extract_entities(self.entity, text):
-                self.aggregator.add(prop, tag)
+                self.aggregator_entities.add(prop, tag)
             for (prop, tag) in extract_patterns(self.entity, text):
-                self.aggregator.add(prop, tag)
+                self.aggregator_patterns.add(prop, tag)
 
     def flush(self):
         writer = self.dataset.bulk()
         countries = set()
-        for (key, prop, values) in self.aggregator.results():
+        results = list(
+            chain(
+                self.aggregator_entities.results(), self.aggregator_patterns.results()
+            )
+        )
+
+        for (key, prop, values) in results:
             if prop.type == registry.country:
                 countries.add(key)
 
         mention_ids = set()
-        for (key, prop, values) in self.aggregator.results():
+        for (key, prop, values) in results:
             label = values[0]
             if prop.type == registry.name:
                 label = registry.name.pick(values)
@@ -72,10 +81,10 @@ class Analyzer(object):
 
             self.entity.add(prop, label, cleaned=True, quiet=True)
 
-        if len(self.aggregator):
+        if len(results):
             log.debug(
                 "Extracted %d prop values, %d mentions [%s]: %s",
-                len(self.aggregator),
+                len(results),
                 len(mention_ids),
                 self.entity.schema.name,
                 self.entity.id,
