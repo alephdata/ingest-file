@@ -1,20 +1,26 @@
-IMAGE=alephdata/ingest-file
+INGEST=ghcr.io/alephdata/ingest-file
+CONVERT=ghcr.io/alephdata/convert-document
 COMPOSE=docker-compose
 DOCKER=$(COMPOSE) run --rm ingest-file
-TAG=latest
 
-.PHONY: build push
+.PHONY: build
 
 all: build shell
 
-pull:
-	$(COMPOSE) pull --include-deps --ignore-pull-failures
-
 build:
-	$(COMPOSE) build --pull
+	$(COMPOSE) build --no-rm --parallel
 
-push:
-	docker push $(IMAGE):$(TAG)
+pull-cache:
+	-docker pull -q $(INGEST):cache
+	-docker pull -q $(CONVERT):cache
+
+cached-build: pull-cache
+	docker build --cache-from $(INGEST):cache -t $(INGEST) .
+	docker build --cache-from $(CONVERT):cache -t $(CONVERT) convert
+
+fresh-cache:
+	docker build --pull --no-cache -t $(INGEST):cache .
+    docker build --pull --no-cache -t $(CONVERT):cache convert
 
 services:
 	$(COMPOSE) up -d --remove-orphans postgres redis

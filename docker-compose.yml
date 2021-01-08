@@ -15,9 +15,6 @@ services:
   convert-document:
     build:
       context: convert
-      cache_from:
-        - ghcr.io/alephdata/ingest-file
-        - ghcr.io/alephdata/convert-document:cache
     image: ghcr.io/alephdata/convert-document
     read_only: true
     restart: on-failure
@@ -27,9 +24,6 @@ services:
   ingest-file:
     build:
       context: .
-      cache_from:
-        - ghcr.io/alephdata/ingest-file
-        - ghcr.io/alephdata/ingest-file:cache
     image: ghcr.io/alephdata/ingest-file
     hostname: ingest
     tmpfs:

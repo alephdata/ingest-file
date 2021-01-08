@@ -15,8 +15,7 @@ jobs:
           docker-compose --version
       - name: Build docker cache
         run: |
-          docker build --pull --no-cache -t ghcr.io/alephdata/ingest-file:cache .
-          docker build --pull --no-cache -t ghcr.io/alephdata/convert-document:cache convert
+          make fresh-cache
       - name: Push docker cache (hash)
         run: |
           echo ${{ secrets.CR_PAT }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin

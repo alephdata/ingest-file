@@ -12,16 +12,12 @@ jobs:
           docker --version
           docker-compose --version
           echo "${GITHUB_REF}"
-
-          docker-compose pull -q redis postgres
-          docker pull -q ghcr.io/alephdata/ingest-file:cache || echo "pull fail"
-          docker pull -q ghcr.io/alephdata/convert-document:cache || echo "pull fail"
       - name: Start services
         run: |
           make services
       - name: Build docker images
         run: |
-          make build
+          make cached-build
       - name: Run tests
         run: make test
       - name: Push docker images (hash)
