@@ -27,7 +27,7 @@ class Analyzer(object):
         self.entity = model.make_entity(entity.schema)
         self.entity.id = entity.id
         self.aggregator_entities = TagAggregatorFasttext()
-        self.aggregator_patterns = TagAggregatorFasttext()
+        self.aggregator_patterns = TagAggregator()
 
     def feed(self, entity):
         if not settings.ANALYZE_ENTITIES:
