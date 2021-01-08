@@ -29,10 +29,8 @@ class TagAggregatorFasttext(object):
             labels, confidences = self.model.confidence(values)
             for label, confidence in zip(labels, confidences):
                 if label == "trash" or confidence < 0.85:
-                    log.debug(f"TRASH: {key}: {values}: {labels}: {confidences}")
                     break
             else:
-                log.debug(f"KEEEP: {key}: {values}: {labels}: {confidences}")
                 yield (key, prop, values)
 
     def __len__(self):

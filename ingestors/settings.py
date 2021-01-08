@@ -30,7 +30,7 @@ NER_DEFAULT_MODEL = "xx"
 
 # FastText type prediction model file
 NER_TYPE_MODEL_PATH = env.get(
-    "INGESTORS_TYPE_MODEL_PATH", "/ingestors/data/model_type_prediction.ftz"
+    "INGESTORS_TYPE_MODEL_PATH", "/models/model_type_prediction.ftz"
 )
 
 # Use the environment variable set in aleph.env
