@@ -1,10 +1,10 @@
 import logging
 from followthemoney import model
+from ftmstore import get_dataset
 from servicelayer.worker import Worker
 from servicelayer.logs import apply_task_context
 
 from ingestors import __version__
-from ingestors.store import get_dataset
 from ingestors.manager import Manager
 from ingestors.analysis import Analyzer
 
@@ -44,14 +44,11 @@ class IngestWorker(Worker):
         apply_task_context(task, version=__version__)
         name = task.context.get("ftmstore", task.job.dataset.name)
         dataset = get_dataset(name, task.stage.stage)
-        try:
-            if task.stage.stage == OP_INGEST:
-                entity_ids = self._ingest(dataset, task)
-                payload = {"entity_ids": entity_ids}
-                self.dispatch_pipeline(task, payload)
-            elif task.stage.stage == OP_ANALYZE:
-                entity_ids = self._analyze(dataset, task)
-                payload = {"entity_ids": entity_ids}
-                self.dispatch_pipeline(task, payload)
-        finally:
-            dataset.close()
+        if task.stage.stage == OP_INGEST:
+            entity_ids = self._ingest(dataset, task)
+            payload = {"entity_ids": entity_ids}
+            self.dispatch_pipeline(task, payload)
+        elif task.stage.stage == OP_ANALYZE:
+            entity_ids = self._analyze(dataset, task)
+            payload = {"entity_ids": entity_ids}
+            self.dispatch_pipeline(task, payload)

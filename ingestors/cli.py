@@ -1,13 +1,13 @@
 import click
 import logging
 from pprint import pprint
+from ftmstore import get_dataset
 from servicelayer.cache import get_redis, get_fakeredis
 from servicelayer.logs import configure_logging
 from servicelayer.jobs import Job, Dataset
 from servicelayer.archive.util import ensure_path
 
 from ingestors import settings
-from ingestors.store import get_dataset
 from ingestors.manager import Manager
 from ingestors.directory import DirectoryIngestor
 from ingestors.analysis import Analyzer
@@ -101,8 +101,8 @@ def analyze(dataset):
 def debug(path, languages=None):
     """Debug the ingest for the given path."""
     conn = get_fakeredis()
-    settings.sts.DATABASE_URI = "sqlite:////tmp/debug.sqlite3"
-    db = get_dataset("debug", OP_INGEST)
+    settings.fts.DATABASE_URI = "sqlite:////tmp/debug.sqlite3"
+    db = get_dataset("debug", origin=OP_INGEST, database_uri=settings.fts.DATABASE_URI)
     db.delete()
     _ingest_path(db, conn, "debug", path, languages=languages)
     worker = IngestWorker(conn=conn, stages=STAGES)

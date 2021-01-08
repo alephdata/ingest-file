@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import types
 import unittest
 from tempfile import mkdtemp
+from ftmstore import get_dataset
 
 from servicelayer.cache import get_fakeredis
 from servicelayer.archive import init_archive
@@ -13,7 +14,6 @@ from servicelayer import settings as service_settings
 from ftmstore import settings as ftmstore_settings
 from ingestors import settings as ingestors_settings
 from ingestors.manager import Manager
-from ingestors.store import get_dataset
 from ingestors.worker import OP_INGEST
 
 
@@ -37,7 +37,7 @@ class TestCase(unittest.TestCase):
         conn = get_fakeredis()
         job = Job.create(conn, "test")
         stage = Stage(job, OP_INGEST)
-        dataset = get_dataset(job.dataset.name, OP_INGEST)
+        dataset = get_dataset(job.dataset.name, origin=OP_INGEST)
         Tags("ingest_cache").delete()
         self.manager = Manager(dataset, stage, {})
         self.manager.entities = []
