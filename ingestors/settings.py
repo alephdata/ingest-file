@@ -28,6 +28,11 @@ NER_DISABLE = ["ara"]
 NER_DISABLE = set(env.to_list("INGESTORS_NER_DISABLE", NER_DISABLE))
 NER_DEFAULT_MODEL = "xx"
 
+# FastText type prediction model file
+NER_TYPE_MODEL_PATH = env.get(
+    "INGESTORS_TYPE_MODEL_PATH", "/ingestors/data/model_type_prediction.ftz"
+)
+
 # Use the environment variable set in aleph.env
 sts.DATABASE_URI = env.get("ALEPH_DATABASE_URI", sts.DATABASE_URI)
 

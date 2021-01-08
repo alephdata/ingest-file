@@ -6,7 +6,7 @@ from followthemoney.util import make_entity_id
 from followthemoney.namespace import Namespace
 
 from ingestors import settings
-from ingestors.analysis.aggregate import TagAggregator
+from ingestors.analysis.aggregate import TagAggregatorFasttext
 from ingestors.analysis.extract import extract_entities
 from ingestors.analysis.patterns import extract_patterns
 from ingestors.analysis.language import detect_languages
@@ -24,7 +24,7 @@ class Analyzer(object):
         self.ns = Namespace(context.get("namespace", dataset.name))
         self.entity = model.make_entity(entity.schema)
         self.entity.id = entity.id
-        self.aggregator = TagAggregator()
+        self.aggregator = TagAggregatorFasttext()
 
     def feed(self, entity):
         if not settings.ANALYZE_ENTITIES:
