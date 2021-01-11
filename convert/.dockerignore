@@ -1,0 +1,7 @@
+.gitnore
+fixtures
+.vscode
+out.pdf
+test.pdf
+simple_uno.py
+Makefile

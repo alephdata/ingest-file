@@ -19,8 +19,10 @@ cached-build: pull-cache
 	docker build --cache-from $(CONVERT):cache -t $(CONVERT) convert
 
 fresh-cache:
+	# re-generate cache images on a daily basis to avoid using
+	# stale docker containers from upstream.
 	docker build --pull --no-cache -t $(INGEST):cache .
-    docker build --pull --no-cache -t $(CONVERT):cache convert
+	docker build --pull --no-cache -t $(CONVERT):cache convert
 
 services:
 	$(COMPOSE) up -d --remove-orphans postgres redis
