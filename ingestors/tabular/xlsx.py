@@ -15,6 +15,10 @@ class ExcelXMLIngestor(Ingestor, TableSupport, OOXMLSupport):
     MIME_TYPES = [
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",  # noqa
         "application/vnd.openxmlformats-officedocument.spreadsheetml.template",  # noqa
+        "application/vnd.ms-excel.sheet.macroenabled.12",
+        "application/vnd.ms-excel.sheet.binary.macroenabled.12",
+        "application/vnd.ms-excel.template.macroenabled.12",
+        "application/vnd.ms-excel.sheet.macroEnabled.main+xml",
     ]
     EXTENSIONS = ["xlsx", "xlsm", "xltx", "xltm"]
     SCORE = 7
@@ -32,15 +36,19 @@ class ExcelXMLIngestor(Ingestor, TableSupport, OOXMLSupport):
         try:
             book = load_workbook(file_path, read_only=True)
         except Exception as err:
-            raise ProcessingException("Invalid Excel file: %s" % err)
+            raise ProcessingException("Invalid Excel file: %s" % err) from err
 
         try:
             for name in book.sheetnames:
+                sheet = book[name]
+                if not hasattr(sheet, "rows"):
+                    log.warning("Cannot parse chart sheet: %s", name)
+                    continue
                 table = self.manager.make_entity("Table", parent=entity)
                 table.make_id(entity.id, name)
                 table.set("title", name)
                 log.debug("Sheet: %s", name)
-                self.emit_row_tuples(table, self.generate_rows(book[name]))
+                self.emit_row_tuples(table, self.generate_rows(sheet))
                 if table.has("csvHash"):
                     self.manager.emit_entity(table)
         except Exception as err:

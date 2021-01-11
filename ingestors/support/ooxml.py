@@ -57,8 +57,9 @@ class OOXMLSupport(TimestampSupport, XMLSupport):
         try:
             with zipfile.ZipFile(file_path, "r") as zf:
                 manifest = zf.open("[Content_Types].xml").read()
+                manifest = manifest.decode("utf-8").lower()
                 for mime_type in cls.MIME_TYPES:
-                    if mime_type.encode() in manifest:
+                    if mime_type.lower() in manifest:
                         return True
         except Exception:
             return False
