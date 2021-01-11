@@ -1,4 +1,5 @@
 import logging
+from followthemoney.proxy import EntityProxy
 from followthemoney.cli.util import read_entities, read_entity
 from followthemoney.util import MEGABYTE
 
@@ -31,8 +32,8 @@ class FtMIngestor(Ingestor, EncodingSupport):
         try:
             with open(file_path, "rb") as fh:
                 proxy = read_entity(fh, max_line=100 * MEGABYTE)
-                if proxy.id is not None and proxy.schema is not None:
+                if isinstance(proxy, EntityProxy) and proxy.id is not None:
                     return cls.SCORE
         except Exception:
-            log.exception("Failed to read FtM file: %s", entity)
+            log.exception("Failed to read FtM file: %r", entity)
         return -1
