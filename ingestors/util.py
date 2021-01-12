@@ -8,6 +8,17 @@ from urllib.parse import urlparse
 from contextlib import contextmanager
 
 
+class SingletonDecorator:
+    def __init__(self, klass):
+        self.klass = klass
+        self.instance = None
+
+    def __call__(self, *args, **kwds):
+        if self.instance == None:
+            self.instance = self.klass(*args, **kwds)
+        return self.instance
+
+
 def remove_directory(file_path):
     """Delete a directory, ignore errors."""
     try:
