@@ -109,6 +109,10 @@ ENV LANG='en_US.UTF-8' \
 RUN groupadd -g 1000 -r app \
     && useradd -m -u 1000 -s /bin/false -g app app
 
+# Download the ftm-typepredict model
+RUN mkdir /models/ && \
+    curl -o "/models/model_type_prediction.ftz" "https://public.data.occrp.org/develop/models/types/type-08012020-7a69d1b.ftz"
+
 RUN pip3 install --no-cache-dir -U pip setuptools
 COPY requirements.txt /tmp/
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
@@ -150,9 +154,6 @@ ENV ARCHIVE_TYPE=file \
     FTM_STORE_URI=postgresql://aleph:aleph@postgres/aleph \
     REDIS_URL=redis://redis:6379/0 \
     INGESTORS_CONVERT_DOCUMENT_URL=http://convert-document:3000/convert
-
-RUN mkdir /models/ && \
-    curl -o "/models/model_type_prediction.ftz" "https://public.data.occrp.org/develop/models/types/type-08012020-7a69d1b.ftz"
 
 # USER app
 CMD ingestors process
