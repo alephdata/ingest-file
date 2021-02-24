@@ -1,4 +1,4 @@
-banal==1.0.4
+banal==1.0.5
 normality==2.1.1
 pantomime==0.4.1
 followthemoney==2.2.2
