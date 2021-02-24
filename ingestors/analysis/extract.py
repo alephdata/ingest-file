@@ -1,6 +1,8 @@
 import spacy
 import logging
+from functools import lru_cache
 from normality import collapse_spaces
+from languagecodes import list_to_alpha3
 from fingerprints import clean_entity_name
 from followthemoney.types import registry
 
@@ -32,32 +34,22 @@ def clean_name(text):
     return text
 
 
-def _load_model(lang):
+@lru_cache(maxsize=5)
+def _load_model(model):
     """Load the spaCy model for the specified language"""
-    attr_name = "_nlp_%s" % lang
-    if not hasattr(settings, attr_name):
-        log.info("Loading spaCy model: %s..." % lang)
-        try:
-            model = spacy.load(lang, disable=["tagger", "parser"])
-            setattr(settings, attr_name, model)
-        except OSError:
-            log.error("Cannot load spaCy model: %s", lang)
-    return getattr(settings, attr_name)
+    return spacy.load(model)
 
 
 def get_models(entity):
     """Iterate over the NER models applicable to the given entity."""
     languages = entity.get_type_values(registry.language)
-    if settings.NER_DISABLE.intersection(languages):
-        log.debug("NER disabled for: %r", languages)
-        return []
-    models = []
-    for lang in languages:
-        if lang in settings.NER_MODELS:
-            models.append(_load_model(lang))
-    if not len(models):
-        models.append(_load_model(settings.NER_DEFAULT_MODEL))
-    return models
+    models = set()
+    for lang in list_to_alpha3(languages):
+        model = settings.NER_MODELS.get(lang)
+        if model is not None:
+            models.add(model)
+    for model in models:
+        yield _load_model(model)
 
 
 def extract_entities(entity, text):

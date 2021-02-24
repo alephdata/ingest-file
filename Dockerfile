@@ -119,32 +119,20 @@ RUN pip3 install --no-cache-dir -U pip setuptools
 COPY requirements.txt /tmp/
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
-# Install spaCy and link models to three-letter language codes
-RUN python3 -m spacy download xx_ent_wiki_sm \
-    && python3 -m spacy link xx_ent_wiki_sm xx
-RUN python3 -m spacy download en_core_web_sm \
-    && python3 -m spacy link en_core_web_sm eng
-RUN python3 -m spacy download de_core_news_sm \
-    && python3 -m spacy link de_core_news_sm deu
-RUN python3 -m spacy download fr_core_news_sm \
-    && python3 -m spacy link fr_core_news_sm fra
-RUN python3 -m spacy download es_core_news_sm \
-    && python3 -m spacy link es_core_news_sm spa
-RUN python3 -m spacy download pt_core_news_sm \
-    && python3 -m spacy link pt_core_news_sm por
-RUN python3 -m spacy download ro_core_news_sm \
-    && python3 -m spacy link ro_core_news_sm ron
-RUN python3 -m spacy download el_core_news_sm \
-    && python3 -m spacy link el_core_news_sm ell
-RUN python3 -m spacy download pl_core_news_sm \
-    && python3 -m spacy link pl_core_news_sm pol
-RUN python3 -m spacy download it_core_news_sm \
-    && python3 -m spacy link it_core_news_sm ita
-RUN python3 -m spacy download lt_core_news_sm \
-    && python3 -m spacy link lt_core_news_sm lit
-RUN python3 -m spacy download zh_core_web_sm \
-    && python3 -m spacy link zh_core_web_sm zho
-ENV INGESTORS_NER_MODELS=eng:deu:fra:spa:por:ron:ell:pol:ita:lit:zho
+# Install spaCy models
+RUN python3 -m spacy download en_core_web_sm
+RUN python3 -m spacy download de_core_news_sm
+RUN python3 -m spacy download fr_core_news_sm
+RUN python3 -m spacy download es_core_news_sm
+RUN python3 -m spacy download ru_core_news_sm
+RUN python3 -m spacy download pt_core_news_sm
+RUN python3 -m spacy download ro_core_news_sm
+RUN python3 -m spacy download mk_core_news_sm
+RUN python3 -m spacy download el_core_news_sm
+RUN python3 -m spacy download pl_core_news_sm
+RUN python3 -m spacy download it_core_news_sm
+RUN python3 -m spacy download lt_core_news_sm
+# RUN python3 -m spacy download zh_core_web_sm
 
 COPY . /ingestors
 WORKDIR /ingestors
