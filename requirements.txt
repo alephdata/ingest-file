@@ -10,7 +10,7 @@ pyicu==2.6
 google-cloud-vision==2.2.0
 tesserocr==2.5.1
 spacy==2.3.5
-fingerprints==1.0.1
+fingerprints==1.0.3
 fasttext==0.9.2
 
 # Development
