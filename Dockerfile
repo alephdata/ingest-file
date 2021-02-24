@@ -61,6 +61,7 @@ RUN apt-get -qq -y update \
     tesseract-ocr-lit \
     # tesseract-ocr-mal \
     tesseract-ocr-mkd \
+    tesseract-ocr-mya \
     tesseract-ocr-mlt \
     tesseract-ocr-msa \
     tesseract-ocr-est \
@@ -80,6 +81,7 @@ RUN apt-get -qq -y update \
     tesseract-ocr-bul \
     tesseract-ocr-cat \
     tesseract-ocr-ces \
+    tesseract-ocr-nep \
     # tesseract-ocr-chi_sim \
     # tesseract-ocr-chi_tra \
     # tesseract-ocr-chr \
