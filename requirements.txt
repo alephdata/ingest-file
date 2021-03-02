@@ -31,7 +31,7 @@ odfpy==1.4.1
 cchardet==2.1.7
 lxml==4.6.2
 olefile==0.46
-Pillow==8.1.0
+Pillow==8.1.1
 vobject==0.9.6.1
 msglite==0.29.1
 icalendar==4.0.7
