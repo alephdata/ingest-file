@@ -7,7 +7,7 @@ class TabularIngestorTest(TestCase):
         fixture_path, entity = self.fixture("file.xlsx")
         self.manager.ingest(fixture_path, entity)
         self.assertEqual(entity.first("processingStatus"), self.manager.STATUS_SUCCESS)
-        self.assertEqual(entity.schema, "Workbook")
+        self.assertEqual(entity.schema.name, "Workbook")
         tables = self.get_emitted("Table")
         self.assertEqual(len(tables), 2)
         titles = [t.first("title") for t in tables]
@@ -21,7 +21,7 @@ class TabularIngestorTest(TestCase):
         fixture_path, entity = self.fixture("rom.xls")
         self.manager.ingest(fixture_path, entity)
         self.assertEqual(entity.first("processingStatus"), self.manager.STATUS_SUCCESS)
-        self.assertEqual(entity.schema, "Workbook")
+        self.assertEqual(entity.schema.name, "Workbook")
         tables = self.get_emitted("Table")
         tables = [t.first("title") for t in tables]
         self.assertIn(u"Лист1", tables)
@@ -33,4 +33,4 @@ class TabularIngestorTest(TestCase):
         tables = self.get_emitted("Table")
         tables = [t.first("title") for t in tables]
         self.assertIn(u"Лист1", tables)
-        self.assertEqual(entity.schema, "Workbook")
+        self.assertEqual(entity.schema.name, "Workbook")

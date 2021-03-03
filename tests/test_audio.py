@@ -16,4 +16,4 @@ class AudioIngestorTest(TestCase):
         )
         self.assertEqual(entity.first("duration"), "2808")
         self.assertEqual(entity.first("samplingRate"), "44100")
-        self.assertEqual(entity.schema, "Audio")
+        self.assertEqual(entity.schema.name, "Audio")

@@ -10,4 +10,4 @@ class DirectoryTest(TestCase):
         self.manager.ingest(fixture_path, entity)
         self.assertEqual(entity.first("processingStatus"), self.manager.STATUS_SUCCESS)
         self.assertEqual(len(self.get_emitted()), 2)
-        self.assertEqual(entity.schema, "Folder")
+        self.assertEqual(entity.schema.name, "Folder")

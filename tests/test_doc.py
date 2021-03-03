@@ -12,7 +12,7 @@ class DocumentIngestorTest(TestCase):
             entity.first("mimeType"),
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # noqa
         )
-        self.assertEqual(entity.schema, "Pages")
+        self.assertEqual(entity.schema.name, "Pages")
 
     def test_ingest_word_doc(self):
         fixture_path, entity = self.fixture("doc.doc")
@@ -36,7 +36,7 @@ class DocumentIngestorTest(TestCase):
         self.assertIn(
             u"The Level 3 Bookmark", self.manager.entities[2].first("bodyText")
         )
-        self.assertEqual(entity.schema, "Pages")
+        self.assertEqual(entity.schema.name, "Pages")
 
     def test_ingest_presentation_doc(self):
         fixture_path, entity = self.fixture("slides.ppt")
@@ -46,7 +46,7 @@ class DocumentIngestorTest(TestCase):
 
         self.assertEqual(len(self.get_emitted()), 2)
         self.assertIn(u"Now", self.manager.entities[0].first("bodyText"))
-        self.assertEqual(entity.schema, "Pages")
+        self.assertEqual(entity.schema.name, "Pages")
         self.assertIn(today.strftime("%x"), self.manager.entities[0].first("bodyText"))
 
     def test_ingest_encrypted_doc(self):

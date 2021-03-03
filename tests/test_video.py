@@ -14,4 +14,4 @@ class VideoIngestorTest(TestCase):
             entity.get("authoredAt"),
         )
         self.assertEqual(entity.first("duration"), "60095")
-        self.assertEqual(entity.schema, "Video")
+        self.assertEqual(entity.schema.name, "Video")

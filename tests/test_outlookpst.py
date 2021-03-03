@@ -9,4 +9,4 @@ class OutlookPSTTest(TestCase):
         fixture_path, entity = self.fixture("testPST.pst")
         self.manager.ingest(fixture_path, entity)
         self.assertEqual(entity.first("processingStatus"), self.manager.STATUS_SUCCESS)
-        self.assertEqual(entity.schema, "Package")
+        self.assertEqual(entity.schema.name, "Package")

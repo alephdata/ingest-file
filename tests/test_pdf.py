@@ -36,7 +36,7 @@ class PDFIngestorTest(TestCase):
         self.assertEqual(
             self.manager.entities[0].first("bodyText"), "Hello, World! \nHello, World!"
         )
-        self.assertEqual(entity.schema, "Pages")
+        self.assertEqual(entity.schema.name, "Pages")
 
     def test_ingest_complex_fixture(self):
         fixture_path, entity = self.fixture("very_complex_math_book.pdf")

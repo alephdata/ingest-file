@@ -10,7 +10,7 @@ class DBFIngestorTest(TestCase):
         entities = self.get_emitted()
         table = entities[0]
         self.assertEqual(len(entities), 1)
-        self.assertEqual(entity.schema, "Table")
+        self.assertEqual(entity.schema.name, "Table")
         self.assertTrue(entity.has("csvHash"))
         self.assertEqual(int(entity.first("rowCount")), 9)
         self.assertIn("Azad Kashmir", table.get("indexText"))

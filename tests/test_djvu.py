@@ -12,4 +12,4 @@ class DejaVuIngestorTest(TestCase):
 
         self.assertEqual(len(self.manager.entities), 11 + 1)
         self.assertIn(u"Executive Orders", self.manager.entities[0].first("bodyText"))
-        self.assertEqual(entity.schema, "Pages")
+        self.assertEqual(entity.schema.name, "Pages")
