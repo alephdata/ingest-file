@@ -19,7 +19,7 @@ coverage==5.5
 click==7.1.2
 
 # File format support
-dbf==0.99.0
+dbf==0.99.1
 pdflib==0.3.0
 pymediainfo==5.0.3
 python-magic==0.4.22
