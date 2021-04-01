@@ -18,7 +18,7 @@ class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
     BODY_HTML = "text/html"
     BODY_PLAIN = "text/plain"
     BODY_TYPES = [BODY_HTML, BODY_PLAIN]
-    EXTENSIONS = ["eml", "emlx", "rfc822", "email", "msg"]
+    EXTENSIONS = ["eml", "rfc822", "email", "msg"]
     SCORE = 7
 
     def decode_part(self, part):
@@ -45,6 +45,13 @@ class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
         else:
             log.error("Dangling MIME fragment: %s", part)
 
+    def ingest_msg(self, entity, msg):
+        self.extract_msg_headers(entity, msg)
+        self.resolve_message_ids(entity)
+
+        for part in msg.walk():
+            self.parse_part(entity, part)
+
     def ingest(self, file_path, entity):
         entity.schema = model.get("Email")
         try:
@@ -53,8 +60,4 @@ class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
         except (MessageError, ValueError, IndexError) as err:
             raise ProcessingException("Cannot parse email: %s" % err) from err
 
-        self.extract_msg_headers(entity, msg)
-        self.resolve_message_ids(entity)
-
-        for part in msg.walk():
-            self.parse_part(entity, part)
+        self.ingest_msg(entity, msg)

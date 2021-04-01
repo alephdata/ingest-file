@@ -38,6 +38,7 @@ setup(
             "opfmsg = ingestors.email.olm:OutlookOLMMessageIngestor",
             "olemsg = ingestors.email.outlookmsg:OutlookMsgIngestor",
             "msg = ingestors.email.msg:RFC822Ingestor",
+            "emlx = ingestors.email.emlx:AppleEmlxIngestor",
             "vcard = ingestors.email.vcard:VCardIngestor",
             "calendar = ingestors.email.calendar:CalendarIngestor",
             "csv = ingestors.tabular.csv:CSVIngestor",
