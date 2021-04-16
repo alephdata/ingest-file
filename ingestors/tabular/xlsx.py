@@ -52,9 +52,7 @@ class ExcelXMLIngestor(Ingestor, TableSupport, OOXMLSupport):
                 if table.has("csvHash"):
                     self.manager.emit_entity(table)
         except Exception as err:
-            raise ProcessingException(
-                "Cannot read Excel file: %s" % err
-            ) from err  # noqa
+            raise ProcessingException("Cannot read Excel file: %s" % err) from err
         finally:
             book.close()
 

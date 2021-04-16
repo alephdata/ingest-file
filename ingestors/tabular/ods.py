@@ -61,7 +61,7 @@ class OpenOfficeSpreadsheetIngestor(Ingestor, TableSupport, OpenDocumentSupport)
         for sheet in doc.spreadsheet.getElementsByType(Table):
             name = sheet.getAttribute("name")
             table = self.manager.make_entity("Table", parent=entity)
-            table.make_id(entity, name)
+            table.make_id(entity.id, name)
             table.set("title", name)
             self.emit_row_tuples(table, self.generate_csv(sheet))
             if table.has("csvHash"):

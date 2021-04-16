@@ -1,3 +1,4 @@
+import sys
 import click
 import logging
 from pprint import pprint
@@ -5,6 +6,7 @@ from ftmstore import get_dataset
 from servicelayer.cache import get_redis, get_fakeredis
 from servicelayer.logs import configure_logging
 from servicelayer.jobs import Job, Dataset
+from servicelayer import settings as sl_settings
 from servicelayer.archive.util import ensure_path
 
 from ingestors import settings
@@ -26,11 +28,10 @@ def cli():
 @click.option("-s", "--sync", is_flag=True, default=False, help="Run without threads")
 def process(sync):
     """Start the queue and process tasks as they come. Blocks while waiting"""
-    worker = IngestWorker(stages=STAGES)
-    if sync:
-        worker.sync()
-    else:
-        worker.run()
+    num_threads = None if sync else sl_settings.WORKER_THREADS
+    worker = IngestWorker(stages=STAGES, num_threads=num_threads)
+    code = worker.run()
+    sys.exit(code)
 
 
 @cli.command()

@@ -49,8 +49,7 @@ class Manager(object):
 
     def make_entity(self, schema, parent=None):
         schema = model.get(schema)
-        prefix = self.stage.job.dataset.name
-        entity = model.make_entity(schema, key_prefix=prefix)
+        entity = model.make_entity(schema, key_prefix=self.stage.job.dataset.name)
         self.make_child(parent, entity)
         return entity
 
