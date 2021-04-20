@@ -33,7 +33,7 @@ lxml==4.6.3
 olefile==0.46
 Pillow==8.2.0
 vobject==0.9.6.1
-msglite==0.29.1
+msglite==0.30.0
 icalendar==4.0.7
 
 cryptography==3.4.7
