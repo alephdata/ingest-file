@@ -1,5 +1,5 @@
 banal==1.0.6
-normality==2.2.1
+normality==2.2.2
 pantomime==0.4.1
 followthemoney==2.5.2
 followthemoney-store[postgresql]==3.0.3
