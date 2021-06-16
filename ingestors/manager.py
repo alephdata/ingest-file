@@ -26,9 +26,9 @@ class Manager(object):
     into a larger processing framework."""
 
     #: Indicates that during the processing no errors or failures occured.
-    STATUS_SUCCESS = u"success"
+    STATUS_SUCCESS = "success"
     #: Indicates occurance of errors during the processing.
-    STATUS_FAILURE = u"failure"
+    STATUS_FAILURE = "failure"
 
     MAGIC = magic.Magic(mime=True)
 
@@ -124,6 +124,10 @@ class Manager(object):
             file_name = entity_filename(entity)
             file_path = self.load(content_hash, file_name=file_name)
             if file_path is None or not file_path.exists():
+                log.warning(
+                    f"Couldn't find file named {file_name} at path {file_path}."
+                    "Skipping ingestion."
+                )
                 continue
             self.ingest(file_path, entity)
             return
