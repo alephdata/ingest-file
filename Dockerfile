@@ -117,7 +117,7 @@ RUN mkdir /models/ && \
 
 RUN pip3 install --no-cache-dir -U pip setuptools
 COPY requirements.txt /tmp/
-RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
+RUN pip3 install --no-cache-dir --use-deprecated=legacy-resolver -r /tmp/requirements.txt
 
 # Install spaCy models
 RUN python3 -m spacy download en_core_web_sm \
