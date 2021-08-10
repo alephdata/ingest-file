@@ -36,6 +36,9 @@ NER_MODELS = {
     "pol": "pl_core_news_sm",
     "ita": "it_core_news_sm",
     "lit": "lt_core_news_sm",
+    "nld": "nl_core_news_sm",
+    "nob": "nb_core_news_sm",
+    "dan": "da_core_news_sm",
 }
 
 # FastText type prediction model file
