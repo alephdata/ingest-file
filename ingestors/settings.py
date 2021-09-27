@@ -47,7 +47,9 @@ NER_TYPE_MODEL_PATH = env.get(
 )
 
 # Use the environment variable set in aleph.env
-fts.DATABASE_URI = env.get("ALEPH_DATABASE_URI", fts.DATABASE_URI)
+fts.DATABASE_URI = env.get(
+    "FTM_STORE_URI", env.get("ALEPH_DATABASE_URI", fts.DATABASE_URI)
+)
 
 # Also store cached values in the SQL database
 sls.TAGS_DATABASE_URI = fts.DATABASE_URI
