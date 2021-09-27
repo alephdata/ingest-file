@@ -1,6 +1,5 @@
 import re
 from banal import ensure_list
-from followthemoney.types import registry
 
 from ingestors.analysis.util import TAG_EMAIL, TAG_PHONE
 from ingestors.analysis.util import TAG_IBAN, TAG_COUNTRY
@@ -21,13 +20,10 @@ REGEX_TYPES = {
 
 
 def extract_patterns(entity, text):
-    countries = entity.get_type_values(registry.country)
     for pattern, prop in REGEX_TYPES.items():
         for match in pattern.finditer(text):
             match_text = match.group(0)
-            value = prop.type.clean(match_text, countries=countries)
-            if not prop.type.validate(value, countries=countries):
-                continue
+            value = prop.type.clean(match_text, proxy=entity)
             yield (prop, value)
             for country in ensure_list(prop.type.country_hint(value)):
                 yield (TAG_COUNTRY, country)
