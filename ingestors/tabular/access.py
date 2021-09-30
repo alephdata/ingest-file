@@ -59,6 +59,10 @@ class AccessIngestor(Ingestor, TableSupport, ShellSupport):
             table = self.manager.make_entity("Table", parent=entity)
             table.make_id(entity.id, table_name)
             table.set("title", table_name)
+            # Emit a partial table fragment with parent reference and name
+            # early, so that we don't have orphan fragments in case of an error
+            # in the middle of processing.
+            self.manager.emit_entity(table, fragment="initial")
             rows = self.generate_rows(file_path, table_name)
             self.emit_row_dicts(table, rows)
             self.manager.emit_entity(table)

@@ -57,6 +57,10 @@ class ExcelIngestor(Ingestor, TableSupport, OLESupport):
                 table = self.manager.make_entity("Table", parent=entity)
                 table.make_id(entity.id, sheet.name)
                 table.set("title", sheet.name)
+                # Emit a partial table fragment with parent reference and name
+                # early, so that we don't have orphan fragments in case of an error
+                # in the middle of processing.
+                self.manager.emit_entity(table, fragment="initial")
                 self.emit_row_tuples(table, self.generate_csv(sheet))
                 if table.has("csvHash"):
                     self.manager.emit_entity(table)
