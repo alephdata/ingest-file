@@ -117,7 +117,7 @@ RUN mkdir /models/ && \
 
 RUN pip3 install --no-cache-dir -U pip setuptools
 COPY requirements.txt /tmp/
-RUN pip3 install --no-cache-dir --use-deprecated=legacy-resolver -r /tmp/requirements.txt
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
 # Install spaCy models
 RUN python3 -m spacy download en_core_web_sm \
@@ -131,7 +131,10 @@ RUN python3 -m spacy download ru_core_news_sm \
 RUN python3 -m spacy download el_core_news_sm \
     && python3 -m spacy download pl_core_news_sm \
     && python3 -m spacy download it_core_news_sm \
-    && python3 -m spacy download lt_core_news_sm
+    && python3 -m spacy download lt_core_news_sm \
+    && python3 -m spacy download nl_core_news_sm \
+    && python3 -m spacy download nb_core_news_sm \
+    && python3 -m spacy download da_core_news_sm
 # RUN python3 -m spacy download zh_core_web_sm
 
 COPY . /ingestors
