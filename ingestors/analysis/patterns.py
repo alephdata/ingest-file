@@ -24,6 +24,8 @@ def extract_patterns(entity, text):
         for match in pattern.finditer(text):
             match_text = match.group(0)
             value = prop.type.clean(match_text, proxy=entity)
+            if value is None:
+                continue
             yield (prop, value)
             for country in ensure_list(prop.type.country_hint(value)):
                 yield (TAG_COUNTRY, country)
