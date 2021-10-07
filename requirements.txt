@@ -36,5 +36,5 @@ vobject==0.9.6.1
 msglite==0.30.0
 icalendar==4.0.7
 
-cryptography==3.4.8
+cryptography==35.0.0
 requests[security]==2.26.0
