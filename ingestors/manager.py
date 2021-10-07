@@ -147,7 +147,7 @@ class Manager(object):
             entity.set("processingStatus", self.STATUS_SUCCESS)
         except ProcessingException as pexc:
             entity.set("processingError", stringify(pexc))
-            log.error("[%r] Failed to process: %s", entity, pexc)
+            log.exception("[%r] Failed to process: %s", entity, pexc)
         finally:
             self.finalize(entity)
 

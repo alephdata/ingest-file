@@ -57,6 +57,11 @@ class SQLiteIngestor(Ingestor, TableSupport):
                 table = self.manager.make_entity("Table", parent=entity)
                 table.make_id(entity, table_name)
                 table.set("title", table_name)
+                # Emit a partial table fragment with parent reference and name
+                # early, so that we don't have orphan fragments in case of an error
+                # in the middle of processing.
+                # See https://github.com/alephdata/ingest-file/issues/171
+                self.manager.emit_entity(table, fragment="initial")
                 rows = self.generate_rows(conn, table_name)
                 self.emit_row_dicts(table, rows)
                 self.manager.emit_entity(table)
