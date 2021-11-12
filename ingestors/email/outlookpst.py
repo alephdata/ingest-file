@@ -24,12 +24,9 @@ class OutlookPSTIngestor(Ingestor, TempFileSupport, OLESupport, ShellSupport):
             self.exec_command(
                 "readpst",
                 "-e",  # make subfolders, files per message
-                "-S",  # single files
                 "-D",  # include deleted
-                # '-r',   # recursive structure
                 "-8",  # utf-8 where possible
                 "-cv",  # export vcards
-                # '-q',   # quiet
                 "-o",
                 temp_dir,
                 file_path,
