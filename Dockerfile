@@ -57,6 +57,7 @@ RUN apt-get -qq -y update \
     tesseract-ocr-kan \
     tesseract-ocr-kat \
     # tesseract-ocr-kor \
+    tesseract-ocr-khm  \
     tesseract-ocr-lav \
     tesseract-ocr-lit \
     # tesseract-ocr-mal \
