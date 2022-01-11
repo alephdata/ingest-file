@@ -99,6 +99,9 @@ class Manager(object):
                 best_score = score
                 best_cls = cls
 
+        print(best_score)
+        print(best_cls)
+        
         if best_cls is None:
             raise ProcessingException("Format not supported")
         return best_cls
