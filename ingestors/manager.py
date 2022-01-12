@@ -96,7 +96,7 @@ class Manager(object):
 
         for cls in get_extensions("ingestors"):
             score = cls.match(file_path, entity)
-            print("HERE")
+
             if score > best_score:
                 best_score = score
                 best_cls = cls
