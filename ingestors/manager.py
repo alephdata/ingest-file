@@ -86,6 +86,9 @@ class Manager(object):
             self.emit_entity(doc, fragment=safe_fragment(fragment))
 
     def auction(self, file_path, entity):
+        print(file_path)
+        print(entity)
+
         if not entity.has("mimeType"):
             if file_path.is_dir():
                 entity.add("mimeType", DirectoryIngestor.MIME_TYPE)
@@ -93,15 +96,13 @@ class Manager(object):
             entity.add("mimeType", self.MAGIC.from_file(file_path.as_posix()))
 
         best_score, best_cls = 0, None
+
         for cls in get_extensions("ingestors"):
             score = cls.match(file_path, entity)
             if score > best_score:
                 best_score = score
                 best_cls = cls
 
-        print(best_score)
-        print(best_cls)
-        
         if best_cls is None:
             raise ProcessingException("Format not supported")
         return best_cls
