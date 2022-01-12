@@ -86,9 +86,6 @@ class Manager(object):
             self.emit_entity(doc, fragment=safe_fragment(fragment))
 
     def auction(self, file_path, entity):
-        print(file_path)
-        print(entity)
-
         if not entity.has("mimeType"):
             if file_path.is_dir():
                 entity.add("mimeType", DirectoryIngestor.MIME_TYPE)
@@ -99,6 +96,7 @@ class Manager(object):
 
         for cls in get_extensions("ingestors"):
             score = cls.match(file_path, entity)
+            print(score)
             if score > best_score:
                 best_score = score
                 best_cls = cls
