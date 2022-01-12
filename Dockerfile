@@ -116,7 +116,7 @@ RUN groupadd -g 1000 -r app \
 RUN mkdir /models/ && \
     curl -o "/models/model_type_prediction.ftz" "https://public.data.occrp.org/develop/models/types/type-08012020-7a69d1b.ftz"
 
-RUN pip3 install --no-cache-dir -U pip setuptools
+# RUN pip3 install --no-cache-dir -U pip setuptools
 COPY requirements.txt /tmp/
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
@@ -140,7 +140,7 @@ RUN python3 -m spacy download el_core_news_sm \
 
 COPY . /ingestors
 WORKDIR /ingestors
-# RUN pip3 install --no-cache-dir -e /ingestors
+RUN pip3 install --no-cache-dir -e /ingestors
 RUN chown -R app:app /ingestors
 
 ENV ARCHIVE_TYPE=file \
