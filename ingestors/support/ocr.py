@@ -133,7 +133,10 @@ class GoogleOCRService(object):
         log.info("Using Google Vision API. Charges apply.")
 
     def extract_text(self, data, languages=None):
-        from google.cloud.vision import types
+        try:
+            from google.cloud.vision import types
+        except ImportError:
+            from google.cloud.vision_v1 import types
 
         image = types.Image(content=data)
         res = self.client.document_text_detection(image)
