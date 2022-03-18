@@ -1,9 +1,6 @@
 import logging
-import chardet
-from normality import stringify, guess_encoding
-from normality.encoding import guess_file_encoding, normalize_result
-from normality.encoding import normalize_encoding, tidy_encoding
-from normality import predict_file_encoding, predict_encoding
+from normality.encoding import tidy_encoding
+from normality import stringify, predict_file_encoding, predict_encoding
 from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
