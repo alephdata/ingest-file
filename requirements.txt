@@ -3,7 +3,7 @@ normality==2.2.5
 pantomime==0.5.1
 followthemoney==2.8.3
 followthemoney-store[postgresql]==3.0.3
-servicelayer[google,amazon]==1.19.0
+# servicelayer[google,amazon]==1.19.0
 languagecodes==1.1.1
 countrytagger==0.1.2
 pyicu==2.8.1
@@ -38,3 +38,5 @@ icalendar==4.0.9
 
 cryptography==36.0.1
 requests[security]==2.27.1
+
+https://github.com/alephdata/servicelayer/archive/a04a22c1c3aabde4b6607bcbf2fc7bd2707e2339.zip

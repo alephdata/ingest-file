@@ -2,12 +2,13 @@ from __future__ import absolute_import
 
 import types
 import unittest
+import uuid
 from tempfile import mkdtemp
 from ftmstore import get_dataset
 
 from servicelayer.cache import get_fakeredis
 from servicelayer.archive import init_archive
-from servicelayer.jobs import Job, Stage
+from servicelayer.taskqueue import Task
 from servicelayer.tags import Tags
 from servicelayer.archive.util import ensure_path
 from servicelayer import settings as service_settings
@@ -34,12 +35,18 @@ class TestCase(unittest.TestCase):
         service_settings.ARCHIVE_TYPE = "file"
         service_settings.ARCHIVE_PATH = mkdtemp()
         ftmstore_settings.DATABASE_URI = "sqlite://"
-        conn = get_fakeredis()
-        job = Job.create(conn, "test")
-        stage = Stage(job, OP_INGEST)
-        dataset = get_dataset(job.dataset.name, origin=OP_INGEST)
+        dataset = get_dataset("test", origin=OP_INGEST)
         Tags("ingest_cache").delete()
-        self.manager = Manager(dataset, stage, {})
+        task = Task(
+            task_id=uuid.uuid4().hex,
+            job_id=uuid.uuid4().hex,
+            collection_id="test",
+            operation=OP_INGEST,
+            delivery_tag="",
+            context={},
+            payload={},
+        )
+        self.manager = Manager(dataset, task)
         self.manager.entities = []
         self.manager.emit_entity = types.MethodType(emit_entity, self.manager)
         self.manager.queue_entity = types.MethodType(queue_entity, self.manager)

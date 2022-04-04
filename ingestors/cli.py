@@ -1,11 +1,12 @@
 import sys
 import click
 import logging
+import uuid
 from pprint import pprint
 from ftmstore import get_dataset
 from servicelayer.cache import get_redis, get_fakeredis
 from servicelayer.logs import configure_logging
-from servicelayer.jobs import Job, Dataset
+from servicelayer.taskqueue import Dataset, Task
 from servicelayer import settings as sl_settings
 from servicelayer.archive.util import ensure_path
 
@@ -13,10 +14,9 @@ from ingestors import settings
 from ingestors.manager import Manager
 from ingestors.directory import DirectoryIngestor
 from ingestors.analysis import Analyzer
-from ingestors.worker import IngestWorker, OP_ANALYZE, OP_INGEST
+from ingestors.worker import get_worker, OP_INGEST, OP_ANALYZE
 
 log = logging.getLogger(__name__)
-STAGES = [OP_ANALYZE, OP_INGEST]
 
 
 @click.group()
@@ -29,7 +29,7 @@ def cli():
 def process(sync):
     """Start the queue and process tasks as they come. Blocks while waiting"""
     num_threads = None if sync else sl_settings.WORKER_THREADS
-    worker = IngestWorker(stages=STAGES, num_threads=num_threads)
+    worker = get_worker(num_threads=num_threads)
     code = worker.run()
     sys.exit(code)
 
@@ -49,11 +49,17 @@ def killthekitten():
     conn.flushall()
 
 
-def _ingest_path(db, conn, dataset, path, languages=[]):
+def _ingest_path(db, dataset, path, languages=[]):
     context = {"languages": languages}
-    job = Job.create(conn, dataset)
-    stage = job.get_stage(OP_INGEST)
-    manager = Manager(db, stage, context)
+    task = Task(
+        task_id=uuid.uuid4().hex,
+        job_id=uuid.uuid4().hex,
+        collection_id=dataset,
+        delivery_tag="",
+        context=context,
+        payload={},
+    )
+    manager = Manager(db, task)
     path = ensure_path(path)
     if path is not None:
         if path.is_file():
@@ -75,9 +81,8 @@ def _ingest_path(db, conn, dataset, path, languages=[]):
 @click.argument("path", type=click.Path(exists=True))
 def ingest(path, dataset, languages=None):
     """Queue a set of files for ingest."""
-    conn = get_redis()
     db = get_dataset(dataset, OP_INGEST)
-    _ingest_path(db, conn, dataset, path, languages=languages)
+    _ingest_path(db, dataset, path, languages=languages)
 
 
 @cli.command()
@@ -105,8 +110,8 @@ def debug(path, languages=None):
     settings.fts.DATABASE_URI = "sqlite:////tmp/debug.sqlite3"
     db = get_dataset("debug", origin=OP_INGEST, database_uri=settings.fts.DATABASE_URI)
     db.delete()
-    _ingest_path(db, conn, "debug", path, languages=languages)
-    worker = IngestWorker(conn=conn, stages=STAGES)
+    _ingest_path(db, "debug", path, languages=languages)
+    worker = get_worker()
     worker.sync()
     for entity in db.iterate():
         pprint(entity.to_dict())

@@ -53,3 +53,5 @@ fts.DATABASE_URI = env.get(
 
 # Also store cached values in the SQL database
 sls.TAGS_DATABASE_URI = fts.DATABASE_URI
+
+RABBITMQ_URL = env.get("ALEPH_RABBITMQ_URL", "rabbitmq")

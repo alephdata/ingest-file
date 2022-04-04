@@ -2,6 +2,7 @@ import magic
 import logging
 from pprint import pprint  # noqa
 from tempfile import mkdtemp
+
 from followthemoney import model
 from banal import ensure_list
 from normality import stringify
@@ -10,6 +11,7 @@ from ftmstore.utils import safe_fragment
 from servicelayer.archive import init_archive
 from servicelayer.archive.util import ensure_path
 from servicelayer.extensions import get_extensions
+from servicelayer.cache import get_redis
 from followthemoney.helpers import entity_filename
 from followthemoney.namespace import Namespace
 
@@ -32,11 +34,13 @@ class Manager(object):
 
     MAGIC = magic.Magic(mime=True)
 
-    def __init__(self, dataset, stage, context):
+    def __init__(self, dataset, root_task):
+        self.conn = get_redis()
         self.dataset = dataset
         self.writer = dataset.bulk()
-        self.stage = stage
-        self.context = context
+        self.root_task = root_task
+        self.collection_id = root_task.collection_id
+        self.context = root_task.context
         self.ns = Namespace(self.context.get("namespace"))
         self.work_path = ensure_path(mkdtemp(prefix="ingestor-"))
         self.emitted = set()
@@ -49,7 +53,7 @@ class Manager(object):
 
     def make_entity(self, schema, parent=None):
         schema = model.get(schema)
-        entity = model.make_entity(schema, key_prefix=self.stage.job.dataset.name)
+        entity = model.make_entity(schema, key_prefix=self.collection_id)
         self.make_child(parent, entity)
         return entity
 
@@ -104,8 +108,16 @@ class Manager(object):
         return best_cls
 
     def queue_entity(self, entity):
+        from ingestors.worker import OP_INGEST, queue_task
+
         log.debug("Queue: %r", entity)
-        self.stage.queue(entity.to_dict(), self.context)
+        queue_task(
+            self.collection_id,
+            OP_INGEST,
+            self.root_task.job_id,
+            self.context,
+            **entity.to_dict(),
+        )
 
     def store(self, file_path, mime_type=None):
         file_path = ensure_path(file_path)
