@@ -39,4 +39,4 @@ icalendar==4.0.9
 cryptography==36.0.1
 requests[security]==2.27.1
 
-https://github.com/alephdata/servicelayer/archive/a04a22c1c3aabde4b6607bcbf2fc7bd2707e2339.zip
+https://github.com/alephdata/servicelayer/archive/55ebf2bf5bfb82c7d7d657e050aeccc2a47162af.zip

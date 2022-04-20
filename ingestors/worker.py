@@ -2,7 +2,6 @@ import logging
 import json
 from pprint import pformat  # noqa
 import uuid
-import threading
 
 import pika
 from banal import ensure_list
@@ -18,7 +17,7 @@ from servicelayer.taskqueue import (
     get_routing_key,
     OP_ANALYZE,
     OP_INGEST,
-    get_rabbitmq_channel,
+    get_rabbitmq_connection,
 )
 
 from ingestors import __version__
@@ -26,10 +25,6 @@ from ingestors.manager import Manager
 from ingestors.analysis import Analyzer
 
 log = logging.getLogger(__name__)
-
-
-threadlocal = threading.local()
-threadlocal.channel = get_rabbitmq_channel()
 
 
 # ToDo: Move to servicelayer??
@@ -45,7 +40,9 @@ def queue_task(collection_id, stage, job_id=None, context=None, **payload):
     }
 
     try:
-        threadlocal.channel.basic_publish(
+        connection = get_rabbitmq_connection()
+        channel = connection.channel()
+        channel.basic_publish(
             exchange="",
             routing_key=get_routing_key(body["operation"]),
             body=json.dumps(body),
@@ -57,6 +54,7 @@ def queue_task(collection_id, stage, job_id=None, context=None, **payload):
             conn=get_redis(), name=dataset_from_collection_id(collection_id)
         )
         dataset.add_task(task_id)
+        channel.close()
     except pika.exceptions.UnroutableError:
         log.exception("Error while queuing task")
 
@@ -88,7 +86,7 @@ class IngestWorker(Worker):
             entity_ids.update(analyzer.flush())
         return list(entity_ids)
 
-    def dispatch_task(self, task: Task):
+    def dispatch_task(self, task: Task) -> Task:
         name = task.context.get("ftmstore", task.collection_id)
         ftmstore_dataset = get_dataset(name, task.operation)
         if task.operation == OP_INGEST:
@@ -99,6 +97,7 @@ class IngestWorker(Worker):
             entity_ids = self._analyze(ftmstore_dataset, task)
             payload = {"entity_ids": entity_ids}
             self.dispatch_pipeline(task, payload)
+        return task
 
     def dispatch_pipeline(self, task: Task, payload):
         """Some queues use a continuation passing style pipeline argument
