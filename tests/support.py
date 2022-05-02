@@ -34,6 +34,9 @@ class TestCase(unittest.TestCase):
         service_settings.REDIS_URL = None
         service_settings.ARCHIVE_TYPE = "file"
         service_settings.ARCHIVE_PATH = mkdtemp()
+        service_settings.QUEUE_ALEPH = "ingesttest-aleph-queue"
+        service_settings.QUEUE_INDEX = "ingesttest-index-queue"
+        service_settings.QUEUE_INGEST = "ingesttest-ingest-queue"
         ftmstore_settings.DATABASE_URI = "sqlite://"
         dataset = get_dataset("test", origin=OP_INGEST)
         Tags("ingest_cache").delete()

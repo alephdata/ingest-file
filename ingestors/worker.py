@@ -8,12 +8,12 @@ from banal import ensure_list
 from followthemoney import model
 from ftmstore import get_dataset
 from servicelayer.cache import get_redis
+from servicelayer import settings as sls
 from servicelayer.taskqueue import (
     Worker,
     Task,
     Dataset,
     dataset_from_collection_id,
-    QUEUE_INGEST,
     get_routing_key,
     OP_ANALYZE,
     OP_INGEST,
@@ -123,7 +123,7 @@ def get_worker(num_threads=None):
     log.info(f"Worker active, stages: {operations}")
     return IngestWorker(
         queues=[
-            QUEUE_INGEST,
+            sls.QUEUE_INGEST,
         ],
         conn=get_redis(),
         version=__version__,
