@@ -49,3 +49,13 @@ jobs:
           docker tag ghcr.io/alephdata/convert-document ghcr.io/alephdata/convert-document:${TAG};
           docker push ghcr.io/alephdata/convert-document:${TAG};
           docker push ghcr.io/alephdata/convert-document;
+      - name: Temporarily also push docker images for the task-queue branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/sunu/task-queue'
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+
+          docker tag ghcr.io/alephdata/ingest-file ghcr.io/alephdata/ingest-file:${GITHUB_SHA}
+          docker push ghcr.io/alephdata/ingest-file:${GITHUB_SHA}
+
+          docker tag ghcr.io/alephdata/convert-document ghcr.io/alephdata/convert-document:${GITHUB_SHA}
+          docker push ghcr.io/alephdata/convert-document:${GITHUB_SHA}
