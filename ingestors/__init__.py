@@ -1,7 +1,7 @@
 """Provides a set of ingestors based on different file types."""
 import logging
 
-__version__ = "3.16.1"
+__version__ = "3.16.2"
 
 logging.getLogger("chardet").setLevel(logging.INFO)
 logging.getLogger("PIL").setLevel(logging.INFO)
