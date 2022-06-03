@@ -39,4 +39,4 @@ icalendar==4.0.9
 cryptography==36.0.1
 requests[security]==2.27.1
 
-https://github.com/alephdata/servicelayer/archive/8b9c2f255290875e316c5dfcffa3f0c80dbe9cea.zip
+servicelayer[google,amazon] @ https://github.com/alephdata/servicelayer/archive/8b9c2f255290875e316c5dfcffa3f0c80dbe9cea.zip
