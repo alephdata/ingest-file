@@ -1,4 +1,4 @@
-Flask==2.1.2
+Flask==2.1.3
 pantomime==0.5.1
 gunicorn[gthread]==20.1.0
 psutil==5.9.1
