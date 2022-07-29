@@ -52,7 +52,12 @@ class OutlookMsgIngestor(Ingestor, EmailSupport, OLESupport, TempFileSupport):
         entity.add("bodyHtml", msg.htmlBody)
         entity.add("messageId", self.parse_message_ids(msg.message_id))
 
-        rtf_body = msg.rtfBody
+        try:
+            rtf_body = msg.rtfBody
+        except Exception:
+            log.exception("Cannot parse RTF body of the email")
+            rtf_body = None
+
         if rtf_body is not None:
             rtf_path = self.make_work_file("body.rtf")
             with open(rtf_path, "wb") as fh:

@@ -38,6 +38,7 @@ NER_MODELS = {
     "lit": "lt_core_news_sm",
     "nld": "nl_core_news_sm",
     "nob": "nb_core_news_sm",
+    "nor": "nb_core_news_sm",
     "dan": "da_core_news_sm",
 }
 
