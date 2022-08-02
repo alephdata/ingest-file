@@ -139,7 +139,7 @@ class EmailSupport(TempFileSupport, HTMLSupport, CacheSupport):
 
     def resolve_message_ids(self, entity):
         # https://cr.yp.to/immhf/thread.html
-        ctx = self.manager.stage.job.dataset.name
+        ctx = self.manager.collection_id
 
         for message_id in entity.get("messageId"):
             key = self.cache_key("mid-ent", ctx, message_id)
