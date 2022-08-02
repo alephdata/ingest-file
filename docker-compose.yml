@@ -12,6 +12,9 @@ services:
     image: redis:alpine
     command: ["redis-server", "--save", "3600", "10"]
 
+  rabbitmq:
+    image: rabbitmq:3.9-management-alpine
+
   ingest-file:
     build:
       context: .
@@ -22,7 +25,7 @@ services:
       - /data:mode=777
     environment:
       FTM_STORE_URI: postgresql://ingest:ingest@postgres/ingest
-      LOG_FORMAT: TEXT  # TEXT or JSON
+      LOG_FORMAT: TEXT # TEXT or JSON
     volumes:
       - "./ingestors:/ingestors/ingestors"
       - "./tests:/ingestors/tests"
@@ -33,3 +36,4 @@ services:
     depends_on:
       - postgres
       - redis
+      - rabbitmq
