@@ -42,6 +42,7 @@ def queue_task(collection_id, stage, job_id=None, context=None, **payload):
     try:
         connection = get_rabbitmq_connection()
         channel = connection.channel()
+        channel.confirm_delivery()
         channel.basic_publish(
             exchange="",
             routing_key=get_routing_key(body["operation"]),
@@ -49,14 +50,15 @@ def queue_task(collection_id, stage, job_id=None, context=None, **payload):
             properties=pika.BasicProperties(
                 delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE
             ),
+            mandatory=True,
         )
         dataset = Dataset(
             conn=get_redis(), name=dataset_from_collection_id(collection_id)
         )
         dataset.add_task(task_id)
         channel.close()
-    except pika.exceptions.UnroutableError:
-        log.exception("Error while queuing task")
+    except Exception:
+        log.exception(f"Error while queuing task: {task_id}")
 
 
 class IngestWorker(Worker):
