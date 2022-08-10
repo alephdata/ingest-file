@@ -7,7 +7,7 @@ servicelayer[google,amazon]==1.20.1
 languagecodes==1.1.1
 countrytagger==0.1.2
 pyicu==2.9
-google-cloud-vision==3.0.0
+google-cloud-vision==3.1.0
 tesserocr==2.5.2
 spacy==3.4.1
 fingerprints==1.0.3
