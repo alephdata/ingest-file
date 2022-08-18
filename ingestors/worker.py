@@ -130,4 +130,5 @@ def get_worker(num_threads=None):
         conn=get_redis(),
         version=__version__,
         num_threads=num_threads,
+        prefetch_count=1,
     )
