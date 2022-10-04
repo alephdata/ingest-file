@@ -42,6 +42,10 @@ class PDFIngestor(Ingestor, PDFSupport):
             entity.add("generator", meta.get("creator"))
             entity.add("generator", meta.get("producer"))
             entity.add("keywords", meta.get("subject"))
+            if "creationdate" in meta:
+                entity.add("authoredAt", meta.get("creationdate"))
+            if "moddate" in meta:
+                entity.add("modifiedAt", meta.get("moddate"))
 
     def ingest(self, file_path, entity):
         """Ingestor implementation."""
