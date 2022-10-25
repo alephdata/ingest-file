@@ -25,7 +25,7 @@ RUN apt-get -qq -y update \
     libtiff5-dev libjpeg-dev libfreetype6-dev libwebp-dev \
     libtiff-tools ghostscript librsvg2-bin \
     # pdf processing toolkit
-    poppler-utils poppler-data pst-utils \
+    pkg-config poppler-utils poppler-data pst-utils \
     ### tesseract 
     tesseract-ocr-eng \
     tesseract-ocr-swa \
