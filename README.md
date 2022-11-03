@@ -22,6 +22,26 @@ Other features:
 * Lightweight worker-style support for logging, failures and callbacks.
 * Throughly tested.
 
+## Development environment
+
+For local development with a virtualenv:
+
+```bash
+python3 -mvenv .env
+source .env/bin/activate
+pip install -r requirements.txt
+```
+
+## Release procedure
+
+```bash
+git pull --rebase
+make test
+source .env/bin/activate
+bump2version {patch,minor,major} # pick the appropriate one
+git push --atomic origin master $(git describe --tags --abbrev=0)
+```
+
 ## Usage
 
 Ingestors are usually called in the context of Aleph. In order to run them
