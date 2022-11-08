@@ -34,7 +34,7 @@ olefile==0.46
 Pillow==9.2.0
 vobject==0.9.6.1
 msglite==0.30.0
-icalendar==4.1.0
+icalendar==5.0.2
 
 cryptography==38.0.1
 requests[security]==2.28.1
