@@ -23,4 +23,4 @@ class DjVuIngestor(Ingestor, PDFSupport, TempFileSupport):
             "ddjvu", "-format=pdf", "-quality=100", "-skip", file_path, pdf_path
         )
         self.assert_outfile(pdf_path)
-        self.pdf_alternative_extract(entity, pdf_path)
+        self.pdf_alternative_extract(entity, pdf_path, self.manager)
