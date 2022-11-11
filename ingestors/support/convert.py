@@ -39,8 +39,8 @@ class DocumentConvertSupport(CacheSupport, TempFileSupport):
         """Converts an office document to PDF."""
         file_name = entity_filename(entity)
         mime_type = entity.first("mimeType")
-        for attempt in range(CONVERT_RETRIES):
-            log.debug("Converting [%s] to PDF (attempt %d)...", entity, attempt)
+        log.info("Converting [%s] to PDF", entity)
+        for attempt in range(1, CONVERT_RETRIES + 1):
             try:
                 with open(file_path, "rb") as fh:
                     files = {"file": (file_name, fh, mime_type)}
@@ -59,6 +59,7 @@ class DocumentConvertSupport(CacheSupport, TempFileSupport):
                         bytes_written += len(chunk)
                         fh.write(chunk)
                     if bytes_written > 50:
+                        log.info("converted %s to PDF (attempt %d)", entity, attempt)
                         return out_path
                 raise ProcessingException("Could not be converted to PDF.")
             except HTTPError as exc:
