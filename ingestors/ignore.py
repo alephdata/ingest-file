@@ -1,8 +1,8 @@
-import logging
+from ingestors.log import get_logger
 
 from ingestors.ingestor import Ingestor
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class IgnoreIngestor(Ingestor):

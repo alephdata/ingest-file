@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 from dbf import Table, DbfError
 from collections import OrderedDict
 from normality import stringify
@@ -8,7 +8,7 @@ from ingestors.ingestor import Ingestor
 from ingestors.exc import ProcessingException
 from ingestors.support.table import TableSupport
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class DBFIngestor(Ingestor, TableSupport):

@@ -1,5 +1,5 @@
 import os
-import logging
+from ingestors.log import get_logger
 from flask import Flask, request, send_file
 from pantomime import FileName, normalize_mimetype, mimetype_extension
 from pantomime.types import PDF
@@ -11,7 +11,7 @@ from convert.util import CONVERT_DIR, MAX_TIMEOUT
 from convert.util import SystemFailure, ConversionFailure
 
 logging.basicConfig(level=logging.DEBUG)
-log = logging.getLogger("convert")
+log = get_logger("convert")
 app = Flask("convert")
 lock = FileLock()
 extensions = load_mime_extensions()

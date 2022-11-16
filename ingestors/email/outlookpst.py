@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 from followthemoney import model
 
 from ingestors.ingestor import Ingestor
@@ -7,7 +7,7 @@ from ingestors.support.shell import ShellSupport
 from ingestors.support.ole import OLESupport
 from ingestors.directory import DirectoryIngestor
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class OutlookPSTIngestor(Ingestor, TempFileSupport, OLESupport, ShellSupport):

@@ -1,12 +1,12 @@
-import logging
 from followthemoney.proxy import EntityProxy
 from followthemoney.cli.util import read_entities, read_entity
 from followthemoney.util import MEGABYTE
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.encoding import EncodingSupport
+from ingestors.log import get_logger
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class FtMIngestor(Ingestor, EncodingSupport):

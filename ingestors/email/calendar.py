@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 import icalendar
 from vobject.base import ParseError
 from banal import ensure_list
@@ -10,7 +10,7 @@ from ingestors.support.encoding import EncodingSupport
 from ingestors.support.email import EmailIdentity
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 def cal_date(value):

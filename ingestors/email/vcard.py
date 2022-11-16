@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 import vobject
 from vobject.base import ParseError
 from banal import ensure_list
@@ -9,7 +9,7 @@ from ingestors.ingestor import Ingestor
 from ingestors.support.encoding import EncodingSupport
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class VCardIngestor(Ingestor, EncodingSupport):

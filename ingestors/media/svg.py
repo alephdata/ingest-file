@@ -1,11 +1,11 @@
-import logging
+from ingestors.log import get_logger
 from followthemoney import model
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.html import HTMLSupport
 from ingestors.support.encoding import EncodingSupport
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class SVGIngestor(Ingestor, EncodingSupport, HTMLSupport):

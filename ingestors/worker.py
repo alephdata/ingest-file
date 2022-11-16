@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 from followthemoney import model
 from ftmstore import get_dataset
 from servicelayer.worker import Worker
@@ -8,7 +8,7 @@ from ingestors import __version__
 from ingestors.manager import Manager
 from ingestors.analysis import Analyzer
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 OP_INGEST = "ingest"
 OP_ANALYZE = "analyze"
 

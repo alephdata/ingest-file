@@ -1,5 +1,5 @@
 import email
-import logging
+from ingestors.log import get_logger
 from email.policy import default
 from email.errors import MessageError
 from followthemoney import model
@@ -7,7 +7,7 @@ from followthemoney import model
 from ingestors.email.msg import RFC822Ingestor
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class AppleEmlxIngestor(RFC822Ingestor):

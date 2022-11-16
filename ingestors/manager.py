@@ -1,5 +1,5 @@
 import magic
-import logging
+from ingestors.log import get_logger
 from pprint import pprint  # noqa
 from tempfile import mkdtemp
 from followthemoney import model
@@ -18,7 +18,7 @@ from ingestors.exc import ProcessingException
 from ingestors.util import filter_text, remove_directory
 from ingestors import settings
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class Manager(object):

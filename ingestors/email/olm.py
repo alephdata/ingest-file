@@ -1,5 +1,5 @@
 import shutil
-import logging
+from ingestors.log import get_logger
 import zipfile
 import pathlib
 from pprint import pprint  # noqa
@@ -14,7 +14,7 @@ from ingestors.support.timestamp import TimestampSupport
 from ingestors.support.email import EmailSupport, EmailIdentity
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 MIME = "application/xml+opfmessage"
 
 

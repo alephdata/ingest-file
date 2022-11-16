@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 from followthemoney import model
 from pymediainfo import MediaInfo
 
@@ -6,7 +6,7 @@ from ingestors.ingestor import Ingestor
 from ingestors.support.timestamp import TimestampSupport
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class VideoIngestor(Ingestor, TimestampSupport):

@@ -1,5 +1,5 @@
 import csv
-import logging
+from ingestors.log import get_logger
 from pantomime.types import CSV
 from collections import OrderedDict
 from followthemoney.types import registry
@@ -8,7 +8,7 @@ from followthemoney.util import sanitize_text
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.encoding import EncodingSupport
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class TableSupport(EncodingSupport, TempFileSupport):

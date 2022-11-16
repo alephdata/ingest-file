@@ -1,10 +1,10 @@
-import logging
+from ingestors.log import get_logger
 from odf.opendocument import load
 
 from ingestors.support.timestamp import TimestampSupport
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class OpenDocumentSupport(TimestampSupport):

@@ -1,5 +1,5 @@
 import email
-import logging
+from ingestors.log import get_logger
 from email.policy import default
 from email.errors import MessageError
 from pantomime import normalize_mimetype
@@ -10,7 +10,7 @@ from ingestors.support.email import EmailSupport
 from ingestors.support.encoding import EncodingSupport
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):

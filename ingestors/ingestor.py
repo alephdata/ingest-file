@@ -1,7 +1,7 @@
-import logging
+from ingestors.log import get_logger
 from pantomime import normalize_mimetype, normalize_extension
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class Ingestor(object):

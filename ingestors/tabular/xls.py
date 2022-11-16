@@ -1,5 +1,5 @@
 import xlrd
-import logging
+from ingestors.log import get_logger
 from datetime import datetime, time
 from xlrd.biffh import XLRDError
 from followthemoney import model
@@ -9,7 +9,7 @@ from ingestors.support.table import TableSupport
 from ingestors.support.ole import OLESupport
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class ExcelIngestor(Ingestor, TableSupport, OLESupport):

@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 from followthemoney import model
 from openpyxl import load_workbook
 from xml.etree.ElementTree import ParseError
@@ -8,7 +8,7 @@ from ingestors.support.table import TableSupport
 from ingestors.support.ooxml import OOXMLSupport
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class ExcelXMLIngestor(Ingestor, TableSupport, OOXMLSupport):

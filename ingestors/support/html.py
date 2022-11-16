@@ -1,5 +1,5 @@
 import re
-import logging
+from ingestors.log import get_logger
 from lxml import html
 from lxml.etree import ParseError, ParserError
 from normality import collapse_spaces
@@ -7,7 +7,7 @@ from normality import collapse_spaces
 from ingestors.support.timestamp import TimestampSupport
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class HTMLSupport(TimestampSupport):

@@ -1,5 +1,5 @@
 import math
-import logging
+from ingestors.log import get_logger
 import requests
 from requests import RequestException, HTTPError
 from servicelayer.util import backoff
@@ -11,7 +11,7 @@ from ingestors.support.temp import TempFileSupport
 from ingestors.util import explicit_resolve
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class DocumentConvertSupport(CacheSupport, TempFileSupport):

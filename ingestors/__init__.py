@@ -1,10 +1,11 @@
 """Provides a set of ingestors based on different file types."""
 import logging
+from ingestors.log import get_logger
 
 __version__ = "3.17.1"
 
-logging.getLogger("chardet").setLevel(logging.INFO)
-logging.getLogger("PIL").setLevel(logging.INFO)
-logging.getLogger("google.auth").setLevel(logging.INFO)
-logging.getLogger("urllib3").setLevel(logging.WARNING)
-logging.getLogger("msglite").setLevel(logging.WARNING)
+get_logger("chardet").setLevel(logging.INFO)
+get_logger("PIL").setLevel(logging.INFO)
+get_logger("google.auth").setLevel(logging.INFO)
+get_logger("urllib3").setLevel(logging.WARNING)
+get_logger("msglite").setLevel(logging.WARNING)

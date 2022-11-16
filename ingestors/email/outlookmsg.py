@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 from msglite import Message
 from olefile import isOleFile
 from normality import stringify
@@ -11,7 +11,7 @@ from ingestors.support.temp import TempFileSupport
 from ingestors.support.ole import OLESupport
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 RTF_MIME = "application/rtf"
 
 

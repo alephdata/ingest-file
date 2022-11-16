@@ -1,9 +1,9 @@
-import logging
+from ingestors.log import get_logger
 from banal import ensure_list
 from normality import stringify
 from datetime import datetime, date
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class TimestampSupport(object):

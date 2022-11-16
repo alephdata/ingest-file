@@ -1,5 +1,5 @@
 import time
-import logging
+from ingestors.log import get_logger
 import threading
 from hashlib import sha1
 from normality import stringify
@@ -11,7 +11,7 @@ from ingestors import settings
 from ingestors.support.cache import CacheSupport
 from ingestors.util import temp_locale
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 TESSERACT_LOCALE = "C"
 
 

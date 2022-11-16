@@ -1,7 +1,7 @@
 import os
 import io
 import csv
-import logging
+from ingestors.log import get_logger
 import subprocess
 from collections import OrderedDict
 from followthemoney import model
@@ -11,7 +11,7 @@ from ingestors.support.shell import ShellSupport
 from ingestors.support.table import TableSupport
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class AccessIngestor(Ingestor, TableSupport, ShellSupport):

@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 
 import fasttext
 import numpy as np
@@ -6,7 +6,7 @@ from normality import normalize
 
 from ingestors.util import SingletonDecorator
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 @SingletonDecorator
 class FTTypeModel(object):

@@ -1,9 +1,9 @@
-import logging
+from ingestors.log import get_logger
 import fasttext
 
 from ingestors import settings
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 THRESHOLD = 0.6
 
 

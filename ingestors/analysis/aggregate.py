@@ -1,10 +1,10 @@
-import logging
+from ingestors.log import get_logger
 from collections import defaultdict
 
 from ingestors.analysis.ft_type_model import FTTypeModel
 from ingestors.settings import NER_TYPE_MODEL_PATH
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class TagAggregatorFasttext(object):

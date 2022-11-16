@@ -1,6 +1,6 @@
 import re
 import types
-import logging
+from ingestors.log import get_logger
 from banal import ensure_list
 from normality import stringify
 from ftmstore.utils import safe_fragment
@@ -12,7 +12,7 @@ from ingestors.support.html import HTMLSupport
 from ingestors.support.cache import CacheSupport
 from ingestors.support.temp import TempFileSupport
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class EmailIdentity(object):

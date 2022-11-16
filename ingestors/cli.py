@@ -1,6 +1,6 @@
 import sys
 import click
-import logging
+from ingestors.log import get_logger
 from pprint import pprint
 from ftmstore import get_dataset
 from servicelayer.cache import get_redis, get_fakeredis
@@ -15,7 +15,7 @@ from ingestors.directory import DirectoryIngestor
 from ingestors.analysis import Analyzer
 from ingestors.worker import IngestWorker, OP_ANALYZE, OP_INGEST
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 STAGES = [OP_ANALYZE, OP_INGEST]
 
 

@@ -1,11 +1,11 @@
-import logging
+from ingestors.log import get_logger
 from banal import ensure_list
 
 from servicelayer.tags import Tags
 from servicelayer.cache import make_key
 from servicelayer.settings import REDIS_LONG
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class CacheSupport(object):

@@ -1,5 +1,5 @@
 import spacy
-import logging
+from ingestors.log import get_logger
 from functools import lru_cache
 from normality import collapse_spaces
 from languagecodes import list_to_alpha3
@@ -11,7 +11,7 @@ from ingestors.analysis.country import location_country
 from ingestors.analysis.util import TAG_PERSON, TAG_COMPANY
 from ingestors.analysis.util import TAG_LOCATION, TAG_COUNTRY
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 NAME_MAX_LENGTH = 100
 NAME_MIN_LENGTH = 4
 # https://spacy.io/api/annotation#named-entities

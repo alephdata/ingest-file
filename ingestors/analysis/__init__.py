@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 from itertools import chain
 from pprint import pprint  # noqa
 from followthemoney import model
@@ -15,7 +15,7 @@ from ingestors.analysis.language import detect_languages
 from ingestors.analysis.util import TAG_COMPANY, TAG_PERSON
 from ingestors.analysis.util import text_chunks, ANALYZABLE, DOCUMENT
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class Analyzer(object):

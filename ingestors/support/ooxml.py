@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 import zipfile
 from zipfile import ZipFile, BadZipfile
 
@@ -7,7 +7,7 @@ from ingestors.support.timestamp import TimestampSupport
 
 # from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class OOXMLSupport(TimestampSupport, XMLSupport):

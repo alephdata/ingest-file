@@ -1,11 +1,11 @@
-import logging
+from ingestors.log import get_logger
 from lxml import etree
 from lxml.etree import XMLSyntaxError, ParseError, ParserError
 from pathlib import Path
 
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class XMLSupport(object):

@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 import chardet
 from normality import stringify, guess_encoding
 from normality.encoding import guess_file_encoding, normalize_result
@@ -6,7 +6,7 @@ from normality.encoding import normalize_encoding
 
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class EncodingSupport(object):

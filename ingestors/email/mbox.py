@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 import mailbox
 from email.policy import default
 from email.generator import BytesGenerator
@@ -8,7 +8,7 @@ from followthemoney import model
 from ingestors.email.msg import RFC822Ingestor
 from ingestors.support.temp import TempFileSupport
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class MboxFileIngestor(RFC822Ingestor, TempFileSupport):

@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 from followthemoney import model
 
 from ingestors.ingestor import Ingestor
@@ -6,7 +6,7 @@ from ingestors.support.pdf import PDFSupport
 from ingestors.support.shell import ShellSupport
 from ingestors.support.temp import TempFileSupport
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class TIFFIngestor(Ingestor, PDFSupport, TempFileSupport, ShellSupport):

@@ -1,9 +1,9 @@
 import os
-import logging
+from ingestors.log import get_logger
 from tempfile import gettempdir
 from psutil import pid_exists
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class FileLock:

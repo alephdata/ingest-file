@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 from io import BytesIO
 from PIL import Image, ExifTags
 from followthemoney import model
@@ -8,7 +8,7 @@ from ingestors.support.ocr import OCRSupport
 from ingestors.support.timestamp import TimestampSupport
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class ImageIngestor(Ingestor, OCRSupport, TimestampSupport):

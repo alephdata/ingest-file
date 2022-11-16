@@ -1,11 +1,11 @@
-import logging
+from ingestors.log import get_logger
 from pprint import pprint  # noqa
 from olefile import isOleFile, OleFileIO
 
 from ingestors.support.timestamp import TimestampSupport
 from ingestors.support.encoding import EncodingSupport
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class OLESupport(TimestampSupport, EncodingSupport):

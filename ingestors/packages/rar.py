@@ -1,11 +1,11 @@
-import logging
+from ingestors.log import get_logger
 import rarfile
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.package import PackageSupport
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class RARIngestor(PackageSupport, Ingestor):

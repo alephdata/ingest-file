@@ -1,11 +1,11 @@
-import logging
+from ingestors.log import get_logger
 from pdflib import Document
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.pdf import PDFSupport
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class PDFIngestor(Ingestor, PDFSupport):

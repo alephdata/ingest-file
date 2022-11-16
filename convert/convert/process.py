@@ -1,6 +1,6 @@
 import os
 import time
-import logging
+from ingestors.log import get_logger
 import subprocess
 from psutil import process_iter, TimeoutExpired, NoSuchProcess
 
@@ -8,7 +8,7 @@ from convert.util import CONVERT_DIR, flush_path, MAX_TIMEOUT
 from convert.util import ConversionFailure
 
 OUT_DIR = os.path.join(CONVERT_DIR, "out")
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class ProcessConverter:

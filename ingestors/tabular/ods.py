@@ -1,4 +1,4 @@
-import logging
+from ingestors.log import get_logger
 from odf.teletype import extractText
 from odf.table import TableRow, TableCell, Table
 from odf.text import P
@@ -9,7 +9,7 @@ from ingestors.ingestor import Ingestor
 from ingestors.support.table import TableSupport
 from ingestors.support.opendoc import OpenDocumentSupport
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class OpenOfficeSpreadsheetIngestor(Ingestor, TableSupport, OpenDocumentSupport):

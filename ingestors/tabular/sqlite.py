@@ -1,5 +1,5 @@
 import re
-import logging
+from ingestors.log import get_logger
 import sqlite3
 from followthemoney import model
 from collections import OrderedDict
@@ -8,7 +8,7 @@ from ingestors.ingestor import Ingestor
 from ingestors.support.table import TableSupport
 from ingestors.exc import ProcessingException
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 class SQLiteIngestor(Ingestor, TableSupport):
