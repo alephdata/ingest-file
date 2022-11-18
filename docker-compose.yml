@@ -31,7 +31,6 @@ services:
       - /data:mode=777
     environment:
       FTM_STORE_URI: postgresql://ingest:ingest@postgres/ingest
-      INGESTORS_CONVERT_DOCUMENT_URL: http://127.0.0.1:3000/convert
     volumes:
       - "./ingestors:/ingestors/ingestors"
       - "./tests:/ingestors/tests"
