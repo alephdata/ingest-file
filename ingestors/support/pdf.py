@@ -1,11 +1,13 @@
+from binascii import b2a_hex
 from dataclasses import dataclass
 from io import StringIO
 import logging
+import os
 from typing import Dict, List
 import uuid
 
-from pdfminer.converter import TextConverter
-from pdfminer.layout import LAParams
+from pdfminer.converter import TextConverter, PDFPageAggregator
+from pdfminer.layout import LAParams, LTImage, LTFigure
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfpage import PDFPage
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
@@ -99,6 +101,63 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         entity.set("pdfHash", checksum)
         self.parse_and_ingest(pdf_path, entity, manager)
 
+    def _write_file(self, folder, filename, filedata, flags="w"):
+        """Write the file data to the folder and filename combination
+        (flags: 'w' for write text, 'wb' for write binary, use 'a' instead of 'w' for append)"""
+        result = False
+        if os.path.isdir(folder):
+            try:
+                file_obj = open(os.path.join(folder, filename), flags)
+                file_obj.write(filedata)
+                file_obj.close()
+                result = True
+            except IOError:
+                pass
+        return result
+
+    def _determine_image_type(self, stream_first_4_bytes):
+        """Find out the image file type based on the magic number comparison of the first 4 (or 2) bytes"""
+        file_type = None
+        bytes_as_hex = b2a_hex(stream_first_4_bytes)
+        print(f"magic bytes {bytes_as_hex}")
+        if bytes_as_hex.startswith(b"ffd8"):
+            file_type = ".jpeg"
+        elif bytes_as_hex == "89504e47":
+            file_type = ".png"
+        elif bytes_as_hex == "47494638":
+            file_type = ".gif"
+        elif bytes_as_hex.startswith(b"424d"):
+            file_type = ".bmp"
+        return file_type
+
+    def _save_image(self, lt_image, page_number, images_folder):
+        """Try to save the image data from this LTImage object, and return the file name, if successful"""
+        result = None
+        if lt_image.stream:
+            file_stream = lt_image.stream.get_rawdata()
+            if file_stream:
+                first_bytes = file_stream[0:4]
+                file_ext = self._determine_image_type(first_bytes) or "xxx"
+                if file_ext:
+                    file_name = "".join(
+                        [str(page_number), "_", lt_image.name, file_ext]
+                    )
+                    if self._write_file(
+                        images_folder, file_name, file_stream, flags="wb"
+                    ):
+                        result = file_name
+                else:
+                    log.debug(f"Unrecognized image starting with {first_bytes}")
+        return result
+
+    def _parse_images(self, layout, page_number, folder):
+        for obj in layout:
+            if isinstance(obj, LTImage):
+                saved_file = self._save_image(obj, page_number, folder)
+                print(f"Found {folder}/{saved_file}")
+            elif isinstance(obj, LTFigure):
+                self._parse_images(obj, page_number, folder)
+
     def pdf_extract_page(self, page: PDFPage, page_number: int) -> PdfPageModel:
         """Extract the contents of a single PDF page, using OCR if need be."""
         page_model = PdfPageModel(number=page_number, text="")
@@ -107,8 +166,16 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         device = TextConverter(rsrcmgr, buf, laparams=LAParams())
         interpreter = PDFPageInterpreter(rsrcmgr, device)
         interpreter.process_page(page)
-        texts = buf.getvalue()
+
+        # images
         # temp_dir = self.make_empty_directory()
+        temp_dir = "/tests"
+        rsrcmgr = PDFResourceManager()
+        device = PDFPageAggregator(rsrcmgr)
+        interpreter = PDFPageInterpreter(rsrcmgr, device)
+        interpreter.process_page(page)
+        self._parse_images(device.get_result(), page_number, temp_dir)
+        texts = buf.getvalue()
         # image_path = temp_dir.joinpath(str(uuid.uuid4()))
         # page.extract_images(path=bytes(image_path), prefix=b"img")
         # languages = self.manager.context.get("languages")
