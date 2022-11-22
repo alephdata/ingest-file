@@ -7,12 +7,7 @@ import uuid
 
 import pikepdf
 from PIL import Image
-from pdfminer.converter import TextConverter
-from pdfminer.layout import LAParams
-from pdfminer.pdfdocument import PDFDocument
-from pdfminer.pdfpage import PDFPage
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfparser import PDFParser
+from PyPDF2 import PdfReader
 
 from normality import collapse_spaces  # noqa
 
@@ -85,10 +80,9 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         """Takes a file_path to a pdf and returns a `PdfModel`"""
         pdf_model = PdfModel(metadata=None, xmp_metadata=None, pages=[])
         with open(file_path, "rb") as pdf_file:
-            parser = PDFParser(pdf_file)
+            reader = PdfReader(pdf_file)
             pike_doc = pikepdf.Pdf.open(pdf_file)
-            pdf_doc = PDFDocument(parser)
-            for page_number, page in enumerate(PDFPage.create_pages(pdf_doc), 1):
+            for page_number, page in enumerate(reader.pages, 1):
                 pdf_model.pages.append(
                     self.pdf_extract_page(page, pike_doc, page_number)
                 )
@@ -174,17 +168,9 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
             else:
                 image.extract_to(fileprefix=filepath_prefix)
 
-    def pdf_extract_page(
-        self, page: PDFPage, pike_doc, page_number: int
-    ) -> PdfPageModel:
+    def pdf_extract_page(self, page, pike_doc, page_number: int) -> PdfPageModel:
         """Extract the contents of a single PDF page, using OCR if need be."""
-        page_model = PdfPageModel(number=page_number, text="")
-        buf = StringIO()
-        rsrcmgr = PDFResourceManager()
-        device = TextConverter(rsrcmgr, buf, laparams=LAParams())
-        interpreter = PDFPageInterpreter(rsrcmgr, device)
-        interpreter.process_page(page)
-        texts = buf.getvalue()
+        texts = page.extract_text()
         temp_dir = self.make_empty_directory()
         image_path = temp_dir.joinpath(str(uuid.uuid4()))
         os.mkdir(image_path)
@@ -197,6 +183,6 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
                 text = self.extract_ocr_text(data, languages=languages)
                 if text is not None:
                     texts += text
+        texts = "".join(texts.strip())
 
-        page_model.text = texts.strip()
-        return page_model
+        return PdfPageModel(number=page_number, text=texts)

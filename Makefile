@@ -32,7 +32,7 @@ shell: services
 	$(DOCKER) /bin/bash
 
 test: services
-	$(DOCKER) nosetests --with-coverage --cover-package=ingestors
+	$(DOCKER) nosetests --with-coverage --cover-package=ingestors tests/test_pdf.py
 
 restart: build
 	$(COMPOSE) up --force-recreate --no-deps --detach convert-document ingest-file
