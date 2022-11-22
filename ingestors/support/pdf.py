@@ -1,9 +1,12 @@
 from dataclasses import dataclass
 from io import StringIO
 import logging
+import os
 from typing import Dict, List
 import uuid
 
+import pikepdf
+from PIL import Image
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfdocument import PDFDocument
@@ -83,9 +86,12 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         pdf_model = PdfModel(metadata=None, xmp_metadata=None, pages=[])
         with open(file_path, "rb") as pdf_file:
             parser = PDFParser(pdf_file)
+            pike_doc = pikepdf.Pdf.open(pdf_file)
             pdf_doc = PDFDocument(parser)
             for page_number, page in enumerate(PDFPage.create_pages(pdf_doc), 1):
-                pdf_model.pages.append(self.pdf_extract_page(page, page_number))
+                pdf_model.pages.append(
+                    self.pdf_extract_page(page, pike_doc, page_number)
+                )
         return pdf_model
 
     def parse_and_ingest(self, file_path, entity, manager):
@@ -99,7 +105,78 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         entity.set("pdfHash", checksum)
         self.parse_and_ingest(pdf_path, entity, manager)
 
-    def pdf_extract_page(self, page: PDFPage, page_number: int) -> PdfPageModel:
+    def _find_images(self, container, depth=0):
+        if "/Resources" not in container:
+            return []
+        resources = container["/Resources"]
+
+        if "/XObject" not in resources:
+            return []
+        xobjects = resources["/XObject"].as_dict()
+
+        if depth > 0:
+            allow_recursion = False
+        else:
+            allow_recursion = True
+
+        images = []
+
+        for xobject in xobjects:
+            candidate = xobjects[xobject]
+            if candidate["/Subtype"] == "/Image":
+                if "/SMask" in candidate:
+                    images.append([candidate, candidate["/SMask"]])
+                else:
+                    images.append(candidate)
+            elif allow_recursion and candidate["/Subtype"] == "/Form":
+                images.extend(self._find_images(candidate, depth=depth + 1))
+
+        return images
+
+    def _extract_images(self, pike_doc, image_path, prefix="img"):
+        raw_images = []
+        found_imgs = self._find_images(pike_doc)
+        raw_images.extend(found_imgs)
+
+        pdfimages = []
+        for r in raw_images:
+            if isinstance(r, list):
+                base_image = pikepdf.PdfImage(r[0]).as_pil_image()
+                soft_mask = pikepdf.PdfImage(r[1]).as_pil_image()
+
+                if base_image.size != soft_mask.size:
+                    log.debug(
+                        "Warning: Image and /SMask have a different size. This is unexpected.",
+                    )
+                    soft_mask = soft_mask.resize(base_image.size)
+
+                if base_image.mode in ("L", "LA"):
+                    transparency = Image.new("LA", base_image.size, (0, 0))
+                else:
+                    if base_image.mode not in ("RGB", "RGBA"):
+                        base_image = base_image.convert("RGB")
+                    transparency = Image.new("RGBA", base_image.size, (0, 0, 0, 0))
+
+                composite = Image.composite(base_image, transparency, soft_mask)
+
+                pdfimages.append(composite)
+
+            else:
+                pdfimages.append(pikepdf.PdfImage(r))
+
+        n_images = len(pdfimages)
+
+        n_digits = len(str(n_images))
+        for i, image in enumerate(pdfimages):
+            filepath_prefix = os.path.join(image_path, prefix + f"{i+1:0{n_digits}}")
+            if isinstance(image, Image.Image):
+                image.save(filepath_prefix + ".png", "PNG")
+            else:
+                image.extract_to(fileprefix=filepath_prefix)
+
+    def pdf_extract_page(
+        self, page: PDFPage, pike_doc, page_number: int
+    ) -> PdfPageModel:
         """Extract the contents of a single PDF page, using OCR if need be."""
         page_model = PdfPageModel(number=page_number, text="")
         buf = StringIO()
@@ -108,17 +185,18 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         interpreter = PDFPageInterpreter(rsrcmgr, device)
         interpreter.process_page(page)
         texts = buf.getvalue()
-        # temp_dir = self.make_empty_directory()
-        # image_path = temp_dir.joinpath(str(uuid.uuid4()))
-        # page.extract_images(path=bytes(image_path), prefix=b"img")
-        # languages = self.manager.context.get("languages")
-        # for image_file in image_path.glob("*.png"):
-        #    with open(image_file, "rb") as fh:
-        #        data = fh.read()
-        #        text = self.extract_ocr_text(data, languages=languages)
-        #        if text is not None:
-        #            texts.append(text)
+        temp_dir = self.make_empty_directory()
+        image_path = temp_dir.joinpath(str(uuid.uuid4()))
+        os.mkdir(image_path)
+        pike_page = pike_doc.pages[page_number - 1]
+        self._extract_images(pike_page, image_path)
+        languages = self.manager.context.get("languages")
+        for image_file in image_path.glob("*.png"):
+            with open(image_file, "rb") as fh:
+                data = fh.read()
+                text = self.extract_ocr_text(data, languages=languages)
+                if text is not None:
+                    texts += text
 
-        text = " \n".join(texts).strip()
-        page_model.text = texts
+        page_model.text = texts.strip()
         return page_model
