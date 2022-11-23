@@ -64,3 +64,15 @@ class PDFIngestorTest(TestCase):
             "Würde und der gleichen und unveräußerlichen",
             self.manager.entities[0].first("bodyText"),
         )
+
+    def test_ingest_protected(self):
+        fixture_path, entity = self.fixture("password-hunter2.pdf")
+        self.manager.ingest(fixture_path, entity)
+
+        self.assertEqual(len(self.get_emitted()), 1)
+        text = self.manager.entities[0].first("bodyText")
+        self.assertEqual(None, text)
+        err = self.manager.entities[0].first("processingError")
+        self.assertIn("Could not extract PDF file: PasswordError", err)
+        status = self.manager.entities[0].first("processingStatus")
+        self.assertEqual("failure", status)
