@@ -95,10 +95,14 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         return pdf_model
 
     def parse_and_ingest(self, file_path, entity, manager):
-        pdf_model: PdfModel = self.parse(file_path)
-        self.extract_metadata(pdf_model, entity)
-        self.extract_xmp_metadata(pdf_model, entity)
-        self.extract_pages(pdf_model, entity, manager)
+        try:
+            pdf_model: PdfModel = self.parse(file_path)
+            self.extract_metadata(pdf_model, entity)
+            self.extract_xmp_metadata(pdf_model, entity)
+            self.extract_pages(pdf_model, entity, manager)
+        except pikepdf._qpdf.PasswordError as pwe:
+            log.info(f"Failed to ingest password protected pdf: {file_path}")
+            raise pwe
 
     def pdf_alternative_extract(self, entity, pdf_path, manager):
         checksum = self.manager.store(pdf_path)
