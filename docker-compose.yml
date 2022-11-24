@@ -31,6 +31,7 @@ services:
       - /data:mode=777
     environment:
       FTM_STORE_URI: postgresql://ingest:ingest@postgres/ingest
+      ALEPH_JSON_LOGGING: 1
     volumes:
       - "./ingestors:/ingestors/ingestors"
       - "./tests:/ingestors/tests"
