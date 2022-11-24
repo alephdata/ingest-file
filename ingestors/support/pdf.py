@@ -46,7 +46,7 @@ class PdfModel:
 class PDFSupport(DocumentConvertSupport, OCRSupport):
     """Provides helpers for PDF file context extraction."""
 
-    def extract_xmp_metadata(self, pdf, entity):
+    def extract_xmp_metadata(self, pdf: PdfModel, entity):
         try:
             xmp = pdf.xmp_metadata
             if xmp is None:
@@ -60,7 +60,7 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         except Exception as ex:
             log.warning("Error reading XMP: %r", ex)
 
-    def extract_metadata(self, pdf, entity):
+    def extract_metadata(self, pdf: PdfModel, entity):
         meta = pdf.metadata
         if meta is not None:
             entity.add("title", meta.get("title"))
@@ -69,7 +69,7 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
             entity.add("generator", meta.get("producer"))
             entity.add("keywords", meta.get("subject"))
 
-    def extract_pages(self, pdf_model, entity, manager):
+    def extract_pages(self, pdf_model: PdfModel, entity, manager):
         entity.schema = model.get("Pages")
         for page_model in pdf_model.pages:
             page_entity = self.manager.make_entity("Page")
@@ -94,7 +94,7 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
                 )
         return pdf_model
 
-    def parse_and_ingest(self, file_path, entity, manager):
+    def parse_and_ingest(self, file_path: str, entity, manager):
         try:
             pdf_model: PdfModel = self.parse(file_path)
             self.extract_metadata(pdf_model, entity)
@@ -104,12 +104,12 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
             log.info(f"Failed to ingest password protected pdf: {file_path}")
             raise pwe
 
-    def pdf_alternative_extract(self, entity, pdf_path, manager):
+    def pdf_alternative_extract(self, entity, pdf_path: str, manager):
         checksum = self.manager.store(pdf_path)
         entity.set("pdfHash", checksum)
         self.parse_and_ingest(pdf_path, entity, manager)
 
-    def _find_images(self, container, depth=0):
+    def _find_images(self, container: pikepdf.Pdf, depth: int = 0):
         if "/Resources" not in container:
             return []
         resources = container["/Resources"]
@@ -137,7 +137,9 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
 
         return images
 
-    def _extract_images(self, pike_doc, image_path, prefix="img"):
+    def _extract_images(
+        self, pike_doc: pikepdf.Pdf, image_path: str, prefix: str = "img"
+    ):
         raw_images = []
         found_imgs = self._find_images(pike_doc)
         raw_images.extend(found_imgs)
@@ -179,7 +181,7 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
                 image.extract_to(fileprefix=filepath_prefix)
 
     def pdf_extract_page(
-        self, page: PDFPage, pike_doc, page_number: int
+        self, page: PDFPage, pike_doc: pikepdf._qpdf.Pdf, page_number: int
     ) -> PdfPageModel:
         """Extract the contents of a single PDF page, using OCR if need be."""
         buf = StringIO()
