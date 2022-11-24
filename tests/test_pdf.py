@@ -48,12 +48,14 @@ class PDFIngestorTest(TestCase):
         self.assertIn("ABSTRACT AND CONCRETE", body)
         self.assertIn("EDITION 2.6", body)
 
-        # self.assertTrue(
-        #     any(
-        #         "A Note to the Reader" in x
-        #         for x in self.manager.dataset.get(entity_id=entity.id).get("indexText")
-        #     )
-        # )
+        found = False
+        needle = "A Note to the Reader"
+        for entity in self.manager.entities:
+            index_text = entity.get("indexText")
+            if index_text and needle in index_text[0]:
+                found = True
+                break
+        self.assertTrue(found)
 
     def test_ingest_unicode_fixture(self):
         fixture_path, entity = self.fixture("udhr_ger.pdf")
