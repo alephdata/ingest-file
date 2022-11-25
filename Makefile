@@ -32,7 +32,7 @@ shell: services
 	$(DOCKER) /bin/bash
 
 test: services
-	$(DOCKER) nosetests --with-coverage --cover-package=ingestors
+	$(DOCKER) pytest --cov=ingestors --cov-report html --cov-report term
 
 restart: build
 	$(COMPOSE) up --force-recreate --no-deps --detach convert-document ingest-file
