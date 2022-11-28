@@ -78,3 +78,21 @@ class PDFIngestorTest(TestCase):
         self.assertIn("Could not extract PDF file: PasswordError", err)
         status = self.manager.entities[0].first("processingStatus")
         self.assertEqual("failure", status)
+
+    def test_jbig2(self):
+        fixture_path, entity = self.fixture("jbig2.pdf")
+        self.manager.ingest(fixture_path, entity)
+
+        self.assertEqual(len(self.get_emitted()), 6)
+        self.assertIn(
+            "ImageMagick does not support JBIG2 compression for PDF image files.",
+            self.manager.entities[0].first("bodyText"),
+        )
+        self.assertIn(
+            "think JBIG2 is there now.",
+            self.manager.entities[2].first("bodyText"),
+        )
+        self.assertIn(
+            "The fact that the PDF format can store images as JBIG2 became",
+            self.manager.entities[6].first("bodyText"),
+        )
