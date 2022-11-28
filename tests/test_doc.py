@@ -29,12 +29,12 @@ class DocumentIngestorTest(TestCase):
             )
         )
         self.assertIn(
-            u"This is a sample Microsoft Word Document.",
+            "This is a sample Microsoft Word Document.",
             self.manager.entities[0].first("bodyText"),
         )
 
         self.assertIn(
-            u"The Level 3 Bookmark", self.manager.entities[2].first("bodyText")
+            "The Level 3 Bookmark", self.manager.entities[2].first("bodyText")
         )
         self.assertEqual(entity.schema.name, "Pages")
 
@@ -45,7 +45,7 @@ class DocumentIngestorTest(TestCase):
         today = datetime.now()
 
         self.assertEqual(len(self.get_emitted()), 2)
-        self.assertIn(u"Now", self.manager.entities[0].first("bodyText"))
+        self.assertIn("Now", self.manager.entities[0].first("bodyText"))
         self.assertEqual(entity.schema.name, "Pages")
         self.assertIn(today.strftime("%x"), self.manager.entities[0].first("bodyText"))
 

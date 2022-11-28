@@ -96,3 +96,18 @@ class PDFIngestorTest(TestCase):
             "The fact that the PDF format can store images as JBIG2 became",
             self.manager.entities[6].first("bodyText"),
         )
+
+    def test_pdf_conversion_metadata(self):
+        fixture_path, entity = self.fixture("hello world word.docx")
+        self.manager.ingest(fixture_path, entity)
+
+        self.assertEqual(len(self.get_emitted()), 2)
+        self.assertEqual(
+            entity.first("mimeType"),
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # noqa
+        )
+        self.assertEqual(entity.schema.name, "Pages")
+
+        # make sure the metadata we read isn't taken from the converted pdf file
+        assert entity.get("authoredAt") == ["2015-09-07T10:57:00"]
+        assert entity.get("modifiedAt") == ["2015-10-05T08:57:00"]
