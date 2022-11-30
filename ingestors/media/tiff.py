@@ -26,4 +26,4 @@ class TIFFIngestor(Ingestor, PDFSupport, TempFileSupport, ShellSupport):
             "tiff2pdf", file_path, "-x", "300", "-y", "300", "-o", pdf_path
         )
         self.assert_outfile(pdf_path)
-        self.pdf_alternative_extract(entity, pdf_path)
+        self.pdf_alternative_extract(entity, pdf_path, self.manager)

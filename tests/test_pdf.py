@@ -34,7 +34,7 @@ class PDFIngestorTest(TestCase):
         self.manager.ingest(fixture_path, entity)
         self.assertEqual(len(self.get_emitted()), 501)
         self.assertEqual(
-            self.manager.entities[0].first("bodyText"), "Hello, World! \nHello, World!"
+            self.manager.entities[0].first("bodyText"), "Hello, World!\n\nHello, World!"
         )
         self.assertEqual(entity.schema.name, "Pages")
 
@@ -43,16 +43,19 @@ class PDFIngestorTest(TestCase):
         self.manager.ingest(fixture_path, entity)
 
         self.assertEqual(len(self.get_emitted()), 589)
-        self.assertIn(
-            "ALGEBRA \nABSTRACT AND CONCRETE \nE DITION 2.6",
-            self.manager.entities[0].first("bodyText"),
-        )
-        self.assertTrue(
-            any(
-                "A Note to the Reader" in x
-                for x in self.manager.dataset.get(entity_id=entity.id).get("indexText")
-            )
-        )
+        body = self.manager.entities[0].first("bodyText")
+        self.assertIn("ALGEBRA", body)
+        self.assertIn("ABSTRACT AND CONCRETE", body)
+        self.assertIn("EDITION 2.6", body)
+
+        found = False
+        needle = "A Note to the Reader"
+        for entity in self.manager.entities:
+            index_text = entity.get("indexText")
+            if index_text and needle in index_text[0]:
+                found = True
+                break
+        self.assertTrue(found)
 
     def test_ingest_unicode_fixture(self):
         fixture_path, entity = self.fixture("udhr_ger.pdf")
@@ -60,6 +63,51 @@ class PDFIngestorTest(TestCase):
 
         self.assertEqual(len(self.get_emitted()), 7)
         self.assertIn(
-            u"Würde und der gleichen und unveräußerlichen",
+            "Würde und der gleichen und unveräußerlichen",
             self.manager.entities[0].first("bodyText"),
         )
+
+    def test_ingest_protected(self):
+        fixture_path, entity = self.fixture("password-hunter2.pdf")
+        self.manager.ingest(fixture_path, entity)
+
+        self.assertEqual(len(self.get_emitted()), 1)
+        text = self.manager.entities[0].first("bodyText")
+        self.assertEqual(None, text)
+        err = self.manager.entities[0].first("processingError")
+        self.assertIn("Could not extract PDF file: PasswordError", err)
+        status = self.manager.entities[0].first("processingStatus")
+        self.assertEqual("failure", status)
+
+    def test_jbig2(self):
+        fixture_path, entity = self.fixture("jbig2.pdf")
+        self.manager.ingest(fixture_path, entity)
+
+        self.assertEqual(len(self.get_emitted()), 6)
+        self.assertIn(
+            "ImageMagick does not support JBIG2 compression for PDF image files.",
+            self.manager.entities[0].first("bodyText"),
+        )
+        self.assertIn(
+            "think JBIG2 is there now.",
+            self.manager.entities[2].first("bodyText"),
+        )
+        self.assertIn(
+            "The fact that the PDF format can store images as JBIG2 became",
+            self.manager.entities[6].first("bodyText"),
+        )
+
+    def test_pdf_conversion_metadata(self):
+        fixture_path, entity = self.fixture("hello world word.docx")
+        self.manager.ingest(fixture_path, entity)
+
+        self.assertEqual(len(self.get_emitted()), 2)
+        self.assertEqual(
+            entity.first("mimeType"),
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # noqa
+        )
+        self.assertEqual(entity.schema.name, "Pages")
+
+        # make sure the metadata we read isn't taken from the converted pdf file
+        assert entity.get("authoredAt") == ["2015-09-07T10:57:00"]
+        assert entity.get("modifiedAt") == ["2015-10-05T08:57:00"]
