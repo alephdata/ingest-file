@@ -72,5 +72,5 @@ class DocumentConvertSupport(CacheSupport, TempFileSupport):
                 if os.stat(out_file).st_size == 0:
                     continue
                 return out_file
-        except:
-            raise ProcessingException("Could not be converted to PDF.")
+        except Exception as e:
+            raise ProcessingException("Could not be converted to PDF") from e
