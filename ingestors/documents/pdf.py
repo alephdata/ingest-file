@@ -1,7 +1,6 @@
-import logging
 
 from ingestors.ingestor import Ingestor
-from ingestors.support.pdf import PDFSupport, PdfModel
+from ingestors.support.pdf import PDFSupport
 from ingestors.exc import ProcessingException
 
 

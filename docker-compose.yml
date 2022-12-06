@@ -12,15 +12,6 @@ services:
     image: redis:alpine
     command: ["redis-server", "--save", "3600", "10"]
 
-  convert-document:
-    build:
-      context: convert
-    image: ghcr.io/alephdata/convert-document
-    read_only: true
-    restart: on-failure
-    user: app
-    tmpfs: /tmp
-
   ingest-file:
     build:
       context: .
@@ -42,4 +33,3 @@ services:
     depends_on:
       - postgres
       - redis
-      - convert-document

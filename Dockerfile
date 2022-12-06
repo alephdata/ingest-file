@@ -96,6 +96,8 @@ RUN apt-get -qq -y update \
     tesseract-ocr-aze \
     tesseract-ocr-bel \
     tesseract-ocr-uzb \
+    ### pdf convert \
+    libreoffice \
     ###
     && apt-get -qq -y autoremove \
     && apt-get clean \
@@ -146,8 +148,7 @@ RUN chown -R app:app /ingestors
 ENV ARCHIVE_TYPE=file \
     ARCHIVE_PATH=/data \
     FTM_STORE_URI=postgresql://aleph:aleph@postgres/aleph \
-    REDIS_URL=redis://redis:6379/0 \
-    INGESTORS_CONVERT_DOCUMENT_URL=http://convert-document:3000/convert
+    REDIS_URL=redis://redis:6379/0
 
 # USER app
 CMD ingestors process

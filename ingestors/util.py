@@ -14,7 +14,7 @@ class SingletonDecorator:
         self.instance = None
 
     def __call__(self, *args, **kwds):
-        if self.instance == None:
+        if self.instance is None:
             self.instance = self.klass(*args, **kwds)
         return self.instance
 
@@ -50,21 +50,6 @@ def path_string(path):
     if isinstance(path, Path):
         return path.as_posix()
     return path
-
-
-def explicit_resolve(url):
-    """Explicitly resolve round-robin DNS names into a random IP address.
-
-    This is a weird mitigation for the fact that docker-compose and Python
-    requests don't seem to do DNS round robin correctly between them. It
-    seems nicer than messing with the urllib3 connection pool, but it would
-    break if a deployment used a proxy with host-based resolution between
-    the ingestors and the convert-doc service. So... don't do that.
-    """
-    parsed = urlparse(url)
-    _, _, ips = socket.gethostbyname_ex(parsed.hostname)
-    netloc = "{}:{}".format(random.choice(ips), parsed.port)
-    return parsed._replace(netloc=netloc).geturl()
 
 
 @contextmanager

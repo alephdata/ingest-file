@@ -1,6 +1,5 @@
 import json
 
-from followthemoney import model
 from followthemoney.util import MEGABYTE
 
 from ingestors.ingestor import Ingestor
