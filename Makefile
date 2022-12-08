@@ -1,5 +1,4 @@
 INGEST=ghcr.io/alephdata/ingest-file
-CONVERT=ghcr.io/alephdata/convert-document
 COMPOSE=docker-compose
 DOCKER=$(COMPOSE) run --rm ingest-file
 
@@ -12,30 +11,26 @@ build:
 
 pull-cache:
 	-docker pull -q $(INGEST):cache
-	-docker pull -q $(CONVERT):cache
 
 cached-build: pull-cache
 	docker build --cache-from $(INGEST):cache -t $(INGEST) .
-	docker build --cache-from $(CONVERT):cache -t $(CONVERT) convert
 
 fresh-cache:
 	# re-generate cache images on a daily basis to avoid using
 	# stale docker containers from upstream.
 	docker build --pull --no-cache -t $(INGEST):cache .
-	docker build --pull --no-cache -t $(CONVERT):cache convert
 
 services:
 	$(COMPOSE) up -d --remove-orphans postgres redis
 
 shell: services
-	$(COMPOSE) up -d --remove-orphans convert-document
 	$(DOCKER) /bin/bash
 
 test: services
 	$(DOCKER) pytest --cov=ingestors --cov-report html --cov-report term
 
 restart: build
-	$(COMPOSE) up --force-recreate --no-deps --detach convert-document ingest-file
+	$(COMPOSE) up --force-recreate --no-deps --detach ingest-file
 
 tail:
 	$(COMPOSE) logs -f
