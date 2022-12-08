@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 CONVERT_DIR = os.path.join(gettempdir(), "convert")
 OUT_DIR = os.path.join(CONVERT_DIR, "out")
-TIMEOUT = 3600
+TIMEOUT = 3600  # seconds
 CONVERT_RETRIES = 5
 
 
