@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
 CONVERT_DIR = os.path.join(gettempdir(), "convert")
 OUT_DIR = os.path.join(CONVERT_DIR, "out")
 TIMEOUT = 3600
+CONVERT_RETRIES = 5
 
 
 class DocumentConvertSupport(CacheSupport, TempFileSupport):
@@ -62,15 +63,29 @@ class DocumentConvertSupport(CacheSupport, TempFileSupport):
             file_path,
         ]
         try:
-            log.info("Starting LibreOffice: %s with timeout %s", cmd, timeout)
-            subprocess.run(cmd, timeout=timeout, check=True, capture_output=True)
+            for attempt in range(1, CONVERT_RETRIES):
+                log.info(
+                    f"Starting LibreOffice: %s with timeout %s attempt #{attempt}/{CONVERT_RETRIES}",
+                    cmd,
+                    timeout,
+                )
+                try:
+                    subprocess.run(cmd, timeout=timeout, check=True)
+                except Exception as e:
+                    log.info(
+                        f"Could not be converted to PDF (attempt {attempt}/{CONVERT_RETRIES}): {e}"
+                    )
+                    continue
 
-            for file_name in os.listdir(OUT_DIR):
-                if not file_name.endswith(".pdf"):
-                    continue
-                out_file = os.path.join(OUT_DIR, file_name)
-                if os.stat(out_file).st_size == 0:
-                    continue
-                return out_file
+                for file_name in os.listdir(OUT_DIR):
+                    if not file_name.endswith(".pdf"):
+                        continue
+                    out_file = os.path.join(OUT_DIR, file_name)
+                    if os.stat(out_file).st_size == 0:
+                        continue
+                    return out_file
+            raise ProcessingException(
+                f"Could not be converted to PDF (attempt #{attempt}/{CONVERT_RETRIES})"
+            )
         except Exception as e:
             raise ProcessingException("Could not be converted to PDF") from e

@@ -55,6 +55,15 @@ class DocumentIngestorTest(TestCase):
 
         self.assertEqual(entity.first("processingStatus"), self.manager.STATUS_FAILURE)
 
+    def test_ingest_odt_fail(self):
+        fixture_path, entity = self.fixture("rand-1670433101.440986000.odt")
+        self.manager.ingest(fixture_path, entity)
+
+        assert (
+            "graphomaniac Talpa Deuteronomical tubber johannite"
+            in self.manager.entities[0].first("bodyText")
+        )
+
     def test_ingest_noisy_doc(self):
         fixture_path, entity = self.fixture("Plan.odt")
         self.manager.ingest(fixture_path, entity)
