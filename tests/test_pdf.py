@@ -46,7 +46,17 @@ class PDFIngestorTest(TestCase):
         body = self.manager.entities[0].first("bodyText")
         self.assertIn("ALGEBRA", body)
         self.assertIn("ABSTRACT AND CONCRETE", body)
-        self.assertIn("EDITION 2.6", body)
+        self.assertIn("Last revised on February 4, 2014.", body)
+
+        page_two = self.manager.entities[2].first("bodyText")
+        assert (
+            "The author reserves all rights to this work not explicitly granted, including the right to copy"
+            in page_two
+        )
+        assert (
+            "Algebra: abstract and concrete / Frederick M. Goodman— ed. 2" in page_two
+        )
+        assert "ISBN 978-0-9799142-1-8" in page_two
 
         assert any(
             [
@@ -128,7 +138,6 @@ class PDFIngestorTest(TestCase):
         assert page_two.schema.name == "Page"
 
         for expected_string in [
-            "light bites",
             "served with marinated olives",
             "made with vegetarian ingredients",
             "dorset",
