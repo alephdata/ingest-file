@@ -48,14 +48,13 @@ class PDFIngestorTest(TestCase):
         self.assertIn("ABSTRACT AND CONCRETE", body)
         self.assertIn("EDITION 2.6", body)
 
-        found = False
-        needle = "A Note to the Reader"
-        for entity in self.manager.entities:
-            index_text = entity.get("indexText")
-            if index_text and needle in index_text[0]:
-                found = True
-                break
-        self.assertTrue(found)
+        assert any(
+            [
+                line
+                for line in self.manager.entities[5].get("indexText")
+                if "A Note to the Reader" in line
+            ]
+        )
 
     def test_ingest_unicode_fixture(self):
         fixture_path, entity = self.fixture("udhr_ger.pdf")
@@ -111,3 +110,38 @@ class PDFIngestorTest(TestCase):
         # make sure the metadata we read isn't taken from the converted pdf file
         assert entity.get("authoredAt") == ["2015-09-07T10:57:00"]
         assert entity.get("modifiedAt") == ["2015-10-05T08:57:00"]
+
+    def test_pdf_letter_spacing(self):
+        """Checks some tricky word spacing in the fancy food menu. This required
+        overriding the pdfminersix LAParams default `word_margin` from 0.1 until
+        it worked."""
+        fixture_path, entity = self.fixture("the-dorset-food-menu.pdf")
+        self.manager.ingest(fixture_path, entity)
+
+        assert len(self.get_emitted()) == 3
+
+        page_one = self.manager.entities[0]
+        page_two = self.manager.entities[2]
+        body_one = page_one.first("bodyText")
+        body_two = page_two.first("bodyText")
+        assert page_one.schema.name == "Page"
+        assert page_two.schema.name == "Page"
+
+        for expected_string in [
+            "light bites",
+            "served with marinated olives",
+            "made with vegetarian ingredients",
+            "dorset",
+            "triple-cooked chips",
+            "e\ndorset",  # can't get it to detect the "the" :(
+        ]:
+            assert expected_string in body_one.lower()
+
+        for expected_string in [
+            "burger",
+            "triple-cooked chips £4.0",
+            "01273605423",
+            "bookings@thedorset.co.uk",
+            "www.instagram.com/thedorsetbtn/",
+        ]:
+            assert expected_string in body_two.lower()

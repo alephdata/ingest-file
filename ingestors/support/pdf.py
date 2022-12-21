@@ -186,7 +186,19 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         """Extract the contents of a single PDF page, using OCR if need be."""
         buf = StringIO()
         rsrcmgr = PDFResourceManager()
-        device = TextConverter(rsrcmgr, buf, laparams=LAParams())
+        device = TextConverter(
+            rsrcmgr,
+            buf,
+            laparams=LAParams(
+                line_overlap=0.5,  # default: 0.5
+                char_margin=2.0,  # default: 2.0
+                word_margin=0.27,  # default: 0.1
+                line_margin=0.5,  # default: 0.5
+                boxes_flow=0.5,  # default: 0.5
+                detect_vertical=True,  # default: False
+                all_texts=True,  # default: False
+            ),
+        )
         interpreter = PDFPageInterpreter(rsrcmgr, device)
         interpreter.process_page(page)
         texts = buf.getvalue()
