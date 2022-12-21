@@ -192,7 +192,7 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
             laparams=LAParams(
                 line_overlap=0.5,  # default: 0.5
                 char_margin=2.0,  # default: 2.0
-                word_margin=0.3,  # default: 0.1
+                word_margin=0.27,  # default: 0.1
                 line_margin=0.5,  # default: 0.5
                 boxes_flow=0.5,  # default: 0.5
                 detect_vertical=True,  # default: False
