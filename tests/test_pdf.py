@@ -154,3 +154,44 @@ class PDFIngestorTest(TestCase):
             "www.instagram.com/thedorsetbtn/",
         ]:
             assert expected_string in body_two.lower()
+
+    def test_ingest_index_text(self):
+        """Make sure that text from all pages shows up in the index."""
+
+        fixture_path, entity = self.fixture("udhr_ger.pdf")
+        self.manager.ingest(fixture_path, entity)
+
+        emitted = self.get_emitted()
+        assert len(emitted) == 7
+
+        pages_entity = emitted[5]
+        assert pages_entity.schema.name == "Pages"
+
+        pages_index = "\n".join(pages_entity.get("indexText"))
+
+        # Page 1
+        assert "Da die Anerkennung der angeborenen Würde" in pages_index
+        # Page 2
+        assert (
+            "Jeder hat Anspruch auf alle in dieser Erklärung verkündeten Rechte und Freiheiten"
+            in pages_index
+        )
+        # Page 3
+        assert (
+            "Jeder hat das Recht, jedes Land, einschließlich seines eigenen, zu verlassen"
+            in pages_index
+        )
+        # Page 4
+        assert (
+            "Eine Ehe darf nur bei freier und uneingeschränkter Willenseinigung der künftigen"
+            in pages_index
+        )
+        # Page 5
+        assert (
+            "Jeder hat das Recht auf Erholung und Freizeit und insbesondere auf eine vernünftige"
+            in pages_index
+        )
+        # Page 6
+        assert (
+            "Erklärung verkündeten Rechte und Freiheiten zum Ziel hat." in pages_index
+        )
