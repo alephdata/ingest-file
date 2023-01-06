@@ -79,7 +79,7 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
             page_entity.add("bodyText", page_model.text)
             manager.apply_context(page_entity, entity)
             manager.emit_entity(page_entity)
-            manager.emit_text_fragment(entity, page_model.text, entity.id)
+            manager.emit_text_fragment(entity, page_model.text, page_entity.id)
 
     def parse(self, file_path: str) -> PdfModel:
         """Takes a file_path to a pdf and returns a `PdfModel`"""
