@@ -33,7 +33,7 @@ class PDFIngestor(Ingestor, PDFSupport):
                 "Could not extract PDF file. The PDF is protected with a password. Try removing the password protection and re-ingesting the documents."
             ) from pwe
         except Exception as ex:
-            log.exception(f"Failed to ingest PDF: {file_path}. Reason: {ex}.")
+            log.exception(f"Failed to ingest PDF: {file_path}.")
             raise ProcessingException("Could not extract PDF file.") from ex
 
     @classmethod
