@@ -31,10 +31,10 @@ class PDFIngestor(Ingestor, PDFSupport):
         except pikepdf._qpdf.PasswordError as pwe:
             raise ProcessingException(
                 "Could not extract PDF file. The PDF is protected with a password. Try removing the password protection and re-ingesting the documents."
-            )
+            ) from pwe
         except Exception as ex:
-            log.info(f"Failed to ingest PDF: {file_path}. Reason: {ex}.")
-            raise ProcessingException("Could not extract PDF file.")
+            log.exception(f"Failed to ingest PDF: {file_path}. Reason: {ex}.")
+            raise ProcessingException("Could not extract PDF file.") from ex
 
     @classmethod
     def match(cls, file_path, entity):
