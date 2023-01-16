@@ -1,7 +1,15 @@
+import logging
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.pdf import PDFSupport
 from ingestors.exc import ProcessingException
+
+import pikepdf
+
+# silence some shouty debug output from pdfminer
+logging.getLogger("pdfminer").setLevel(logging.WARNING)
+
+log = logging.getLogger(__name__)
 
 
 class PDFIngestor(Ingestor, PDFSupport):
@@ -20,8 +28,13 @@ class PDFIngestor(Ingestor, PDFSupport):
         """Ingestor implementation."""
         try:
             self.parse_and_ingest(file_path, entity, self.manager)
+        except pikepdf._qpdf.PasswordError as pwe:
+            raise ProcessingException(
+                "Could not extract PDF file. The PDF is protected with a password. Try removing the password protection and re-ingesting the documents."
+            )
         except Exception as ex:
-            raise ProcessingException("Could not extract PDF file: %r" % ex) from ex
+            log.info(f"Failed to ingest PDF: {file_path}. Reason: {ex}.")
+            raise ProcessingException("Could not extract PDF file.")
 
     @classmethod
     def match(cls, file_path, entity):
