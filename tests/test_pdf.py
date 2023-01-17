@@ -206,3 +206,30 @@ class PDFIngestorTest(TestCase):
         page = emitted[1]
         assert page.schema.name == "Page"
         assert "IRIDECEA HOLDINGS LIMITED" in "\n".join(page.get("bodyText"))
+
+    def test_ingest_pdf_normalized(self):
+        """The text in this document contains escape sequences like
+        \xa0 which need to be normalized in order for search to work. There are
+        also some unsupported images embedded which need to be skipped."""
+
+        fixture_path, entity = self.fixture("106972554.pdf")
+        self.manager.ingest(fixture_path, entity)
+
+        emitted = self.get_emitted()
+        assert len(emitted) == 4
+
+        expected = {
+            "1": "UPON THE APPLICATION of the Plaintiff in this action",
+            "2": "The 1st, 2nd and 4th Defendants shall jointly",
+            "3": "On or around 6 February 2014",
+        }
+
+        for page in emitted:
+            if page.schema.name == "Pages":
+                continue
+
+            assert page.schema.name == "Page"
+            page_no = page.properties["index"][0]
+            page_text = "\n".join(page.get("bodyText"))
+
+            assert expected[page_no] in page_text
