@@ -178,6 +178,9 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
             if isinstance(image, Image.Image):
                 image.save(filepath_prefix + ".png", "PNG")
             else:
+                pil_image = image.as_pil_image()
+                if pil_image.format == "TIFF":
+                    pil_image.save(filepath_prefix + ".png", "PNG")
                 image.extract_to(fileprefix=filepath_prefix)
 
     def pdf_extract_page(

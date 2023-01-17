@@ -195,3 +195,14 @@ class PDFIngestorTest(TestCase):
         assert (
             "Erklärung verkündeten Rechte und Freiheiten zum Ziel hat." in pages_index
         )
+
+    def test_ingest_pdf_ocr_greek(self):
+        fixture_path, entity = self.fixture("greek.pdf")
+        self.manager.ingest(fixture_path, entity)
+
+        emitted = self.get_emitted()
+        assert len(emitted) == 3
+
+        page = emitted[1]
+        assert page.schema.name == "Page"
+        assert "IRIDECEA HOLDINGS LIMITED" in "\n".join(page.get("bodyText"))
