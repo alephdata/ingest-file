@@ -4,6 +4,7 @@ import logging
 import os
 from typing import Dict, List
 import uuid
+import unicodedata
 
 import pikepdf
 from PIL import Image
@@ -147,8 +148,12 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         pdfimages = []
         for r in raw_images:
             if isinstance(r, list):
-                base_image = pikepdf.PdfImage(r[0]).as_pil_image()
-                soft_mask = pikepdf.PdfImage(r[1]).as_pil_image()
+                try:
+                    base_image = pikepdf.PdfImage(r[0]).as_pil_image()
+                    soft_mask = pikepdf.PdfImage(r[1]).as_pil_image()
+                except NotImplementedError:
+                    # Skip unsupported image file formats
+                    continue
 
                 if base_image.size != soft_mask.size:
                     log.debug(
@@ -218,4 +223,5 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
                 if text is not None:
                     texts += text
 
+        texts = unicodedata.normalize("NFKD", texts.strip())
         return PdfPageModel(number=page_number, text=texts.strip())
