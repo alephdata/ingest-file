@@ -85,7 +85,7 @@ class PDFIngestorTest(TestCase):
         self.assertEqual(None, text)
         err = self.manager.entities[0].first("processingError")
         self.assertIn(
-            "Could not extract PDF file. The PDF is protected with a password. Try removing the password protection and re-ingesting the documents.",
+            "Could not extract PDF file. The PDF is protected with a password. Try removing the password protection and re-uploading the documents.",
             err,
         )
         status = self.manager.entities[0].first("processingStatus")
