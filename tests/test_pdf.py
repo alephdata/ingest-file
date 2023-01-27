@@ -236,3 +236,10 @@ class PDFIngestorTest(TestCase):
             page_text = "\n".join(page.get("bodyText"))
 
             assert expected[page_no] in page_text
+
+    def test_ingest_pdf_xxx(self):
+        fixture_path, entity = self.fixture("106974012.pdf")
+        self.manager.ingest(fixture_path, entity)
+
+        emitted = self.get_emitted()
+        assert len(emitted) == 4

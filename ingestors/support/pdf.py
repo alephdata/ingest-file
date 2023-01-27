@@ -180,13 +180,30 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         n_digits = len(str(n_images))
         for i, image in enumerate(pdfimages):
             filepath_prefix = os.path.join(image_path, prefix + f"{i+1:0{n_digits}}")
+            # tmpdir = "tests/fixtures/x"
+            # tmp_prefix = os.path.join(tmpdir, prefix + f"{i+1:0{n_digits}}")
             if isinstance(image, Image.Image):
+                # save PIL Images directly as png
                 image.save(filepath_prefix + ".png", "PNG")
             else:
-                pil_image = image.as_pil_image()
-                if pil_image.format == "TIFF":
-                    pil_image.save(filepath_prefix + ".png", "PNG")
-                image.extract_to(fileprefix=filepath_prefix)
+                # otherwise we try to extract a PIL image
+                try:
+                    pil_image = image.as_pil_image()
+                    # convert TIFF to PNG in preparation for OCR
+                    if pil_image.format == "TIFF":
+                        pil_image.save(filepath_prefix + ".png", "PNG")
+                except NotImplementedError:
+                    # can't convert this to a PIL Image, but we'll still try to extract it
+                    pass
+                finally:
+                    try:
+                        image.extract_to(fileprefix=filepath_prefix)
+                    except NotImplementedError:
+                        # giving up on this image and moving on
+                        # extract the bytes to a temp location to have a look
+                        # with open(tmp_prefix, "wb") as outf:
+                        #     outf.write(image.read_bytes())
+                        continue
 
     def pdf_extract_page(
         self, page: PDFPage, pike_doc: pikepdf._qpdf.Pdf, page_number: int
