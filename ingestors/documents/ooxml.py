@@ -1,3 +1,5 @@
+import tempfile
+
 from followthemoney import model
 
 from ingestors.ingestor import Ingestor
@@ -39,8 +41,10 @@ class OfficeOpenXMLIngestor(Ingestor, OOXMLSupport, PDFSupport):
         """Ingestor implementation."""
         entity.schema = model.get("Pages")
         self.ooxml_extract_metadata(file_path, entity)
-        pdf_path = self.document_to_pdf(file_path, entity)
-        self.pdf_alternative_extract(entity, pdf_path, self.manager)
+        with tempfile.TemporaryDirectory() as unique_tmpdir:
+            # TODO - write to logs the case in which the context manager can't delete these dirs
+            pdf_path = self.document_to_pdf(unique_tmpdir, file_path, entity)
+            self.pdf_alternative_extract(entity, pdf_path, self.manager)
 
     @classmethod
     def match(cls, file_path, entity):
