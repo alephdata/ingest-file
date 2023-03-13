@@ -36,6 +36,7 @@ pip install -r requirements.txt
 
 ```bash
 git pull --rebase
+make build
 make test
 source .env/bin/activate
 bump2version {patch,minor,major} # pick the appropriate one
