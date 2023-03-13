@@ -40,7 +40,7 @@ make build
 make test
 source .env/bin/activate
 bump2version {patch,minor,major} # pick the appropriate one
-git push --atomic origin main $(git describe --tags --abbrev=0)
+git push --atomic origin $(git rev-parse --abbrev-ref HEAD) $(git describe --tags --abbrev=0)
 ```
 
 ## Usage
