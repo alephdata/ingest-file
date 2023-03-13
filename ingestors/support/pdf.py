@@ -101,7 +101,7 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
             self.extract_metadata(pdf_model, entity)
             self.extract_xmp_metadata(pdf_model, entity)
             self.extract_pages(pdf_model, entity, manager)
-        except pikepdf._qpdf.PasswordError as pwe:
+        except pikepdf._core.PasswordError as pwe:
             log.info(f"Failed to ingest password protected pdf: {file_path}")
             raise pwe
 
@@ -189,7 +189,7 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
                 image.extract_to(fileprefix=filepath_prefix)
 
     def pdf_extract_page(
-        self, page: PDFPage, pike_doc: pikepdf._qpdf.Pdf, page_number: int
+        self, page: PDFPage, pike_doc: pikepdf._core.Pdf, page_number: int
     ) -> PdfPageModel:
         """Extract the contents of a single PDF page, using OCR if need be."""
         buf = StringIO()
