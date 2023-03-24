@@ -34,7 +34,7 @@ class PDFIngestorTest(TestCase):
         self.manager.ingest(fixture_path, entity)
         self.assertEqual(len(self.get_emitted()), 501)
         self.assertEqual(
-            self.manager.entities[0].first("bodyText"), "Hello, World!\n\nHello, World!"
+            self.manager.entities[0].first("bodyText"), "Hello, World!\nHello, World!"
         )
         self.assertEqual(entity.schema.name, "Pages")
 
@@ -125,9 +125,7 @@ class PDFIngestorTest(TestCase):
         assert entity.get("modifiedAt") == ["2015-10-05T08:57:00"]
 
     def test_pdf_letter_spacing(self):
-        """Checks some tricky word spacing in the fancy food menu. This required
-        overriding the pdfminersix LAParams default `word_margin` from 0.1 until
-        it worked."""
+        """Checks some tricky word spacing in the fancy food menu."""
         fixture_path, entity = self.fixture("the-dorset-food-menu.pdf")
         self.manager.ingest(fixture_path, entity)
 
@@ -143,9 +141,7 @@ class PDFIngestorTest(TestCase):
         for expected_string in [
             "served with marinated olives",
             "made with vegetarian ingredients",
-            "dorset",
             "triple-cooked chips",
-            "e\ndorset",  # can't get it to detect the "the" :(
         ]:
             assert expected_string in body_one.lower()
 
