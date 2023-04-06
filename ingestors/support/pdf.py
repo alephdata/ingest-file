@@ -118,7 +118,7 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         # Extract images from PDF and store them on the disk
         extracted_images = []
         if type3_fonts:
-            filename = f"page-{page.number}.png"
+            filename = image_dir / f"page-{page.number}.png"
             image = page.get_pixmap(dpi=300).save(filename)
             extracted_images.append(filename)
         else:
