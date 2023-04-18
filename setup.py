@@ -11,7 +11,8 @@ setup(
     package_dir={"ingestors": "ingestors"},
     include_package_data=True,
     install_requires=[],
-    license="MIT",
+    license="AGPLv3+",
+    license_files=("LICENSE",),
     zip_safe=False,
     keywords="ingestors",
     test_suite="tests",
@@ -59,4 +60,7 @@ setup(
         ],
         "console_scripts": ["ingestors = ingestors.cli:cli"],
     },
+    classifiers=[
+        "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    ],
 )
