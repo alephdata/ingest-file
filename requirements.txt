@@ -1,9 +1,9 @@
 banal==1.0.6
 normality==2.4.0
 pantomime==0.6.0
-followthemoney==3.2.1
-followthemoney-store[postgresql]==3.0.3
-servicelayer[google,amazon]==1.20.5
+followthemoney==3.3.0
+followthemoney-store[postgresql]==3.0.5
+servicelayer[google,amazon]==1.20.6
 languagecodes==1.1.1
 countrytagger==0.1.2
 pyicu==2.10.2
