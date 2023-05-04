@@ -61,3 +61,7 @@ in the user's home directory, which is mounted at `/host`:
 ```bash
 ingestors debug /host/Documents/sample.xlsx
 ```
+
+## License
+
+As of release version 3.18.4 `ingest-file` is licensed under the AGPLv3 or later license. Previous versions were released under the MIT license.

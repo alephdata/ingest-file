@@ -79,9 +79,9 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
             if pdf_doc.needs_pass:
                 raise UnauthorizedError
             # print(f"\n[IF] number of pages: {pdf_doc.page_count}")
-            for page_num in range(pdf_doc.page_count):
+            for page in pdf_doc:
                 pdf_model.pages.append(
-                    self.pdf_extract_page(pdf_doc, pdf_doc[page_num], page_num)
+                    self.pdf_extract_page(pdf_doc, page, page.number + 1)
                 )
         return pdf_model
 
@@ -96,11 +96,16 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         entity.set("pdfHash", checksum)
         self.parse_and_ingest(pdf_path, entity, manager)
 
-    def pdf_extract_page(self, pdf_doc, page, page_number: int) -> PdfPageModel:
+    def pdf_extract_page(self, pdf_doc: fitz.Document, page: fitz.Page, page_number: int) -> PdfPageModel:
         """Extract the contents of a single PDF page, using OCR if need be."""
         # Extract text
-        full_text = page.get_text()
-        # print(f"[IF] extracted text: \n{full_text}")
+        fonts = page.get_fonts()
+        # For pages with Type3 fonts we extract an image of the page and OCR it
+        type3_fonts: bool = any([font[2] == "Type3" for font in fonts])
+        if type3_fonts:
+            full_text = ""
+        else:
+            full_text = page.get_text(textpage=None, sort=True)
 
         # Extract images
         images = page.get_images()
@@ -112,16 +117,21 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
 
         # Extract images from PDF and store them on the disk
         extracted_images = []
-        for image_index, image in enumerate(images, start=1):
-            xref = image[0]
-            img = pdf_doc.extract_image(xref)
-            if img:
-                image_path = os.path.join(
-                    image_dir, f"image{page_number+1}_{image_index}.{img['ext']}"
-                )
-                with open(image_path, "wb") as image_file:
-                    image_file.write(img["image"])
-                extracted_images.append(image_path)
+        if type3_fonts:
+            filename = image_dir / f"page-{page.number}.png"
+            image = page.get_pixmap(dpi=300).save(filename)
+            extracted_images.append(filename)
+        else:
+            for image_index, image in enumerate(images, start=1):
+                xref = image[0]
+                img = pdf_doc.extract_image(xref)
+                if img:
+                    image_path = os.path.join(
+                        image_dir, f"image{page_number}_{image_index}.{img['ext']}"
+                    )
+                    with open(image_path, "wb") as image_file:
+                        image_file.write(img["image"])
+                    extracted_images.append(image_path)
 
         # Attempt to OCR the images and extract text
         languages = self.manager.context.get("languages")
@@ -132,6 +142,6 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
                 if text is not None:
                     # print(f"[IF] extracted text from images: \n{text}")
                     full_text += text
-
+        # print(f"Extracted {len(extracted_images)} images")
         full_text = unicodedata.normalize("NFKD", full_text.strip())
-        return PdfPageModel(number=page_number + 1, text=full_text.strip())
+        return PdfPageModel(number=page_number, text=full_text.strip())
