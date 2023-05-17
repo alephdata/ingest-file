@@ -1,7 +1,9 @@
 import magic
 import logging
-from pprint import pprint  # noqa
 from tempfile import mkdtemp
+from datetime import datetime
+from pkg_resources import get_distribution
+
 from followthemoney import model
 from banal import ensure_list
 from normality import stringify
@@ -73,7 +75,6 @@ class Manager(object):
 
     def emit_entity(self, entity, fragment=None):
         entity = self.ns.apply(entity)
-        # pprint(entity.to_dict())
         self.writer.put(entity.to_dict(), fragment)
         self.emitted.add(entity.id)
 
@@ -139,7 +140,13 @@ class Manager(object):
         if file_path.is_file() and not entity.has("fileSize"):
             entity.add("fileSize", file_path.stat().st_size)
 
+        now = datetime.now()
+        now_string = now.strftime("%Y-%m-%dT%H:%M:%S.%f")
+
         entity.set("processingStatus", self.STATUS_FAILURE)
+        entity.set("processingAgent", get_distribution('ingest').version)
+        entity.set("processedAt", now_string)
+
         try:
             ingestor_class = self.auction(file_path, entity)
             log.info("Ingestor [%r]: %s", entity, ingestor_class.__name__)
