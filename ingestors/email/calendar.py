@@ -1,6 +1,5 @@
 import logging
 import icalendar
-from vobject.base import ParseError
 from banal import ensure_list
 from followthemoney import model
 from followthemoney.util import sanitize_text

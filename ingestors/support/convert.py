@@ -1,9 +1,7 @@
 import logging
 import os
 import pathlib
-import tempfile
 import subprocess
-from tempfile import gettempdir
 
 from followthemoney.helpers import entity_filename
 

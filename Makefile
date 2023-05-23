@@ -26,6 +26,9 @@ services:
 shell: services
 	$(DOCKER) /bin/bash
 
+lint:
+	ruff check .
+
 test: services
 	$(DOCKER) pytest --cov=ingestors --cov-report html --cov-report term
 
