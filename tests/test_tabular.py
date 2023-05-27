@@ -24,7 +24,7 @@ class TabularIngestorTest(TestCase):
         self.assertEqual(entity.schema.name, "Workbook")
         tables = self.get_emitted("Table")
         tables = [t.first("title") for t in tables]
-        self.assertIn(u"Лист1", tables)
+        self.assertIn("Лист1", tables)
 
     def test_unicode_ods(self):
         fixture_path, entity = self.fixture("rom.ods")
@@ -32,5 +32,5 @@ class TabularIngestorTest(TestCase):
         self.assertEqual(entity.first("processingStatus"), self.manager.STATUS_SUCCESS)
         tables = self.get_emitted("Table")
         tables = [t.first("title") for t in tables]
-        self.assertIn(u"Лист1", tables)
+        self.assertIn("Лист1", tables)
         self.assertEqual(entity.schema.name, "Workbook")

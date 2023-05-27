@@ -15,8 +15,12 @@ jobs:
           docker --version
           docker-compose --version
           echo "${GITHUB_REF}"
+      - name: Install development dependencies
+        run: make dev
+      - name: Check formatting
+        run: make format-check
       - name: Run linter (ruff)
-        uses: chartboost/ruff-action@v1
+        run: make lint
       - name: Start services
         run: |
           make services

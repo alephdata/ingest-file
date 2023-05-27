@@ -96,7 +96,9 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
         entity.set("pdfHash", checksum)
         self.parse_and_ingest(pdf_path, entity, manager)
 
-    def pdf_extract_page(self, pdf_doc: fitz.Document, page: fitz.Page, page_number: int) -> PdfPageModel:
+    def pdf_extract_page(
+        self, pdf_doc: fitz.Document, page: fitz.Page, page_number: int
+    ) -> PdfPageModel:
         """Extract the contents of a single PDF page, using OCR if need be."""
         # Extract text
         fonts = page.get_fonts()
