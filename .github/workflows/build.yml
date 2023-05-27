@@ -15,18 +15,18 @@ jobs:
           docker --version
           docker-compose --version
           echo "${GITHUB_REF}"
-      - name: Install development dependencies
-        run: make dev
-      - name: Check formatting
-        run: make format-check
-      - name: Run linter (ruff)
-        run: make lint
       - name: Start services
         run: |
           make services
       - name: Build docker images
         run: |
           make cached-build
+      - name: Install development dependencies
+        run: make dev
+      - name: Check formatting
+        run: make format-check
+      - name: Run linter (ruff)
+        run: make lint
       - name: Run tests
         run: make test
       - name: Push docker images (hash)
