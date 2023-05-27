@@ -17,7 +17,7 @@ def detect_languages(entity, text, k=1):
         lid_model = fasttext.load_model(settings.LID_MODEL_PATH)
         settings._lang_detector = lid_model
     langs = settings._lang_detector.predict(text, k=k)
-    for (lang, score) in zip(*langs):
+    for lang, score in zip(*langs):
         if score <= THRESHOLD:
             continue
         # fasttext labels are prefixed, with '__label__' by default
