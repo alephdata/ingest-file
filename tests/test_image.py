@@ -12,7 +12,7 @@ class ImageIngestorTest(TestCase):
         self.manager.ingest(fixture_path, entity)
         # print result.to_dict()
 
-        self.assertIn(u"TEST", entity.first("bodyText"))
+        self.assertIn("TEST", entity.first("bodyText"))
         # self.assertIn(u'1..2..3..', result.pages[0]['text'])
         self.assertEqual(entity.first("processingStatus"), self.manager.STATUS_SUCCESS)
 

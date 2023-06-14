@@ -1,10 +1,7 @@
 import shutil
 import locale
-import socket
-import random
 from pathlib import Path
 from normality import stringify
-from urllib.parse import urlparse
 from contextlib import contextmanager
 
 

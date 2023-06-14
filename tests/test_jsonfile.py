@@ -1,5 +1,3 @@
-import json
-
 from .support import TestCase
 
 

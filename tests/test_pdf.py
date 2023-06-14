@@ -234,7 +234,7 @@ class PDFIngestorTest(TestCase):
             assert expected[page_no] in page_text
 
     def test_pdf_type3_fonts(self):
-        """ From https://github.com/pymupdf/PyMuPDF/issues/1943"""
+        """From https://github.com/pymupdf/PyMuPDF/issues/1943"""
         fixture_path, entity = self.fixture("example.pdf")
         self.manager.ingest(fixture_path, entity)
 
