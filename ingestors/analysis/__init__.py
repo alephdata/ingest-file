@@ -41,9 +41,9 @@ class Analyzer(object):
         texts = entity.get_type_values(registry.text)
         for text in text_chunks(texts):
             detect_languages(self.entity, text)
-            for (prop, tag) in extract_entities(self.entity, text):
+            for prop, tag in extract_entities(self.entity, text):
                 self.aggregator_entities.add(prop, tag)
-            for (prop, tag) in extract_patterns(self.entity, text):
+            for prop, tag in extract_patterns(self.entity, text):
                 self.aggregator_patterns.add(prop, tag)
 
     def flush(self):
@@ -55,12 +55,12 @@ class Analyzer(object):
             )
         )
 
-        for (key, prop, values) in results:
+        for key, prop, values in results:
             if prop.type == registry.country:
                 countries.add(key)
 
         mention_ids = set()
-        for (key, prop, values) in results:
+        for key, prop, values in results:
             label = values[0]
             if prop.type == registry.name:
                 label = registry.name.pick(values)

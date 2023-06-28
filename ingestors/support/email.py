@@ -99,7 +99,7 @@ class EmailSupport(TempFileSupport, HTMLSupport, CacheSupport):
 
     def get_identities(self, values):
         values = [v for v in ensure_list(values) if v is not None]
-        for (name, email) in getaddresses(values):
+        for name, email in getaddresses(values):
             yield EmailIdentity(self.manager, name, email)
 
     def get_header_identities(self, msg, *headers):

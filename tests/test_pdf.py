@@ -232,3 +232,23 @@ class PDFIngestorTest(TestCase):
             page_text = "\n".join(page.get("bodyText"))
 
             assert expected[page_no] in page_text
+
+    def test_pdf_type3_fonts(self):
+        """From https://github.com/pymupdf/PyMuPDF/issues/1943"""
+        fixture_path, entity = self.fixture("example.pdf")
+        self.manager.ingest(fixture_path, entity)
+
+        emitted = self.get_emitted()
+        assert len(emitted) == 10
+
+        page = emitted[0]
+        assert page.schema.name == "Page"
+        assert page.properties["index"][0] == "8"
+        text = "\n".join(page.get("bodyText"))
+        print(text)
+        expected_words = [
+            "487218AB",
+            "487410CB",
+            "487574AB",
+        ]
+        assert all([word in text for word in expected_words])

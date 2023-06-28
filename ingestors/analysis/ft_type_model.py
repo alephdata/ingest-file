@@ -8,6 +8,7 @@ from ingestors.util import SingletonDecorator
 
 log = logging.getLogger(__name__)
 
+
 @SingletonDecorator
 class FTTypeModel(object):
     def __init__(self, model_path):
@@ -28,4 +29,3 @@ class FTTypeModel(object):
     def _clean_labels(self, labels):
         for label in labels:
             yield label[0].replace("__label__", "")
-

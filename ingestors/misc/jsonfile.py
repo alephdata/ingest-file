@@ -8,7 +8,6 @@ from ingestors.exc import ProcessingException
 
 
 class JSONIngestor(Ingestor, EncodingSupport):
-
     MIME_TYPES = [
         "application/json",
         "text/javascript",

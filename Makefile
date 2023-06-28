@@ -26,6 +26,15 @@ services:
 shell: services
 	$(DOCKER) /bin/bash
 
+lint:
+	ruff check .
+
+format:
+	black .
+
+format-check:
+	black --check .
+
 test: services
 	$(DOCKER) pytest --cov=ingestors --cov-report html --cov-report term
 
@@ -45,3 +54,7 @@ clean:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -type d -name __pycache__ -exec rm -r {} \+
+
+dev:
+	python3 -m pip install --upgrade pip
+	python3 -m pip install -q -r requirements-dev.txt

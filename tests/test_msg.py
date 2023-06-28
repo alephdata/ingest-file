@@ -10,15 +10,15 @@ class RFC822Test(TestCase):
         self.manager.ingest(fixture_path, entity)
         self.assertSuccess(entity)
         pprint(entity.to_dict())
-        self.assertEqual(entity.first("subject"), u"JUnit test message")
-        self.assertIn(u"Dear Vladimir", entity.first("bodyText"))
+        self.assertEqual(entity.first("subject"), "JUnit test message")
+        self.assertIn("Dear Vladimir", entity.first("bodyText"))
 
     def test_naumann(self):
         fixture_path, entity = self.fixture("fnf.msg")
         self.manager.ingest(fixture_path, entity)
         self.assertSuccess(entity)
         self.assertIn("Innovationskongress", entity.first("subject"))
-        self.assertIn(u"freiheit.org", entity.first("bodyHtml"))
+        self.assertIn("freiheit.org", entity.first("bodyHtml"))
         self.assertEqual(entity.schema.name, "Email")
 
     def test_mbox(self):
