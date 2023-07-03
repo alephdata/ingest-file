@@ -12,6 +12,7 @@ from ftmstore.utils import safe_fragment
 from servicelayer.archive import init_archive
 from servicelayer.archive.util import ensure_path
 from servicelayer.extensions import get_extensions
+from sentry_sdk import capture_exception
 from followthemoney.helpers import entity_filename
 from followthemoney.namespace import Namespace
 
@@ -155,6 +156,7 @@ class Manager(object):
         except ProcessingException as pexc:
             entity.set("processingError", stringify(pexc))
             log.exception("[%r] Failed to process: %s", entity, pexc)
+            capture_exception(pexc)
         finally:
             self.finalize(entity)
 
