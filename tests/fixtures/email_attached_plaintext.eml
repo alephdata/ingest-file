@@ -1,0 +1,29 @@
+From: john.doe@example.org
+To: jane.doe@example.org
+Subject: This message has an email attachment
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============5753249999054666534=="
+
+--===============5753249999054666534==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+This is the body of the email that contains the attachment.
+
+--===============5753249999054666534==
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Content-Disposition: attachment
+
+From: john.doe@example.org
+To: jane.doe@example.org
+Subject: Plaintext only
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+
+This is the body of a plaintext message.
+
+--===============5753249999054666534==--
+

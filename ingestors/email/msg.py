@@ -57,18 +57,19 @@ class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
             entity.add("bodyHtml", html)
 
     def parse_part(self, entity, part, parent):
-        if part.is_multipart():
-            self.parse_parts(entity, part)
-            return
-
         mime_type = normalize_mimetype(part.get_content_type())
         file_name = part.get_filename()
+        is_body_type = mime_type in self.BODY_TYPES
         is_attachment = part.is_attachment()
         is_attachment = is_attachment or file_name is not None
-        is_attachment = is_attachment or mime_type not in self.BODY_TYPES
+        is_attachment = is_attachment or (not is_body_type and not part.is_multipart())
 
         if is_attachment:
-            payload = part.get_payload(decode=True)
+            if part.is_multipart():
+                # The attachment is an email
+                payload = str(part.get_payload(i=0))
+            else:
+                payload = part.get_payload(decode=True)
             self.ingest_attachment(entity, file_name, mime_type, payload)
             return
 
