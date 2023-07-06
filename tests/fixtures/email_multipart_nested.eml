@@ -1,0 +1,35 @@
+Content-Type: multipart/mixed; boundary="===============7655072033393954480=="
+MIME-Version: 1.0
+From: john.doe@example.org
+To: jane.doe@example.org
+Subject: Nested multipart email
+
+--===============7655072033393954480==
+Content-Type: multipart/alternative; boundary="===============3573627672436599266=="
+MIME-Version: 1.0
+
+--===============3573627672436599266==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is the **first** part
+
+--===============3573627672436599266==
+Content-Type: text/html; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is the <strong>first</strong> part
+
+--===============3573627672436599266==--
+
+--===============7655072033393954480==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is the second part
+
+--===============7655072033393954480==--
+

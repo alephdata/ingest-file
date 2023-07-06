@@ -26,3 +26,96 @@ class RFC822Test(TestCase):
         self.manager.ingest(fixture_path, entity)
         self.assertSuccess(entity)
         self.assertEqual(entity.schema.name, "Package")
+
+    def test_multipart_alternative(self):
+        fixture_path, entity = self.fixture("email_multipart_alternative.eml")
+        self.manager.ingest(fixture_path, entity)
+        self.assertSuccess(entity)
+        self.assertEqual(entity.schema.name, "Email")
+        self.assertEqual(
+            entity.get("bodyText"), ["This is a **multipart/alternative** message."]
+        )
+        self.assertEqual(
+            entity.get("bodyHtml"),
+            ["This is a <strong>multipart/alternative</strong> message."],
+        )
+
+    def test_multipart_mixed(self):
+        fixture_path, entity = self.fixture("email_multipart_mixed.eml")
+        self.manager.ingest(fixture_path, entity)
+        self.assertSuccess(entity)
+        self.assertEqual(entity.schema.name, "Email")
+        self.assertEqual(
+            entity.get("bodyText"),
+            [
+                "This is the first part (plaintext)",
+                "This is the second part (HTML)",
+                "This is the third part (plaintext)",
+                "This is the fourth part (HTML)",
+            ],
+        )
+        self.assertEqual(
+            entity.get("bodyHtml"),
+            [
+                "This is the first part (plaintext)",
+                "This is the second part (HTML)",
+                "This is the third part (plaintext)",
+                "This is the fourth part (HTML)",
+            ],
+        )
+
+    def test_multipart_nested(self):
+        fixture_path, entity = self.fixture("email_multipart_nested.eml")
+        self.manager.ingest(fixture_path, entity)
+        self.assertSuccess(entity)
+        self.assertEqual(entity.schema.name, "Email")
+        self.assertEqual(
+            entity.get("bodyText"),
+            [
+                "This is the **first** part",
+                "This is the second part",
+            ],
+        )
+        self.assertEqual(
+            entity.get("bodyHtml"),
+            [
+                "This is the <strong>first</strong> part",
+                "This is the second part",
+            ],
+        )
+
+    def test_plaintext_encode_markup(self):
+        fixture_path, entity = self.fixture("email_encode_markup.eml")
+        self.manager.ingest(fixture_path, entity)
+        self.assertSuccess(entity)
+        self.assertEqual(entity.schema.name, "Email")
+        self.assertEqual(
+            entity.get("bodyText"),
+            [
+                "This is the body of a plaintext message.\n\nEven though it's plaintext, it contains some <strong>HTML markup</strong>.",
+            ],
+        )
+        self.assertEqual(
+            entity.get("bodyHtml"),
+            [
+                "This is the body of a plaintext message.<br><br>Even though it&#x27;s plaintext, it contains some &lt;strong&gt;HTML markup&lt;/strong&gt;.",
+            ],
+        )
+
+    def test_html_strip_markup(self):
+        fixture_path, entity = self.fixture("email_strip_markup.eml")
+        self.manager.ingest(fixture_path, entity)
+        self.assertSuccess(entity)
+        self.assertEqual(entity.schema.name, "Email")
+        self.assertEqual(
+            entity.get("bodyText"),
+            [
+                "This is the body of an HTML message.",
+            ],
+        )
+        self.assertEqual(
+            entity.get("bodyHtml"),
+            [
+                "This is the body of an <strong>HTML</strong> message.",
+            ],
+        )

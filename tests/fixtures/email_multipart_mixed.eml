@@ -1,0 +1,36 @@
+Content-Type: multipart/mixed; boundary="===============7510222969316651908=="
+MIME-Version: 1.0
+From: john.doe@example.org
+To: jane.doe@example.org
+Subject: Multipart mixed
+
+--===============7510222969316651908==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is the first part (plaintext)
+
+--===============7510222969316651908==
+Content-Type: text/html; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is the second part (HTML)
+
+--===============7510222969316651908==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is the third part (plaintext)
+
+--===============7510222969316651908==
+Content-Type: text/html; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is the fourth part (HTML)
+
+--===============7510222969316651908==--
+

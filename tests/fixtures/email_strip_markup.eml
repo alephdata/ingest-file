@@ -1,0 +1,14 @@
+Content-Type: multipart/alternative; boundary="===============6829590477966542450=="
+MIME-Version: 1.0
+From: john.doe@example.org
+To: jane.doe@example.org
+Subject: HTML only
+
+--===============6829590477966542450==
+Content-Type: text/html; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is the body of an <strong>HTML</strong> message.
+--===============6829590477966542450==--
+
