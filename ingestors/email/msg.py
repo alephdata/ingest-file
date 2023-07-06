@@ -22,21 +22,6 @@ class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
     EXTENSIONS = ["eml", "rfc822", "email", "msg"]
     SCORE = 7
 
-    def walk_parts(self, part, parent=None):
-        # This is a modified version of the `walk` method from `email.message.Message`.
-        # Instead of just the subparts, it yields tuples that also include a reference to
-        # the parent part. This is necessary in order to determine whether a part has an
-        # alternative HTML or plaintext representation.
-        yield (part, parent)
-        if part.is_multipart():
-            for subpart in part.get_payload():
-                yield from self.walk_parts(subpart, part)
-
-    def decode_part(self, part):
-        charset = part.get_content_charset()
-        payload = part.get_payload(decode=True)
-        return self.decode_string(payload, charset)
-
     def has_alternative(self, parent, content_type):
         if not parent:
             return False
@@ -50,8 +35,30 @@ class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
 
         return False
 
+    def decode_part(self, part):
+        charset = part.get_content_charset()
+        payload = part.get_payload(decode=True)
+        return self.decode_string(payload, charset)
+
+    def parse_html_part(self, entity, part, parent):
+        payload = self.decode_part(part)
+        text = self.extract_html_content(entity, payload, extract_metadata=False)
+
+        if not self.has_alternative(parent, "text/plain"):
+            entity.add("bodyText", text)
+
+    def parse_plaintext_part(self, entity, part, parent):
+        payload = self.decode_part(part)
+        entity.add("bodyText", payload)
+
+        if not self.has_alternative(parent, "text/html"):
+            html = payload or ""
+            html = escape(html).strip().replace("\n", "<br>")
+            entity.add("bodyHtml", html)
+
     def parse_part(self, entity, part, parent):
         if part.is_multipart():
+            self.parse_parts(entity, part)
             return
 
         mime_type = normalize_mimetype(part.get_content_type())
@@ -63,27 +70,34 @@ class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
         if is_attachment:
             payload = part.get_payload(decode=True)
             self.ingest_attachment(entity, file_name, mime_type, payload)
-        elif self.BODY_HTML in mime_type:
-            payload = self.decode_part(part)
-            text = self.extract_html_content(entity, payload, extract_metadata=False)
-            if not self.has_alternative(parent, "text/plain"):
-                entity.add("bodyText", text)
-        elif self.BODY_PLAIN in mime_type:
-            payload = self.decode_part(part)
-            entity.add("bodyText", payload)
-            if not self.has_alternative(parent, "text/html"):
-                html = payload or ""
-                html = escape(html).strip().replace("\n", "<br>")
-                entity.add("bodyHtml", html)
-        else:
-            log.error("Dangling MIME fragment: %s", part)
+            return
+
+        if part.is_multipart():
+            self.parse_parts(entity, part)
+            return
+
+        if self.BODY_HTML in mime_type:
+            self.parse_html_part(entity, part, parent)
+            return
+
+        if self.BODY_PLAIN in mime_type:
+            self.parse_plaintext_part(entity, part, parent)
+            return
+
+        log.error("Dangling MIME fragment: %s", part)
+
+    def parse_parts(self, entity, parent):
+        for part in parent.get_payload():
+            self.parse_part(entity, part, parent)
 
     def ingest_msg(self, entity, msg):
         self.extract_msg_headers(entity, msg)
         self.resolve_message_ids(entity)
 
-        for part, parent in self.walk_parts(msg):
-            self.parse_part(entity, part, parent)
+        if msg.is_multipart():
+            self.parse_parts(entity, msg)
+        else:
+            self.parse_part(entity, msg, None)
 
     def ingest(self, file_path, entity):
         entity.schema = model.get("Email")
