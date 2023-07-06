@@ -1,0 +1,22 @@
+Content-Type: multipart/alternative; boundary="===============2315355174649810629=="
+MIME-Version: 1.0
+From: john.doe@example.org
+To: jane.doe@example.org
+Subject: Multipart alternative
+
+--===============2315355174649810629==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is a **multipart/alternative** message.
+
+--===============2315355174649810629==
+Content-Type: text/html; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is a <strong>multipart/alternative</strong> message.
+
+--===============2315355174649810629==--
+
