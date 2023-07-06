@@ -1,0 +1,56 @@
+From: john.doe@example.org
+To: jane.doe@example.org
+Subject: jane.doe@example.org
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============7953712366416188456=="
+
+--===============7953712366416188456==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+This is the body of the email that contains the attachment.
+
+--===============7953712366416188456==
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Content-Disposition: attachment
+
+Content-Type: multipart/mixed; boundary="===============4929378484425182273=="
+MIME-Version: 1.0
+From: john.doe@example.org
+To: jane.doe@example.org
+Subject: Multipart mixed
+
+--===============4929378484425182273==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is the first part (plaintext)
+
+--===============4929378484425182273==
+Content-Type: text/html; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is the second part (HTML)
+
+--===============4929378484425182273==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is the third part (plaintext)
+
+--===============4929378484425182273==
+Content-Type: text/html; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+This is the fourth part (HTML)
+
+--===============4929378484425182273==--
+
+--===============7953712366416188456==--
+

@@ -119,3 +119,20 @@ class RFC822Test(TestCase):
                 "This is the body of an <strong>HTML</strong> message.",
             ],
         )
+
+    def test_attached_email(self):
+        fixture_path, entity = self.fixture("email_attached_plaintext.eml")
+        self.manager.ingest(fixture_path, entity)
+        self.assertSuccess(entity)
+        self.assertEqual(
+            entity.get("bodyText"),
+            ["This is the body of the email that contains the attachment."],
+        )
+
+        fixture_path, entity = self.fixture("email_attached_alternative.eml")
+        self.manager.ingest(fixture_path, entity)
+        self.assertSuccess(entity)
+        self.assertEqual(
+            entity.get("bodyText"),
+            ["This is the body of the email that contains the attachment."],
+        )
