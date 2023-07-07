@@ -143,3 +143,24 @@ class RFC822Test(TestCase):
             entity.get("bodyText"),
             ["This is the body of the email that contains the attachment."],
         )
+
+    def test_attached_inline_email(self):
+        fixture_path, entity = self.fixture("email_attached_inline.eml")
+        self.manager.ingest(fixture_path, entity)
+        self.assertSuccess(entity)
+        self.assertEqual(
+            entity.get("bodyText"),
+            [
+                "This is the body of the email that contains the attachment.",
+                "From: john.doe@example.org\nTo: jane.doe@example.org\nSubject: Plaintext only",
+                "This is the body of a plaintext message.",
+            ],
+        )
+        self.assertEqual(
+            entity.get("bodyHtml"),
+            [
+                "This is the body of the email that contains the attachment.",
+                "From: john.doe@example.org<br>To: jane.doe@example.org<br>Subject: Plaintext only",
+                "This is the body of a plaintext message.",
+            ],
+        )

@@ -19,6 +19,8 @@ class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
     BODY_HTML = "text/html"
     BODY_PLAIN = "text/plain"
     BODY_TYPES = [BODY_HTML, BODY_PLAIN]
+    BODY_RFC822 = "message/rfc822"
+    DISPLAY_HEADERS = ["from", "to", "cc", "bcc", "subject", "reply-to", "date"]
     EXTENSIONS = ["eml", "rfc822", "email", "msg"]
     SCORE = 7
 
@@ -34,6 +36,12 @@ class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
                 return True
 
         return False
+
+    def make_html_alternative(self, text):
+        if not text:
+            return None
+
+        return escape(text).strip().replace("\n", "<br>")
 
     def decode_part(self, part):
         charset = part.get_content_charset()
@@ -52,9 +60,22 @@ class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
         entity.add("bodyText", payload)
 
         if not self.has_alternative(parent, "text/html"):
-            html = payload or ""
-            html = escape(html).strip().replace("\n", "<br>")
+            html = self.make_html_alternative(payload)
             entity.add("bodyHtml", html)
+
+    def parse_rfc822_part(self, entity, part, parent):
+        msg = part.get_payload(0)
+        headers = [
+            f"{name}: {value}"
+            for name, value in msg.items()
+            if name.lower() in self.DISPLAY_HEADERS
+        ]
+        text = "\n".join(headers)
+        html = self.make_html_alternative(text)
+        entity.add("bodyText", text)
+        entity.add("bodyHtml", html)
+
+        self.parse_parts(entity, part)
 
     def parse_part(self, entity, part, parent):
         mime_type = normalize_mimetype(part.get_content_type())
@@ -71,6 +92,10 @@ class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
             else:
                 payload = part.get_payload(decode=True)
             self.ingest_attachment(entity, file_name, mime_type, payload)
+            return
+
+        if self.BODY_RFC822 in mime_type:
+            self.parse_rfc822_part(entity, part, parent)
             return
 
         if part.is_multipart():
