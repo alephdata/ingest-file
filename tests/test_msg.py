@@ -27,6 +27,13 @@ class RFC822Test(TestCase):
         self.assertSuccess(entity)
         self.assertEqual(entity.schema.name, "Package")
 
+    def test_base64(self):
+        fixture_path, entity = self.fixture("email_base64.eml")
+        self.manager.ingest(fixture_path, entity)
+        self.assertSuccess(entity)
+        self.assertEqual(entity.schema.name, "Email")
+        self.assertEqual(entity.get("bodyText"), ["Base64 email payload"])
+
     def test_multipart_alternative(self):
         fixture_path, entity = self.fixture("email_multipart_alternative.eml")
         self.manager.ingest(fixture_path, entity)
