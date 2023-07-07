@@ -1,0 +1,8 @@
+From: john.doe@example.org
+To: jane.doe@example.org
+Subject: This message has a base64 encoded payload
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+
+QmFzZTY0IGVtYWlsIHBheWxvYWQK
