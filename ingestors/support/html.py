@@ -62,7 +62,9 @@ class HTMLSupport(TimestampSupport):
         except Exception as exc:
             log.warning("HTML node error: %r", exc)
 
-    def extract_html_content(self, entity, html_body, extract_metadata=True):
+    def extract_html_content(
+        self, entity, html_body, extract_metadata=True, add_index_text=True
+    ):
         """Ingestor implementation."""
         if html_body is None or not len(html_body.strip()):
             return
@@ -82,7 +84,8 @@ class HTMLSupport(TimestampSupport):
             self.extract_html_header(entity, doc)
         try:
             text = self.extract_html_text(doc)
-            entity.add("indexText", text)
+            if add_index_text:
+                entity.add("indexText", text)
             return text
         except Exception:
             log.exception("Error extracting text from HTML")

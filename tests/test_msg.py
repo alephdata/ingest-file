@@ -126,6 +126,9 @@ class RFC822Test(TestCase):
                 "This is the body of an <strong>HTML</strong> message.",
             ],
         )
+        self.assertNotIn(
+            "This is the body of an HTML message.", entity.get("indexText")
+        )
 
     def test_attached_email(self):
         fixture_path, entity = self.fixture("email_attached_plaintext.eml")
