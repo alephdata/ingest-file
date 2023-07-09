@@ -50,7 +50,9 @@ class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
 
     def parse_html_part(self, entity, part, parent):
         payload = self.decode_part(part)
-        text = self.extract_html_content(entity, payload, extract_metadata=False)
+        text = self.extract_html_content(
+            entity, payload, extract_metadata=False, add_index_text=False
+        )
 
         if not self.has_alternative(parent, "text/plain"):
             entity.add("bodyText", text)
