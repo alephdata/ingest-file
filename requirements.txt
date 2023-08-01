@@ -1,6 +1,6 @@
 banal==1.0.6
 normality==2.4.0
-pantomime==0.6.0
+pantomime==0.6.1
 followthemoney==3.4.4
 followthemoney-store[postgresql]==3.0.5
 servicelayer[google,amazon]==1.21.0
