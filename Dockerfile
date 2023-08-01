@@ -147,6 +147,7 @@ RUN python3 -m spacy download el_core_news_sm \
 COPY . /ingestors
 WORKDIR /ingestors
 RUN pip3 install --no-cache-dir -e /ingestors
+RUN argospm update && argospm install translate-en_es
 RUN chown -R app:app /ingestors
 
 ENV ARCHIVE_TYPE=file \
