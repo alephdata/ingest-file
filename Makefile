@@ -3,7 +3,6 @@ COMPOSE=docker-compose
 DOCKER=$(COMPOSE) run --rm ingest-file
 
 .PHONY: build
-
 all: build shell
 
 build:
@@ -36,7 +35,11 @@ format-check:
 	black --check .
 
 test: services
-	$(DOCKER) pytest --cov=ingestors --cov-report html --cov-report term
+	$(DOCKER) pytest --cov=ingestors --cov-report html --cov-report term tests/test_doc.py
+
+minialeph:
+	$(COMPOSE) up -d --remove-orphans redis
+	FTM_STORE_URI=hack.db $(COMPOSE) run --rm mini-ingest-file /bin/bash
 
 restart: build
 	$(COMPOSE) up --force-recreate --no-deps --detach ingest-file

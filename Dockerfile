@@ -96,7 +96,8 @@ RUN apt-get -qq -y update \
     tesseract-ocr-aze \
     tesseract-ocr-bel \
     tesseract-ocr-uzb \
-    ### pdf convert: libreoffice + a bunch of fonts 
+    ffmpeg \
+    ### pdf convert: libreoffice + a bunch of fonts
     libreoffice fonts-opensymbol hyphen-fr hyphen-de \
     hyphen-en-us hyphen-it hyphen-ru fonts-dejavu fonts-dejavu-core fonts-dejavu-extra \
     fonts-droid-fallback fonts-dustin fonts-f500 fonts-fanwood fonts-freefont-ttf \
@@ -143,6 +144,9 @@ RUN python3 -m spacy download el_core_news_sm \
     && python3 -m spacy download nb_core_news_sm \
     && python3 -m spacy download da_core_news_sm
 # RUN python3 -m spacy download zh_core_web_sm
+
+RUN pip3 install --no-cache-dir openai-whisper
+RUN whisper --model base /dev/null || true
 
 COPY . /ingestors
 WORKDIR /ingestors
