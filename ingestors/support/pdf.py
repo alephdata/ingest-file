@@ -1,3 +1,4 @@
+import argostranslate.translate
 from dataclasses import dataclass
 import logging
 import os
@@ -67,7 +68,8 @@ class PDFSupport(DocumentConvertSupport, OCRSupport):
             page_entity.make_id(entity.id, page_model.number)
             page_entity.set("document", entity)
             page_entity.set("index", page_model.number)
-            page_entity.add("bodyText", page_model.text)
+            text_es = argostranslate.translate.translate(page_model.text, "en", "es")
+            page_entity.add("bodyText", text_es)
             manager.apply_context(page_entity, entity)
             manager.emit_entity(page_entity)
             manager.emit_text_fragment(entity, page_model.text, page_entity.id)
