@@ -1,6 +1,8 @@
 name: package
 
-on: [push]
+on:
+  push:
+  merge_group:
 
 permissions:
   packages: write
