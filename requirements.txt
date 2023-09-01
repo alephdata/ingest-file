@@ -35,7 +35,7 @@ msglite==0.30.0
 icalendar==5.0.4
 
 cryptography==41.0.3
-requests[security]==2.28.2
+requests[security]==2.31.0
 pymupdf==1.21.1
 
 sentry_sdk==1.29.2
