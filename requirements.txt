@@ -22,7 +22,7 @@ click==8.1.6
 dbf==0.99.3
 pymediainfo==6.0.1
 python-magic==0.4.27
-rarfile==4.0
+rarfile==4.1
 xlrd==2.0.1
 openpyxl==3.1.2
 odfpy==1.4.1
