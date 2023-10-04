@@ -148,7 +148,7 @@ RUN python3 -m spacy download el_core_news_sm \
 
 COPY . /ingestors
 WORKDIR /ingestors
-RUN pip3 install --no-cache-dir -e /ingestors
+RUN pip3 install --no-cache-dir --config-settings editable_mode=compat --use-pep517 -e /ingestors
 RUN chown -R app:app /ingestors
 
 ENV ARCHIVE_TYPE=file \
