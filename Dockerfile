@@ -124,9 +124,9 @@ RUN mkdir /models/ && \
 # Having updated pip/setuptools seems to break the test run for some reason (12/01/2022)
 # RUN pip3 install --no-cache-dir -U pip setuptools
 COPY requirements.txt /tmp/
-RUN pip3 install --upgrade pip
-RUN pip3 install --upgrade setuptools wheel
-RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
+RUN pip3 install --no-cache-dir --prefer-binary --upgrade pip
+RUN pip3 install --no-cache-dir --prefer-binary --upgrade setuptools wheel
+RUN pip3 install --no-cache-dir --prefer-binary -r /tmp/requirements.txt
 
 # Install spaCy models
 RUN python3 -m spacy download en_core_web_sm \
