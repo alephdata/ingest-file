@@ -2,6 +2,7 @@ import logging
 import json
 from pprint import pformat  # noqa
 import uuid
+from random import randrange
 
 import pika
 from banal import ensure_list
@@ -31,6 +32,7 @@ log = logging.getLogger(__name__)
 # ToDo: Move to servicelayer??
 def queue_task(collection_id, stage, job_id=None, context=None, **payload):
     task_id = uuid.uuid4().hex
+    priority = randrange(1, sls.RABBITMQ_MAX_PRIORITY + 1)
     body = {
         "collection_id": dataset_from_collection_id(collection_id),
         "job_id": job_id,
@@ -38,6 +40,7 @@ def queue_task(collection_id, stage, job_id=None, context=None, **payload):
         "operation": stage,
         "context": context,
         "payload": payload,
+        "priority": priority,
     }
 
     try:
@@ -49,7 +52,7 @@ def queue_task(collection_id, stage, job_id=None, context=None, **payload):
             routing_key=get_routing_key(body["operation"]),
             body=json.dumps(body),
             properties=pika.BasicProperties(
-                delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE
+                delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE, priority=priority
             ),
             mandatory=True,
         )
@@ -72,7 +75,7 @@ class IngestWorker(Worker):
     def _ingest(self, ftmstore_dataset, task: Task):
         manager = Manager(ftmstore_dataset, task)
         entity = model.get_proxy(task.payload)
-        log.debug("Ingest: %r", entity)
+        log.debug(f"Ingest: {entity}")
         try:
             manager.ingest_entity(entity)
         finally:
@@ -94,6 +97,10 @@ class IngestWorker(Worker):
         return list(entity_ids)
 
     def dispatch_task(self, task: Task) -> Task:
+        log.info(
+            f"Task [collection:{task.collection_id}]: "
+            f"op:{task.operation} task_id:{task.task_id} priority: {task.priority} (started)"
+        )
         name = task.context.get("ftmstore", task.collection_id)
         ftmstore_dataset = get_dataset(name, task.operation)
         if task.operation == OP_INGEST:
