@@ -2,6 +2,7 @@ import bz2
 import gzip
 import shutil
 import tarfile
+from pathlib import PurePath
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.package import PackageSupport
@@ -15,8 +16,18 @@ class SevenZipIngestor(PackageSupport, Ingestor, ShellSupport):
     SCORE = 4
 
     def unpack(self, file_path, entity, temp_dir):
+        # check if the file_path belongs to a 7z fragmented archive and reconstruct the filename
+        pure_file_path = PurePath(file_path)
+        if "_7z" in pure_file_path.parts[-1]:
+            reconstructed_filename = pure_file_path.parts[-1].replace("_7z", ".7z")
+            pure_file_path = str(
+                PurePath("/").joinpath(
+                    *pure_file_path.parts[1:-1], reconstructed_filename
+                )
+            )
+
         self.exec_command(
-            "7z", "x", file_path, "-y", "-r", "-bb0", "-bd", "-oc:%s" % temp_dir
+            "7z", "x", pure_file_path, "-y", "-r", "-bb0", "-bd", f"-oc:{temp_dir}"
         )
 
 
