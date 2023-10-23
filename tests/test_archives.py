@@ -1,7 +1,5 @@
 from .support import TestCase
 
-from ingestors.exc import ProcessingException
-
 
 class SevenZipArchivesTest(TestCase):
     def test_7z_archive(self):
