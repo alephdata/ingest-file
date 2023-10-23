@@ -20,14 +20,12 @@ class SevenZipIngestor(PackageSupport, Ingestor, ShellSupport):
         pure_file_path = PurePath(file_path)
         if "_7z" in pure_file_path.parts[-1]:
             reconstructed_filename = pure_file_path.parts[-1].replace("_7z", ".7z")
-            pure_file_path = str(
-                PurePath("/").joinpath(
-                    *pure_file_path.parts[1:-1], reconstructed_filename
-                )
+            pure_file_path = PurePath("/").joinpath(
+                *pure_file_path.parts[1:-1], reconstructed_filename
             )
 
         self.exec_command(
-            "7z", "x", pure_file_path, "-y", "-r", "-bb0", "-bd", f"-oc:{temp_dir}"
+            "7z", "x", str(pure_file_path), "-y", "-r", "-bb0", "-bd", f"-oc:{temp_dir}"
         )
 
 
