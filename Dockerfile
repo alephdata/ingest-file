@@ -124,7 +124,9 @@ RUN mkdir /models/ && \
 # Having updated pip/setuptools seems to break the test run for some reason (12/01/2022)
 # RUN pip3 install --no-cache-dir -U pip setuptools
 COPY requirements.txt /tmp/
-RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
+RUN pip3 install --no-cache-dir --prefer-binary --upgrade pip
+RUN pip3 install --no-cache-dir --prefer-binary --upgrade setuptools wheel
+RUN pip3 install --no-cache-dir --prefer-binary -r /tmp/requirements.txt
 
 # Install spaCy models
 RUN python3 -m spacy download en_core_web_sm \
@@ -146,13 +148,14 @@ RUN python3 -m spacy download el_core_news_sm \
 
 COPY . /ingestors
 WORKDIR /ingestors
-RUN pip3 install --no-cache-dir -e /ingestors
+RUN pip3 install --no-cache-dir --config-settings editable_mode=compat --use-pep517 -e /ingestors
 RUN chown -R app:app /ingestors
 
 ENV ARCHIVE_TYPE=file \
     ARCHIVE_PATH=/data \
     FTM_STORE_URI=postgresql://aleph:aleph@postgres/aleph \
-    REDIS_URL=redis://redis:6379/0
+    REDIS_URL=redis://redis:6379/0 \
+    TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
 
 # USER app
 CMD ingestors process
