@@ -5,6 +5,7 @@ from followthemoney import model
 from ingestors.support.temp import TempFileSupport
 from ingestors.support.encoding import EncodingSupport
 from ingestors.directory import DirectoryIngestor
+from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
@@ -30,8 +31,13 @@ class PackageSupport(TempFileSupport, EncodingSupport):
     def ingest(self, file_path, entity):
         entity.schema = model.get("Package")
         temp_dir = self.make_empty_directory()
-        self.unpack(file_path, entity, temp_dir)
-        self.manager.delegate(DirectoryIngestor, temp_dir, entity)
+        try:
+            self.unpack(file_path, entity, temp_dir)
+            self.manager.delegate(DirectoryIngestor, temp_dir, entity)
+        except ProcessingException as e:
+            raise ProcessingException(
+                "Could not unpack the contents of this file."
+            ) from e
 
     def unpack(self, file_path, entity, temp_dir):
         pass
