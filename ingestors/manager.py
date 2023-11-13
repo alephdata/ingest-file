@@ -1,5 +1,6 @@
 import magic
 import logging
+from timeit import default_timer
 from tempfile import mkdtemp
 from datetime import datetime
 from pkg_resources import get_distribution
@@ -15,6 +16,7 @@ from servicelayer.extensions import get_extensions
 from sentry_sdk import capture_exception
 from followthemoney.helpers import entity_filename
 from followthemoney.namespace import Namespace
+from prometheus_client import Counter, Histogram
 
 from ingestors.directory import DirectoryIngestor
 from ingestors.exc import ProcessingException
@@ -22,6 +24,27 @@ from ingestors.util import filter_text, remove_directory
 from ingestors import settings
 
 log = logging.getLogger(__name__)
+
+INGEST_SUCCEEDED = Counter(
+    "ingest_succeeded_total",
+    "Successful ingestions",
+    ["ingestor"],
+)
+INGEST_FAILED = Counter(
+    "ingest_failed_total",
+    "Failed ingestions",
+    ["ingestor"],
+)
+INGEST_DURATION = Histogram(
+    "ingest_duration_seconds",
+    "Ingest duration by ingestor",
+    ["ingestor"],
+)
+INGEST_INGESTED_BYTES = Counter(
+    "ingest_ingested_bytes_total",
+    "Total number of bytes ingested",
+    ["ingestor"],
+)
 
 
 class Manager(object):
@@ -138,8 +161,10 @@ class Manager(object):
     def ingest(self, file_path, entity, **kwargs):
         """Main execution step of an ingestor."""
         file_path = ensure_path(file_path)
+        file_size = None
         if file_path.is_file() and not entity.has("fileSize"):
-            entity.add("fileSize", file_path.stat().st_size)
+            file_size = file_path.stat().st_size  # size in bytes
+            entity.add("fileSize", file_size)
 
         now = datetime.now()
         now_string = now.strftime("%Y-%m-%dT%H:%M:%S.%f")
@@ -148,14 +173,32 @@ class Manager(object):
         entity.set("processingAgent", get_distribution("ingest").version)
         entity.set("processedAt", now_string)
 
+        ingestor_class = None
+        ingestor_name = None
+
         try:
             ingestor_class = self.auction(file_path, entity)
-            log.info("Ingestor [%r]: %s", entity, ingestor_class.__name__)
+            ingestor_name = ingestor_class.__name__
+            log.info("Ingestor [%r]: %s", entity, ingestor_name)
+
+            start_time = default_timer()
             self.delegate(ingestor_class, file_path, entity)
+            duration = max(0, default_timer() - start_time)
+
+            INGEST_SUCCEEDED.labels(ingestor_name).inc()
+            INGEST_DURATION.labels(ingestor_name).observe(duration)
+            INGEST_INGESTED_BYTES.labels(ingestor_name).inc(file_size)
+
             entity.set("processingStatus", self.STATUS_SUCCESS)
         except ProcessingException as pexc:
-            entity.set("processingError", stringify(pexc))
             log.exception("[%r] Failed to process: %s", entity, pexc)
+
+            if ingestor_name:
+                INGEST_FAILED.labels(ingestor_name).inc()
+            else:
+                INGEST_FAILED.labels(None).inc()
+
+            entity.set("processingError", stringify(pexc))
             capture_exception(pexc)
         finally:
             self.finalize(entity)

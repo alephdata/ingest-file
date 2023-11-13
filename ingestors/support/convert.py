@@ -4,6 +4,7 @@ import pathlib
 import subprocess
 
 from followthemoney.helpers import entity_filename
+from prometheus_client import Counter
 
 from ingestors.support.cache import CacheSupport
 from ingestors.support.temp import TempFileSupport
@@ -13,6 +14,12 @@ log = logging.getLogger(__name__)
 
 TIMEOUT = 3600  # seconds
 CONVERT_RETRIES = 5
+
+INGEST_PDF_CACHE_ACCESSED = Counter(
+    "ingest_pdf_cache_accessed",
+    "Number of times the PDF cache has been accessed, by cache status",
+    ["status"],
+)
 
 
 class DocumentConvertSupport(CacheSupport, TempFileSupport):
@@ -25,10 +32,12 @@ class DocumentConvertSupport(CacheSupport, TempFileSupport):
             file_name = entity_filename(entity, extension="pdf")
             path = self.manager.load(pdf_hash, file_name=file_name)
             if path is not None:
+                INGEST_PDF_CACHE_ACCESSED.labels("hit").inc()
                 log.info("Using PDF cache: %s", file_name)
                 entity.set("pdfHash", pdf_hash)
                 return path
 
+        INGEST_PDF_CACHE_ACCESSED.labels("miss").inc()
         pdf_file = self._document_to_pdf(unique_tmpdir, file_path, entity)
         if pdf_file is not None:
             content_hash = self.manager.store(pdf_file)
