@@ -162,8 +162,11 @@ class Manager(object):
         """Main execution step of an ingestor."""
         file_path = ensure_path(file_path)
         file_size = None
-        if file_path.is_file() and not entity.has("fileSize"):
+
+        if file_path.is_file():
             file_size = file_path.stat().st_size  # size in bytes
+
+        if file_size is not None and not entity.has("fileSize"):
             entity.add("fileSize", file_size)
 
         now = datetime.now()
@@ -187,7 +190,9 @@ class Manager(object):
 
             INGEST_SUCCEEDED.labels(ingestor_name).inc()
             INGEST_DURATION.labels(ingestor_name).observe(duration)
-            INGEST_INGESTED_BYTES.labels(ingestor_name).inc(file_size)
+
+            if file_size is not None:
+                INGEST_INGESTED_BYTES.labels(ingestor_name).inc(file_size)
 
             entity.set("processingStatus", self.STATUS_SUCCESS)
         except ProcessingException as pexc:
