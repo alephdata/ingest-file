@@ -4,6 +4,7 @@ from zipfile import ZipFile, BadZipfile
 
 from ingestors.support.xml import XMLSupport
 from ingestors.support.timestamp import TimestampSupport
+from ingestors.exc import ProcessingException, ENCRYPTED_MSG
 
 # from ingestors.exc import ProcessingException
 
@@ -53,6 +54,9 @@ class OOXMLSupport(TimestampSupport, XMLSupport):
     @classmethod
     def inspect_ooxml_manifest(cls, file_path):
         if not zipfile.is_zipfile(file_path):
+            # password-protected Excel files are detected as zipfiles
+            if "Excel" in cls.__name__:
+                raise ProcessingException(ENCRYPTED_MSG)
             return False
         try:
             with zipfile.ZipFile(file_path, "r") as zf:

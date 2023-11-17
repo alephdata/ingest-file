@@ -17,7 +17,7 @@ from followthemoney.helpers import entity_filename
 from followthemoney.namespace import Namespace
 
 from ingestors.directory import DirectoryIngestor
-from ingestors.exc import ProcessingException
+from ingestors.exc import ProcessingException, ENCRYPTED_MSG
 from ingestors.util import filter_text, remove_directory
 from ingestors import settings
 
@@ -93,6 +93,9 @@ class Manager(object):
                 entity.add("mimeType", DirectoryIngestor.MIME_TYPE)
                 return DirectoryIngestor
             entity.add("mimeType", self.MAGIC.from_file(file_path.as_posix()))
+
+        if "application/encrypted" in entity.get("mimeType"):
+            raise ProcessingException(ENCRYPTED_MSG)
 
         best_score, best_cls = 0, None
         for cls in get_extensions("ingestors"):
