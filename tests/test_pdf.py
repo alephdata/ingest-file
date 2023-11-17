@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .support import TestCase
+from ingestors.exc import ENCRYPTED_MSG
 
 
 class PDFIngestorTest(TestCase):
@@ -84,10 +85,7 @@ class PDFIngestorTest(TestCase):
         text = self.manager.entities[0].first("bodyText")
         self.assertEqual(None, text)
         err = self.manager.entities[0].first("processingError")
-        self.assertIn(
-            "Could not extract PDF file. The PDF is protected with a password. Try removing the password protection and re-uploading the documents.",
-            err,
-        )
+        self.assertIn(ENCRYPTED_MSG, err)
         status = self.manager.entities[0].first("processingStatus")
         self.assertEqual("failure", status)
 

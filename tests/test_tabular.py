@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from .support import TestCase
+from ingestors.exc import ENCRYPTED_MSG
 
 
 class TabularIngestorTest(TestCase):
@@ -34,3 +35,21 @@ class TabularIngestorTest(TestCase):
         tables = [t.first("title") for t in tables]
         self.assertIn("Лист1", tables)
         self.assertEqual(entity.schema.name, "Workbook")
+
+    def test_password_protected_xlsx(self):
+        fixture_path, entity = self.fixture("password_protected.xlsx")
+        self.manager.ingest(fixture_path, entity)
+        self.assertEqual(len(self.get_emitted()), 1)
+        err = self.manager.entities[0].first("processingError")
+        self.assertIn(ENCRYPTED_MSG, err)
+        status = self.manager.entities[0].first("processingStatus")
+        self.assertEqual("failure", status)
+
+    def test_password_protected_xls(self):
+        fixture_path, entity = self.fixture("password_protected.xls")
+        self.manager.ingest(fixture_path, entity)
+        self.assertEqual(len(self.get_emitted()), 1)
+        err = self.manager.entities[0].first("processingError")
+        self.assertIn(ENCRYPTED_MSG, err)
+        status = self.manager.entities[0].first("processingStatus")
+        self.assertEqual("failure", status)
