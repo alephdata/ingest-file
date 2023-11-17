@@ -25,24 +25,24 @@ from ingestors import settings
 
 log = logging.getLogger(__name__)
 
-INGEST_SUCCEEDED = Counter(
-    "ingest_succeeded_total",
+INGESTIONS_SUCCEEDED = Counter(
+    "ingestfile_ingestions_succeeded_total",
     "Successful ingestions",
     ["ingestor"],
 )
-INGEST_FAILED = Counter(
-    "ingest_failed_total",
+INGESTIONS_FAILED = Counter(
+    "ingestfile_ingestions_failed_total",
     "Failed ingestions",
     ["ingestor"],
 )
-INGEST_DURATION = Histogram(
-    "ingest_duration_seconds",
+INGESTION_DURATION = Histogram(
+    "ingestfile_ingestion_duration_seconds",
     "Ingest duration by ingestor",
     ["ingestor"],
     # The bucket sizes are a rough guess right now, we might want to adjust
     # them later based on observed durations
     buckets=[
-        0.005
+        0.005,
         0.01,
         0.025,
         0.05,
@@ -57,8 +57,8 @@ INGEST_DURATION = Histogram(
         15 * 60,
     ],
 )
-INGEST_INGESTED_BYTES = Counter(
-    "ingest_ingested_bytes_total",
+INGESTED_BYTES = Counter(
+    "ingestfile_ingested_bytes_total",
     "Total number of bytes ingested",
     ["ingestor"],
 )
@@ -205,20 +205,20 @@ class Manager(object):
             self.delegate(ingestor_class, file_path, entity)
             duration = max(0, default_timer() - start_time)
 
-            INGEST_SUCCEEDED.labels(ingestor_name).inc()
-            INGEST_DURATION.labels(ingestor_name).observe(duration)
+            INGESTIONS_SUCCEEDED.labels(ingestor_name).inc()
+            INGESTION_DURATION.labels(ingestor_name).observe(duration)
 
             if file_size is not None:
-                INGEST_INGESTED_BYTES.labels(ingestor_name).inc(file_size)
+                INGESTED_BYTES.labels(ingestor_name).inc(file_size)
 
             entity.set("processingStatus", self.STATUS_SUCCESS)
         except ProcessingException as pexc:
             log.exception("[%r] Failed to process: %s", entity, pexc)
 
             if ingestor_name:
-                INGEST_FAILED.labels(ingestor_name).inc()
+                INGESTIONS_FAILED.labels(ingestor_name).inc()
             else:
-                INGEST_FAILED.labels(None).inc()
+                INGESTIONS_FAILED.labels(None).inc()
 
             entity.set("processingError", stringify(pexc))
             capture_exception(pexc)
