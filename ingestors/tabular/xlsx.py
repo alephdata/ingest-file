@@ -1,4 +1,5 @@
 import logging
+
 from followthemoney import model
 from openpyxl import load_workbook
 from xml.etree.ElementTree import ParseError

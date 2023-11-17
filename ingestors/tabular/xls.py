@@ -7,7 +7,7 @@ from followthemoney import model
 from ingestors.ingestor import Ingestor
 from ingestors.support.table import TableSupport
 from ingestors.support.ole import OLESupport
-from ingestors.exc import ProcessingException
+from ingestors.exc import ProcessingException, ENCRYPTED_MSG
 
 log = logging.getLogger(__name__)
 
@@ -49,6 +49,8 @@ class ExcelIngestor(Ingestor, TableSupport, OLESupport):
         self.extract_ole_metadata(file_path, entity)
         try:
             book = xlrd.open_workbook(file_path, formatting_info=False)
+        except XLRDError as err:
+            raise ProcessingException(ENCRYPTED_MSG)
         except Exception as err:
             raise ProcessingException("Invalid Excel file: %s" % err) from err
 
