@@ -49,7 +49,7 @@ class ExcelIngestor(Ingestor, TableSupport, OLESupport):
         self.extract_ole_metadata(file_path, entity)
         try:
             book = xlrd.open_workbook(file_path, formatting_info=False)
-        except XLRDError as err:
+        except XLRDError:
             raise ProcessingException(ENCRYPTED_MSG)
         except Exception as err:
             raise ProcessingException("Invalid Excel file: %s" % err) from err
