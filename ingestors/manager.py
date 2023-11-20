@@ -205,20 +205,20 @@ class Manager(object):
             self.delegate(ingestor_class, file_path, entity)
             duration = max(0, default_timer() - start_time)
 
-            INGESTIONS_SUCCEEDED.labels(ingestor_name).inc()
-            INGESTION_DURATION.labels(ingestor_name).observe(duration)
+            INGESTIONS_SUCCEEDED.labels(ingestor=ingestor_name).inc()
+            INGESTION_DURATION.labels(ingestor=ingestor_name).observe(duration)
 
             if file_size is not None:
-                INGESTED_BYTES.labels(ingestor_name).inc(file_size)
+                INGESTED_BYTES.labels(ingestor=ingestor_name).inc(file_size)
 
             entity.set("processingStatus", self.STATUS_SUCCESS)
         except ProcessingException as pexc:
             log.exception("[%r] Failed to process: %s", entity, pexc)
 
             if ingestor_name:
-                INGESTIONS_FAILED.labels(ingestor_name).inc()
+                INGESTIONS_FAILED.labels(ingestor=ingestor_name).inc()
             else:
-                INGESTIONS_FAILED.labels(None).inc()
+                INGESTIONS_FAILED.labels(ingestor=None).inc()
 
             entity.set("processingError", stringify(pexc))
             capture_exception(pexc)
