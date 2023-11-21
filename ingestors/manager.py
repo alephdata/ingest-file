@@ -199,7 +199,7 @@ class Manager(object):
         try:
             ingestor_class = self.auction(file_path, entity)
             ingestor_name = ingestor_class.__name__
-            log.info("Ingestor [%r]: %s", entity, ingestor_name)
+            log.info(f"Ingestor [{repr(entity)}]: {ingestor_name}")
 
             start_time = default_timer()
             self.delegate(ingestor_class, file_path, entity)
@@ -213,7 +213,7 @@ class Manager(object):
 
             entity.set("processingStatus", self.STATUS_SUCCESS)
         except ProcessingException as pexc:
-            log.exception("[%r] Failed to process: %s", entity, pexc)
+            log.exception(f"[{repr(entity)}] Failed to process: {pexc}")
 
             if ingestor_name:
                 INGESTIONS_FAILED.labels(ingestor=ingestor_name).inc()
