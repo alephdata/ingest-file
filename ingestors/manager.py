@@ -214,12 +214,7 @@ class Manager(object):
             entity.set("processingStatus", self.STATUS_SUCCESS)
         except ProcessingException as pexc:
             log.exception(f"[{repr(entity)}] Failed to process: {pexc}")
-
-            if ingestor_name:
-                INGESTIONS_FAILED.labels(ingestor=ingestor_name).inc()
-            else:
-                INGESTIONS_FAILED.labels(ingestor=None).inc()
-
+            INGESTIONS_FAILED.labels(ingestor=ingestor_name).inc()
             entity.set("processingError", stringify(pexc))
             capture_exception(pexc)
         finally:
