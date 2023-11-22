@@ -3,6 +3,7 @@ from followthemoney import model
 from ftmstore import get_dataset
 from servicelayer.worker import Worker
 from servicelayer.logs import apply_task_context
+from prometheus_client import Info
 
 from ingestors import __version__
 from ingestors.manager import Manager
@@ -11,6 +12,9 @@ from ingestors.analysis import Analyzer
 log = logging.getLogger(__name__)
 OP_INGEST = "ingest"
 OP_ANALYZE = "analyze"
+
+SYSTEM = Info("ingestfile_system", "ingest-file system information")
+SYSTEM.info({"ingestfile_version": __version__})
 
 
 class IngestWorker(Worker):

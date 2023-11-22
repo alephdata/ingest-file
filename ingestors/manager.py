@@ -1,5 +1,6 @@
 import magic
 import logging
+from timeit import default_timer
 from tempfile import mkdtemp
 from datetime import datetime
 from pkg_resources import get_distribution
@@ -15,6 +16,7 @@ from servicelayer.extensions import get_extensions
 from sentry_sdk import capture_exception
 from followthemoney.helpers import entity_filename
 from followthemoney.namespace import Namespace
+from prometheus_client import Counter, Histogram
 
 from ingestors.directory import DirectoryIngestor
 from ingestors.exc import ProcessingException, ENCRYPTED_MSG
@@ -22,6 +24,44 @@ from ingestors.util import filter_text, remove_directory
 from ingestors import settings
 
 log = logging.getLogger(__name__)
+
+INGESTIONS_SUCCEEDED = Counter(
+    "ingestfile_ingestions_succeeded_total",
+    "Successful ingestions",
+    ["ingestor"],
+)
+INGESTIONS_FAILED = Counter(
+    "ingestfile_ingestions_failed_total",
+    "Failed ingestions",
+    ["ingestor"],
+)
+INGESTION_DURATION = Histogram(
+    "ingestfile_ingestion_duration_seconds",
+    "Ingest duration by ingestor",
+    ["ingestor"],
+    # The bucket sizes are a rough guess right now, we might want to adjust
+    # them later based on observed durations
+    buckets=[
+        0.005,
+        0.01,
+        0.025,
+        0.05,
+        0.1,
+        0.25,
+        0.5,
+        1,
+        5,
+        15,
+        60,
+        5 * 60,
+        15 * 60,
+    ],
+)
+INGESTED_BYTES = Counter(
+    "ingestfile_ingested_bytes_total",
+    "Total number of bytes ingested",
+    ["ingestor"],
+)
 
 
 class Manager(object):
@@ -141,8 +181,13 @@ class Manager(object):
     def ingest(self, file_path, entity, **kwargs):
         """Main execution step of an ingestor."""
         file_path = ensure_path(file_path)
-        if file_path.is_file() and not entity.has("fileSize"):
-            entity.add("fileSize", file_path.stat().st_size)
+        file_size = None
+
+        if file_path.is_file():
+            file_size = file_path.stat().st_size  # size in bytes
+
+        if file_size is not None and not entity.has("fileSize"):
+            entity.add("fileSize", file_size)
 
         now = datetime.now()
         now_string = now.strftime("%Y-%m-%dT%H:%M:%S.%f")
@@ -151,14 +196,29 @@ class Manager(object):
         entity.set("processingAgent", get_distribution("ingest").version)
         entity.set("processedAt", now_string)
 
+        ingestor_class = None
+        ingestor_name = None
+
         try:
             ingestor_class = self.auction(file_path, entity)
-            log.info("Ingestor [%r]: %s", entity, ingestor_class.__name__)
+            ingestor_name = ingestor_class.__name__
+            log.info(f"Ingestor [{repr(entity)}]: {ingestor_name}")
+
+            start_time = default_timer()
             self.delegate(ingestor_class, file_path, entity)
+            duration = max(0, default_timer() - start_time)
+
+            INGESTIONS_SUCCEEDED.labels(ingestor=ingestor_name).inc()
+            INGESTION_DURATION.labels(ingestor=ingestor_name).observe(duration)
+
+            if file_size is not None:
+                INGESTED_BYTES.labels(ingestor=ingestor_name).inc(file_size)
+
             entity.set("processingStatus", self.STATUS_SUCCESS)
         except ProcessingException as pexc:
+            log.exception(f"[{repr(entity)}] Failed to process: {pexc}")
+            INGESTIONS_FAILED.labels(ingestor=ingestor_name).inc()
             entity.set("processingError", stringify(pexc))
-            log.exception("[%r] Failed to process: %s", entity, pexc)
             capture_exception(pexc)
         finally:
             self.finalize(entity)
