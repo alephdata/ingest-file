@@ -3,12 +3,15 @@ import click
 import logging
 import uuid
 from pprint import pprint
+from random import randrange
+
 from ftmstore import get_dataset
 from servicelayer.cache import get_redis
 from servicelayer.logs import configure_logging
 from servicelayer.taskqueue import Dataset, Task
 from servicelayer import settings as sl_settings
 from servicelayer.archive.util import ensure_path
+from servicelayer import settings as sls
 
 from ingestors import settings
 from ingestors.manager import Manager
@@ -51,11 +54,16 @@ def killthekitten():
 
 def _ingest_path(db, dataset, path, languages=[]):
     context = {"languages": languages}
+
+    priority = priority = randrange(1, sls.RABBITMQ_MAX_PRIORITY + 1)
+
     task = Task(
         task_id=uuid.uuid4().hex,
         job_id=uuid.uuid4().hex,
         collection_id=dataset,
         delivery_tag="",
+        operation=OP_INGEST,
+        priority=priority,
         context=context,
         payload={},
     )
@@ -107,11 +115,17 @@ def analyze(dataset):
 def debug(path, languages=None):
     """Debug the ingest for the given path."""
     settings.fts.DATABASE_URI = "sqlite:////tmp/debug.sqlite3"
-    db = get_dataset("debug", origin=OP_INGEST, database_uri=settings.fts.DATABASE_URI)
+
+    # collection ID that is meant for testing purposes only
+    debug_datatset_id = 100
+
+    db = get_dataset(
+        debug_datatset_id, origin=OP_INGEST, database_uri=settings.fts.DATABASE_URI
+    )
     db.delete()
-    _ingest_path(db, "debug", path, languages=languages)
+    _ingest_path(db, debug_datatset_id, path, languages=languages)
     worker = get_worker()
-    worker.sync()
+    worker.process(blocking=False)
     for entity in db.iterate():
         pprint(entity.to_dict())
 
