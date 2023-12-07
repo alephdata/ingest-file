@@ -47,4 +47,8 @@ jobs:
 
           docker tag ghcr.io/alephdata/ingest-file ghcr.io/alephdata/ingest-file:${TAG};
           docker push ghcr.io/alephdata/ingest-file:${TAG};
+
+      - name: Tag latest image
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags') && !startsWith(github.ref, 'refs/tags/test-')
+        run: |
           docker push ghcr.io/alephdata/ingest-file;
