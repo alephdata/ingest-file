@@ -3,7 +3,7 @@ normality==2.4.0
 pantomime==0.6.1
 followthemoney==3.5.2
 followthemoney-store[postgresql]==3.0.6
-git+https://github.com/alephdata/servicelayer@feature/rabbitmq-priorities
+servicelayer[google,amazon] @ git+https://github.com/alephdata/servicelayer.git@feature/rabbitmq-priorities
 languagecodes==1.1.1
 countrytagger==0.1.2
 pyicu==2.11
