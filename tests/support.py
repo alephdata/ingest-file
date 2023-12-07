@@ -5,6 +5,7 @@ import unittest
 import uuid
 from tempfile import mkdtemp
 from ftmstore import get_dataset
+from random import randrange
 
 from servicelayer.archive import init_archive
 from servicelayer.taskqueue import Task
@@ -39,6 +40,7 @@ class TestCase(unittest.TestCase):
         ftmstore_settings.DATABASE_URI = "sqlite://"
         dataset = get_dataset("test", origin=OP_INGEST)
         Tags("ingest_cache").delete()
+        priority = randrange(1, service_settings.RABBITMQ_MAX_PRIORITY + 1)
         task = Task(
             task_id=uuid.uuid4().hex,
             job_id=uuid.uuid4().hex,
@@ -47,6 +49,7 @@ class TestCase(unittest.TestCase):
             delivery_tag="",
             context={},
             payload={},
+            priority=priority,
         )
         self.manager = Manager(dataset, task)
         self.manager.entities = []
