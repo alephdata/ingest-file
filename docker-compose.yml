@@ -33,3 +33,25 @@ services:
     depends_on:
       - postgres
       - redis
+
+  mini-ingest-file:
+    build:
+      context: .
+    #image: ghcr.io/alephdata/ingest-file
+    hostname: ingest
+    tmpfs:
+      - /tmp:mode=777
+      - /data:mode=777
+    environment:
+      FTM_STORE_URI: sqlite:///hack.db
+      LOG_FORMAT: TEXT  # TEXT or JSON
+    volumes:
+      - "./ingestors:/ingestors/ingestors"
+      - "./tests:/ingestors/tests"
+      - "./data:/ingestors/data"
+      - "./requirements.txt:/ingestors/requirements.txt"
+      - "./setup.py:/ingestors/setup.py"
+      - "./hack.db:/ingestors/hack.db"
+      - "~:/host"
+    depends_on:
+      - redis

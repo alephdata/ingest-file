@@ -1,6 +1,7 @@
 import logging
 from followthemoney import model
 from pymediainfo import MediaInfo
+import whisper
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.timestamp import TimestampSupport
@@ -41,6 +42,9 @@ class AudioIngestor(Ingestor, TimestampSupport):
         try:
             entity.schema = model.get("Audio")
             metadata = MediaInfo.parse(file_path)
+            whisper_model = whisper.load_model("base")
+            result = whisper_model.transcribe(audio=str(file_path))
+            entity.add("bodyText", result["text"])
             for track in metadata.tracks:
                 entity.add("title", track.title)
                 entity.add("generator", track.writing_application)
