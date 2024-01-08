@@ -2,7 +2,7 @@ import logging
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.pdf import PDFSupport
-from ingestors.exc import ProcessingException, UnauthorizedError
+from ingestors.exc import ProcessingException, UnauthorizedError, ENCRYPTED_MSG
 
 log = logging.getLogger(__name__)
 
@@ -24,9 +24,7 @@ class PDFIngestor(Ingestor, PDFSupport):
         try:
             self.parse_and_ingest(file_path, entity, self.manager)
         except UnauthorizedError as pwe:
-            raise ProcessingException(
-                "Could not extract PDF file. The PDF is protected with a password. Try removing the password protection and re-uploading the documents."
-            ) from pwe
+            raise ProcessingException(ENCRYPTED_MSG) from pwe
         except Exception as ex:
             raise ProcessingException("Could not extract PDF file: %r" % ex) from ex
 
