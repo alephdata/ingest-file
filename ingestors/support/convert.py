@@ -73,28 +73,20 @@ class DocumentConvertSupport(CacheSupport, TempFileSupport):
             file_path,
         ]
         try:
-            for attempt in range(1, settings.CONVERT_RETRIES):
-                log.info(
-                    f"Starting LibreOffice: {cmd} with timeout {timeout} attempt #{attempt}/{settings.CONVERT_RETRIES}",
-                )
-                try:
-                    subprocess.run(cmd, timeout=timeout, check=True)
-                except Exception as e:
-                    log.info(
-                        f"Could not be converted to PDF (attempt {attempt}/{settings.CONVERT_RETRIES}): {e}"
-                    )
-                    continue
+            log.info(f"Starting LibreOffice: {cmd} with timeout {timeout}")
+            try:
+                subprocess.run(cmd, timeout=timeout, check=True)
+            except Exception as e:
+                raise ProcessingException("Could not be converted to PDF") from e
 
-                for file_name in os.listdir(pdf_output_dir):
-                    if not file_name.endswith(".pdf"):
-                        continue
-                    out_file = os.path.join(pdf_output_dir, file_name)
-                    if os.stat(out_file).st_size == 0:
-                        continue
-                    log.info(f"Successfully converted {out_file}")
-                    return out_file
-            raise ProcessingException(
-                f"Could not be converted to PDF (attempt #{attempt}/{settings.CONVERT_RETRIES})"
-            )
+            for file_name in os.listdir(pdf_output_dir):
+                if not file_name.endswith(".pdf"):
+                    continue
+                out_file = os.path.join(pdf_output_dir, file_name)
+                if os.stat(out_file).st_size == 0:
+                    continue
+                log.info(f"Successfully converted {out_file}")
+                return out_file
+            raise ProcessingException("Could not be converted to PDF")
         except Exception as e:
             raise ProcessingException("Could not be converted to PDF") from e

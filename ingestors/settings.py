@@ -5,7 +5,6 @@ from ftmstore import settings as fts
 TESTING = False
 
 CONVERT_TIMEOUT = env.to_int("INGESTORS_CONVERT_TIMEOUT", 300)  # seconds
-CONVERT_RETRIES = env.to_int("INGESTORS_CONVERT_RETRIES", 3)
 
 # Enable (expensive!) Google Cloud API
 OCR_VISION_API = env.to_bool("INGESTORS_OCR_VISION_API", False)
