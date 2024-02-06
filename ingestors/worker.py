@@ -59,7 +59,7 @@ def queue_task(collection_id, stage, job_id=None, context=None, **payload):
         dataset = Dataset(
             conn=get_redis(), name=dataset_from_collection_id(collection_id)
         )
-        dataset.add_task(task_id)
+        dataset.add_task(task_id, stage)
         channel.close()
     except Exception:
         log.exception(f"Error while queuing task: {task_id}")
