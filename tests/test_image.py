@@ -18,5 +18,6 @@ class ImageIngestorTest(TestCase):
         fixture_path, entity = self.fixture("jpegtest.jpg")
         self.manager.ingest(fixture_path, entity)
         self.assertIn("Debian", entity.first("bodyText"))
+        self.assertEqual(entity.first("mimeType"), "image/jpeg")
 
         self.assertEqual(entity.first("processingStatus"), self.manager.STATUS_SUCCESS)
