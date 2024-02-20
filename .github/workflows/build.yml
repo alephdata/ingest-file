@@ -22,7 +22,7 @@ jobs:
           make services
       - name: Build docker images
         run: |
-          docker build -t ghcr.io/alephdata/ingest-file -t ingest-file .
+          make build
       - name: Install development dependencies
         run: make dev
       - name: Check formatting
