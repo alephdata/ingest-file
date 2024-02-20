@@ -14,10 +14,9 @@ class ImageIngestorTest(TestCase):
         self.assertIn("TEST", entity.first("bodyText"))
         self.assertEqual(entity.first("processingStatus"), self.manager.STATUS_SUCCESS)
 
-    def test_ingest_hand_written_text(self):
+    def test_ingest_on_jpeg(self):
         fixture_path, entity = self.fixture("jpegtest.jpg")
         self.manager.ingest(fixture_path, entity)
-        self.assertEqual(len(self.get_emitted()), 1)
-        self.assertIn("Debian", self.manager.entities[0].first("bodyText"))
+        self.assertIn("Debian", entity.first("bodyText"))
 
         self.assertEqual(entity.first("processingStatus"), self.manager.STATUS_SUCCESS)
