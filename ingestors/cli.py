@@ -114,9 +114,16 @@ def debug(path, languages=None):
 
 
 @cli.command()
-def cache_clear():
-    """Delete all ingest cache entries."""
-    Tags("ingest_cache").delete()
+@click.argument(
+    "prefix",
+    default="",
+)
+def cache_clear(prefix):
+    """Delete all ingest cache entries.
+
+    Only delete entries with the given prefix (e.g: 'ocr:', 'pdf:').
+    """
+    Tags("ingest_cache").delete(prefix=prefix)
 
 
 if __name__ == "__main__":
