@@ -22,7 +22,7 @@ jobs:
           make services
       - name: Build docker images
         run: |
-          make build
+          make cached-build
       - name: Install development dependencies
         run: make dev
       - name: Check formatting
