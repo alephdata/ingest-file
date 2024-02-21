@@ -17,7 +17,13 @@ class ImageIngestorTest(TestCase):
     def test_ingest_on_jpeg(self):
         fixture_path, entity = self.fixture("jpegtest.jpg")
         self.manager.ingest(fixture_path, entity)
-        self.assertIn("Debian", entity.first("bodyText"))
+        import tesserocr
+
+        self.assertIn(
+            "Debian",
+            entity.first("bodyText"),
+            f"tesserocr version: {tesserocr.tesseract_version()}",
+        )
         self.assertEqual(entity.first("mimeType"), "image/jpeg")
 
         self.assertEqual(entity.first("processingStatus"), self.manager.STATUS_SUCCESS)

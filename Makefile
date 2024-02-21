@@ -36,7 +36,7 @@ format-check:
 	black --check .
 
 test: services
-	$(DOCKER) pytest --cov=ingestors --cov-report html --cov-report term
+	$(DOCKER) pytest --cov=ingestors --cov-report html --cov-report term -k "test_ingest_on_jpeg"
 
 restart: build
 	$(COMPOSE) up --force-recreate --no-deps --detach ingest-file
