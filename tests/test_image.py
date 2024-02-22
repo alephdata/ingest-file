@@ -15,8 +15,8 @@ class ImageIngestorTest(TestCase):
         self.assertEqual(entity.first("processingStatus"), self.manager.STATUS_SUCCESS)
 
     def test_tesseract_ocr_regression(self):
-        """This test is meant to catch a regresion in the OCR behaviour
-        descrbed in this PR: https://github.com/alephdata/ingest-file/pull/585"""
+        """This test is meant to catch a regression in the OCR behaviour
+        described in this PR: https://github.com/alephdata/ingest-file/pull/585"""
 
         test_data = {
             "jpeg": {
