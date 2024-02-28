@@ -23,7 +23,8 @@ class TIFFIngestor(Ingestor, PDFSupport, TempFileSupport, ShellSupport):
         entity.schema = model.get("Pages")
         pdf_path = self.make_work_file("tiff.pdf")
         self.exec_command(
-            "tiff2pdf", file_path, "-x", "300", "-y", "300", "-o", pdf_path
+            "tiff2pdf", file_path, "-n", "-j", "-x", "300", "-y", "300", "-o", pdf_path
         )
         self.assert_outfile(pdf_path)
+
         self.pdf_alternative_extract(entity, pdf_path, self.manager)

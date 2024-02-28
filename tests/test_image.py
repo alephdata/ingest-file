@@ -29,11 +29,11 @@ class ImageIngestorTest(TestCase):
                 "content": "This is text inside a GIF image",
                 "mime_type": "image/gif",
             },
-            # "tiff": {
-            #     "file": "regression_tiff.tiff",
-            #     "content": "Debian -- Packages",
-            #     "mime_type": "image/tiff",
-            # },
+            "tiff": {
+                "file": "regression_tiff.tiff",
+                "content": "Debian -- Packages",
+                "mime_type": "image/tiff",
+            },
             "webp": {
                 "file": "regression_webp.webp",
                 "content": "Debian -- Packages",
@@ -49,18 +49,38 @@ class ImageIngestorTest(TestCase):
         for test_image_type in test_data:
             fixture_path, entity = self.fixture(test_data[test_image_type]["file"])
             self.manager.ingest(fixture_path, entity)
-            self.assertIn(
-                test_data[test_image_type]["content"],
-                entity.first("bodyText"),
+
+            emitted_image_entities = [
+                x
+                for x in self.get_emitted()
+                if "mimeType" in x.properties and "image" in x.first("mimeType")
+            ]
+
+            # Have entities been emitted with a mime type that contains "image"?
+            self.assertTrue(
+                len(emitted_image_entities) != 0,
                 f"Test failed for {test_data[test_image_type]['file']}",
             )
+            image_entity = emitted_image_entities.pop()
+
+            # Is the processing status of the entity == SUCCESS?
             self.assertEqual(
-                entity.first("mimeType"),
-                test_data[test_image_type]["mime_type"],
-                f"Test failed for {test_data[test_image_type]['file']}",
-            )
-            self.assertEqual(
-                entity.first("processingStatus"),
+                image_entity.first("processingStatus"),
                 self.manager.STATUS_SUCCESS,
                 f"Test failed for {test_data[test_image_type]['file']}",
             )
+
+            # Does either the bodyText prop or the indexText prop contain
+            # the text resulted from OCR?
+            try:
+                self.assertIn(
+                    test_data[test_image_type]["content"],
+                    image_entity.first("bodyText"),
+                    f"Test failed for {test_data[test_image_type]['file']}",
+                )
+            except TypeError:
+                self.assertIn(
+                    test_data[test_image_type]["content"],
+                    image_entity.first("indexText"),
+                    f"Test failed for {test_data[test_image_type]['file']}",
+                )
