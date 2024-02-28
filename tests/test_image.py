@@ -63,6 +63,13 @@ class ImageIngestorTest(TestCase):
             )
             image_entity = emitted_image_entities.pop()
 
+            # Is the mimeType correct?
+            self.assertEqual(
+                image_entity.first("mimeType"),
+                test_data[test_image_type]["mime_type"],
+                f"Test failed for {test_data[test_image_type]['file']}",
+            )
+
             # Is the processing status of the entity == SUCCESS?
             self.assertEqual(
                 image_entity.first("processingStatus"),
