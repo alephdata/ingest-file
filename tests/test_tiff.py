@@ -15,7 +15,7 @@ class TIFFIngestorTest(TestCase):
         # Have entities been emitted with a mime type that contains "image"?
         self.assertTrue(
             len(emitted_image_entities) != 0,
-            f"Test failed for multipage_tiff_example.tif",
+            "Test failed for multipage_tiff_example.tif",
         )
         image_entity = emitted_image_entities.pop()
 
@@ -39,7 +39,7 @@ class TIFFIngestorTest(TestCase):
         # Have entities been emitted with a mime type that contains "image"?
         self.assertTrue(
             len(emitted_image_entities) != 0,
-            f"Test failed for multipage_tiff_example.tif",
+            "Test failed for multipage_tiff_example.tif",
         )
         image_entity = emitted_image_entities.pop()
 
