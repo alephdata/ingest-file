@@ -25,7 +25,7 @@ RUN apt-get -qq -y update \
     libtiff5-dev libjpeg-dev libfreetype6-dev libwebp-dev \
     libtiff-tools ghostscript librsvg2-bin jbig2dec \
     pst-utils \
-    ### tesseract 
+    ### tesseract
     tesseract-ocr-eng \
     tesseract-ocr-swa \
     tesseract-ocr-swe \
@@ -96,7 +96,7 @@ RUN apt-get -qq -y update \
     tesseract-ocr-aze \
     tesseract-ocr-bel \
     tesseract-ocr-uzb \
-    ### pdf convert: libreoffice + a bunch of fonts 
+    ### pdf convert: libreoffice + a bunch of fonts
     libreoffice fonts-opensymbol hyphen-fr hyphen-de \
     hyphen-en-us hyphen-it hyphen-ru fonts-dejavu fonts-dejavu-core fonts-dejavu-extra \
     fonts-droid-fallback fonts-dustin fonts-f500 fonts-fanwood fonts-freefont-ttf \
@@ -126,7 +126,7 @@ RUN mkdir /models/ && \
 COPY requirements.txt /tmp/
 RUN pip3 install --no-cache-dir --prefer-binary --upgrade pip
 RUN pip3 install --no-cache-dir --prefer-binary --upgrade setuptools wheel
-RUN pip3 install --no-cache-dir --prefer-binary -r /tmp/requirements.txt
+RUN pip3 install --no-cache-dir --no-binary "tesserocr" -r /tmp/requirements.txt
 
 # Install spaCy models
 RUN python3 -m spacy download en_core_web_sm \
@@ -136,7 +136,7 @@ RUN python3 -m spacy download en_core_web_sm \
 RUN python3 -m spacy download ru_core_news_sm \
     && python3 -m spacy download pt_core_news_sm \
     && python3 -m spacy download ro_core_news_sm \
-    && python3 -m spacy download mk_core_news_sm 
+    && python3 -m spacy download mk_core_news_sm
 RUN python3 -m spacy download el_core_news_sm \
     && python3 -m spacy download pl_core_news_sm \
     && python3 -m spacy download it_core_news_sm \

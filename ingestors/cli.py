@@ -8,6 +8,7 @@ from servicelayer.logs import configure_logging
 from servicelayer.jobs import Job, Dataset
 from servicelayer import settings as sl_settings
 from servicelayer.archive.util import ensure_path
+from servicelayer.tags import Tags
 
 from ingestors import settings
 from ingestors.manager import Manager
@@ -110,6 +111,19 @@ def debug(path, languages=None):
     worker.sync()
     for entity in db.iterate():
         pprint(entity.to_dict())
+
+
+@cli.command()
+@click.argument(
+    "prefix",
+    default="",
+)
+def cache_clear(prefix):
+    """Delete all ingest cache entries.
+
+    Only delete entries with the given prefix (e.g: 'ocr:', 'pdf:').
+    """
+    Tags("ingest_cache").delete(prefix=prefix)
 
 
 if __name__ == "__main__":
