@@ -1,6 +1,7 @@
 import logging
 from io import BytesIO
 from PIL import Image, ExifTags
+from pillow_heif import register_heif_opener
 from followthemoney import model
 
 from ingestors.ingestor import Ingestor
@@ -56,6 +57,7 @@ class ImageIngestor(Ingestor, OCRSupport, TimestampSupport):
                 entity.add("generator", value)
 
     def ingest(self, file_path, entity):
+        register_heif_opener()
         entity.schema = model.get("Image")
         with open(file_path, "rb") as fh:
             data = fh.read()
