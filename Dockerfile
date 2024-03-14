@@ -126,7 +126,7 @@ RUN mkdir /models/ && \
 COPY requirements.txt /tmp/
 RUN pip3 install --no-cache-dir --prefer-binary --upgrade pip
 RUN pip3 install --no-cache-dir --prefer-binary --upgrade setuptools wheel
-RUN pip3 install --no-cache-dir --prefer-binary -r /tmp/requirements.txt
+RUN pip3 install --no-cache-dir --no-binary "tesserocr" -r /tmp/requirements.txt
 
 # Install spaCy models
 RUN python3 -m spacy download en_core_web_sm \
