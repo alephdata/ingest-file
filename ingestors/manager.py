@@ -219,7 +219,8 @@ class Manager(object):
             log.exception(f"[{repr(entity)}] Failed to process: {pexc}")
             INGESTIONS_FAILED.labels(ingestor=ingestor_name).inc()
             entity.set("processingError", stringify(pexc))
-            capture_exception(pexc)
+            if settings.SENTRY_CAPTURE_PROCESSING_EXCEPTIONS:
+                capture_exception(pexc)
         finally:
             self.finalize(entity)
 
