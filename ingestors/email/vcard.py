@@ -48,7 +48,7 @@ class VCardIngestor(Ingestor, EncodingSupport):
         text = sanitize_text(text)
         entity.set("bodyText", text)
         try:
-            for card in vobject.readComponents(text):
+            for card in vobject.readComponents(text, allowQP=True):
                 self.ingest_card(entity, card)
         except (ParseError, UnicodeDecodeError) as err:
             raise ProcessingException("Cannot parse vcard: %s" % err) from err
