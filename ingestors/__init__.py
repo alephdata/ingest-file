@@ -1,4 +1,5 @@
 """Provides a set of ingestors based on different file types."""
+
 import logging
 
 __version__ = "4.0.0-rc6"

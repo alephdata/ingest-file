@@ -52,3 +52,10 @@ fts.DATABASE_URI = env.get(
 sls.TAGS_DATABASE_URI = fts.DATABASE_URI
 
 RABBITMQ_URL = env.get("ALEPH_RABBITMQ_URL", "rabbitmq")
+
+# ProcessingException is thrown whenever something goes wrong wiht
+# parsing a file. Enable this with care, it can easily eat up the
+# Sentry quota of events.
+SENTRY_CAPTURE_PROCESSING_EXCEPTIONS = env.to_bool(
+    "SENTRY_CAPTURE_PROCESSING_EXCEPTIONS", False
+)
