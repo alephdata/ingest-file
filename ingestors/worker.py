@@ -16,7 +16,6 @@ from servicelayer.taskqueue import (
     Task,
     Dataset,
     dataset_from_collection_id,
-    get_routing_key,
     OP_ANALYZE,
     OP_INGEST,
     get_rabbitmq_connection,
@@ -48,8 +47,8 @@ def queue_task(collection_id, stage, job_id=None, context=None, **payload):
         channel = connection.channel()
         channel.confirm_delivery()
         channel.basic_publish(
-            exchange="",
-            routing_key=get_routing_key(body["operation"]),
+            exchange="amq.topic",
+            routing_key=body["operation"],
             body=json.dumps(body),
             properties=pika.BasicProperties(
                 delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE, priority=priority
@@ -136,9 +135,7 @@ def get_worker(num_threads=None):
     operations = [OP_ANALYZE, OP_INGEST]
     log.info(f"Worker active, stages: {operations}")
     return IngestWorker(
-        queues=[
-            sls.QUEUE_INGEST,
-        ],
+        stages=operations,
         conn=get_redis(),
         version=__version__,
         num_threads=num_threads,
