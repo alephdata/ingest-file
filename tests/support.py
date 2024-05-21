@@ -15,7 +15,6 @@ from servicelayer import settings as service_settings
 from ftmstore import settings as ftmstore_settings
 from ingestors import settings as ingestors_settings
 from ingestors.manager import Manager
-from ingestors.worker import OP_INGEST
 
 
 def emit_entity(self, entity, fragment=None):
@@ -38,14 +37,14 @@ class TestCase(unittest.TestCase):
         service_settings.QUEUE_INDEX = "ingesttest-index-queue"
         service_settings.QUEUE_INGEST = "ingesttest-ingest-queue"
         ftmstore_settings.DATABASE_URI = "sqlite://"
-        dataset = get_dataset("test", origin=OP_INGEST)
+        dataset = get_dataset("test", origin=ingestors_settings.STAGE_INGEST)
         Tags("ingest_cache").delete()
         priority = randrange(1, service_settings.RABBITMQ_MAX_PRIORITY + 1)
         task = Task(
             task_id=uuid.uuid4().hex,
             job_id=uuid.uuid4().hex,
             collection_id="test",
-            operation=OP_INGEST,
+            operation=ingestors_settings.STAGE_INGEST,
             delivery_tag="",
             context={},
             payload={},

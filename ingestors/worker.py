@@ -17,14 +17,13 @@ from servicelayer.taskqueue import (
     Dataset,
     dataset_from_collection_id,
     get_routing_key,
-    OP_ANALYZE,
-    OP_INGEST,
     get_rabbitmq_connection,
 )
 
 from ingestors import __version__
 from ingestors.manager import Manager
 from ingestors.analysis import Analyzer
+from ingestors import settings
 
 log = logging.getLogger(__name__)
 
@@ -103,11 +102,11 @@ class IngestWorker(Worker):
         )
         name = task.context.get("ftmstore", task.collection_id)
         ftmstore_dataset = get_dataset(name, task.operation)
-        if task.operation == OP_INGEST:
+        if task.operation == settings.STAGE_INGEST:
             entity_ids = self._ingest(ftmstore_dataset, task)
             payload = {"entity_ids": entity_ids}
             self.dispatch_pipeline(task, payload)
-        elif task.operation == OP_ANALYZE:
+        elif task.operation == settings.STAGE_ANALYZE:
             entity_ids = self._analyze(ftmstore_dataset, task)
             payload = {"entity_ids": entity_ids}
             self.dispatch_pipeline(task, payload)
@@ -133,14 +132,19 @@ class IngestWorker(Worker):
 
 
 def get_worker(num_threads=None):
-    operations = [OP_ANALYZE, OP_INGEST]
-    log.info(f"Worker active, stages: {operations}")
+    qos_mapping = {
+        settings.STAGE_INGEST: settings.RABBITMQ_QOS_INGEST_QUEUE,
+        settings.STAGE_ANALYZE: settings.RABBITMQ_QOS_ANALYZE_QUEUE,
+    }
+
+    ingest_worker_queues = list(qos_mapping.keys())
+
+    log.info(f"Worker active, stages: {ingest_worker_queues}")
+
     return IngestWorker(
-        queues=[
-            sls.QUEUE_INGEST,
-        ],
+        queues=ingest_worker_queues,
         conn=get_redis(),
         version=__version__,
         num_threads=num_threads,
-        prefetch_count=1,
+        prefetch_count_mapping=qos_mapping,
     )

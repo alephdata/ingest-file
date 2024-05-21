@@ -18,7 +18,7 @@ from ingestors import settings
 from ingestors.manager import Manager
 from ingestors.directory import DirectoryIngestor
 from ingestors.analysis import Analyzer
-from ingestors.worker import get_worker, OP_INGEST, OP_ANALYZE
+from ingestors.worker import get_worker
 
 log = logging.getLogger(__name__)
 
@@ -63,7 +63,7 @@ def _ingest_path(db, dataset, path, languages=[]):
         job_id=uuid.uuid4().hex,
         collection_id=dataset,
         delivery_tag="",
-        operation=OP_INGEST,
+        operation=settings.STAGE_INGEST,
         priority=priority,
         context=context,
         payload={},
@@ -90,14 +90,14 @@ def _ingest_path(db, dataset, path, languages=[]):
 @click.argument("path", type=click.Path(exists=True))
 def ingest(path, dataset, languages=None):
     """Queue a set of files for ingest."""
-    db = get_dataset(dataset, OP_INGEST)
+    db = get_dataset(dataset, settings.STAGE_INGEST)
     _ingest_path(db, dataset, path, languages=languages)
 
 
 @cli.command()
 @click.option("--dataset", required=True, help="Name of the dataset")
 def analyze(dataset):
-    db = get_dataset(dataset, OP_ANALYZE)
+    db = get_dataset(dataset, settings.STAGE_ANALYZE)
     analyzer = None
     for entity in db.partials():
         if analyzer is None or analyzer.entity.id != entity.id:
@@ -121,7 +121,9 @@ def debug(path, languages=None):
     debug_datatset_id = 100
 
     db = get_dataset(
-        debug_datatset_id, origin=OP_INGEST, database_uri=settings.fts.DATABASE_URI
+        debug_datatset_id,
+        origin=settings.STAGE_INGEST,
+        database_uri=settings.fts.DATABASE_URI,
     )
     db.delete()
     _ingest_path(db, debug_datatset_id, path, languages=languages)
