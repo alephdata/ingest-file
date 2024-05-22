@@ -16,7 +16,6 @@ from servicelayer.taskqueue import (
     Task,
     Dataset,
     dataset_from_collection_id,
-    get_routing_key,
     get_rabbitmq_connection,
 )
 
@@ -48,7 +47,7 @@ def queue_task(collection_id, stage, job_id=None, context=None, **payload):
         channel.confirm_delivery()
         channel.basic_publish(
             exchange="",
-            routing_key=get_routing_key(body["operation"]),
+            routing_key=body["operation"],
             body=json.dumps(body),
             properties=pika.BasicProperties(
                 delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE, priority=priority
