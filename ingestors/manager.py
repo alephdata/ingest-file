@@ -152,12 +152,12 @@ class Manager(object):
         return best_cls
 
     def queue_entity(self, entity):
-        from ingestors.worker import OP_INGEST, queue_task
+        from ingestors.worker import queue_task
 
         log.debug("Queue: %r", entity)
         queue_task(
             self.collection_id,
-            OP_INGEST,
+            settings.STAGE_INGEST,
             self.root_task.job_id,
             self.context,
             **entity.to_dict(),
