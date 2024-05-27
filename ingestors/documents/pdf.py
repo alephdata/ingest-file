@@ -19,6 +19,33 @@ class PDFIngestor(Ingestor, PDFSupport):
     EXTENSIONS = ["pdf"]
     SCORE = 6
 
+    def extract_xmp_metadata(self, pdf, entity):
+        try:
+            xmp = pdf.xmp_metadata
+            if xmp is None:
+                return
+            entity.add("messageId", xmp["xmpmm"].get("documentid"))
+            entity.add("title", xmp["dc"].get("title"))
+            entity.add("generator", xmp["pdf"].get("producer"))
+            entity.add("language", xmp["dc"].get("language"))
+            entity.add("authoredAt", xmp["xmp"].get("createdate"))
+            entity.add("modifiedAt", xmp["xmp"].get("modifydate"))
+        except Exception as ex:
+            log.warning("Error reading XMP: %r", ex)
+
+    def extract_metadata(self, pdf, entity):
+        meta = pdf.metadata
+        if meta is not None:
+            entity.add("title", meta.get("title"))
+            entity.add("author", meta.get("author"))
+            entity.add("generator", meta.get("creator"))
+            entity.add("generator", meta.get("producer"))
+            entity.add("keywords", meta.get("subject"))
+            if "creationdate" in meta:
+                entity.add("authoredAt", meta.get("creationdate"))
+            if "moddate" in meta:
+                entity.add("modifiedAt", meta.get("moddate"))
+
     def ingest(self, file_path, entity):
         """Ingestor implementation."""
         try:

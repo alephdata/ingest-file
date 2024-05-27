@@ -51,6 +51,15 @@ fts.DATABASE_URI = env.get(
 # Also store cached values in the SQL database
 sls.TAGS_DATABASE_URI = fts.DATABASE_URI
 
+RABBITMQ_URL = env.get("ALEPH_RABBITMQ_URL", "rabbitmq")
+# Prefetch count values
+# This is the number of tasks the IngestWorker will grab at any given time
+RABBITMQ_QOS_INGEST_QUEUE = 1
+RABBITMQ_QOS_ANALYZE_QUEUE = 1
+
+STAGE_INGEST = "ingest"
+STAGE_ANALYZE = "analyze"
+
 # ProcessingException is thrown whenever something goes wrong wiht
 # parsing a file. Enable this with care, it can easily eat up the
 # Sentry quota of events.
