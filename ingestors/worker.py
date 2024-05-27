@@ -109,6 +109,10 @@ class IngestWorker(Worker):
             entity_ids = self._analyze(ftmstore_dataset, task)
             payload = {"entity_ids": entity_ids}
             self.dispatch_pipeline(task, payload)
+        log.info(
+            f"Task [collection:{task.collection_id}]: "
+            f"op:{task.operation} task_id:{task.task_id} priority: {task.priority} (done)"
+        )
         return task
 
     def dispatch_pipeline(self, task: Task, payload):
