@@ -1,22 +1,16 @@
 import logging
-import json
 from pprint import pformat  # noqa
-import uuid
-from random import randrange
 
-import pika
 from banal import ensure_list
 from followthemoney import model
 from ftmstore import get_dataset
 from prometheus_client import Info
 from servicelayer.cache import get_redis
-from servicelayer import settings as sls
 from servicelayer.taskqueue import (
     Worker,
     Task,
-    Dataset,
-    dataset_from_collection_id,
     get_rabbitmq_connection,
+    queue_task,
 )
 
 from ingestors import __version__
@@ -25,42 +19,6 @@ from ingestors.analysis import Analyzer
 from ingestors import settings
 
 log = logging.getLogger(__name__)
-
-
-# ToDo: Move to servicelayer??
-def queue_task(collection_id, stage, job_id=None, context=None, **payload):
-    task_id = uuid.uuid4().hex
-    priority = randrange(1, sls.RABBITMQ_MAX_PRIORITY + 1)
-    body = {
-        "collection_id": dataset_from_collection_id(collection_id),
-        "job_id": job_id,
-        "task_id": task_id,
-        "operation": stage,
-        "context": context,
-        "payload": payload,
-        "priority": priority,
-    }
-
-    try:
-        connection = get_rabbitmq_connection()
-        channel = connection.channel()
-        channel.confirm_delivery()
-        channel.basic_publish(
-            exchange="",
-            routing_key=body["operation"],
-            body=json.dumps(body),
-            properties=pika.BasicProperties(
-                delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE, priority=priority
-            ),
-            mandatory=True,
-        )
-        dataset = Dataset(
-            conn=get_redis(), name=dataset_from_collection_id(collection_id)
-        )
-        dataset.add_task(task_id, stage)
-        channel.close()
-    except Exception:
-        log.exception(f"Error while queuing task: {task_id}")
 
 
 SYSTEM = Info("ingestfile_system", "ingest-file system information")
@@ -126,6 +84,8 @@ class IngestWorker(Worker):
         context["pipeline"] = pipeline
 
         queue_task(
+            get_rabbitmq_connection(),
+            get_redis(),
             task.collection_id,
             next_stage,
             task.job_id,

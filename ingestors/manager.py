@@ -15,6 +15,7 @@ from servicelayer.archive.util import ensure_path
 from servicelayer.extensions import get_extensions
 from sentry_sdk import capture_exception
 from servicelayer.cache import get_redis
+from servicelayer.taskqueue import queue_task, get_rabbitmq_connection
 from followthemoney.helpers import entity_filename
 from followthemoney.namespace import Namespace
 from prometheus_client import Counter, Histogram
@@ -152,10 +153,10 @@ class Manager(object):
         return best_cls
 
     def queue_entity(self, entity):
-        from ingestors.worker import queue_task
-
         log.debug("Queue: %r", entity)
         queue_task(
+            get_rabbitmq_connection(),
+            get_redis(),
             self.collection_id,
             settings.STAGE_INGEST,
             self.root_task.job_id,
