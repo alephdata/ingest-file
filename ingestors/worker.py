@@ -9,7 +9,7 @@ from servicelayer.cache import get_redis
 from servicelayer.taskqueue import (
     Worker,
     Task,
-    get_rabbitmq_connection,
+    get_rabbitmq_channel,
     queue_task,
 )
 
@@ -84,7 +84,7 @@ class IngestWorker(Worker):
         context["pipeline"] = pipeline
 
         queue_task(
-            get_rabbitmq_connection(),
+            get_rabbitmq_channel(),
             get_redis(),
             task.collection_id,
             next_stage,
