@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="ingest",
-    version="4.0.0-rc24",
+    version="4.0.0-rc25",
     author="Organized Crime and Corruption Reporting Project",
     packages=find_packages(exclude=["tests"]),
     package_dir={"ingestors": "ingestors"},
