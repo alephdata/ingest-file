@@ -38,4 +38,4 @@ cryptography==41.0.7
 requests[security]==2.31.0
 pymupdf==1.21.1
 
-sentry_sdk==2.0.1
+sentry_sdk==2.8.0
