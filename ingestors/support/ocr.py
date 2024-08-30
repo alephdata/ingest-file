@@ -4,6 +4,11 @@ import threading
 from hashlib import sha1
 from normality import stringify
 from PIL import Image
+
+from pyzbar import pyzbar
+import numpy as np
+import cv2
+
 from io import BytesIO
 from languagecodes import list_to_alpha3 as alpha3
 
@@ -43,6 +48,87 @@ class OCRSupport(CacheSupport):
             self.tags.set(key, text)
             log.info("OCR: %s chars (from %s bytes)", len(text), len(data))
         return stringify(text)
+
+
+class ZBarDetectorService(object):
+    THRESHOLDS = list(range(32, 230, 32))
+
+    def _enhance_image(self, image, threshold=127):
+        width, height = image.size
+        crop = (0, height - width * 3 / 2, width, height)
+        # Convert to grayscale using Pillow
+        gray_image = image.convert("L")
+
+        # Convert Pillow image to OpenCV format
+        opencv_image = np.array(gray_image)
+
+        # Apply Gaussian blur to reduce noise
+        blurred_image = cv2.GaussianBlur(opencv_image, (3, 3), 0)
+
+        # Apply thresholding using OpenCV
+        _, thresh_image = cv2.threshold(
+            blurred_image, threshold, 255, cv2.THRESH_BINARY
+        )
+
+        # Apply morphological transformations to enhance the QR code
+        kernel = np.ones((3, 3), np.uint8)
+        dilated_image = cv2.dilate(thresh_image, kernel, iterations=1)
+        eroded_image = cv2.erode(dilated_image, kernel, iterations=1)
+
+        # Resize the image to make the QR code larger
+        scale_percent = 200  # Adjust the scale as needed
+        width = int(eroded_image.shape[1] * scale_percent / 100)
+        height = int(eroded_image.shape[0] * scale_percent / 100)
+        dim = (width, height)
+        resized_image = cv2.resize(eroded_image, dim, interpolation=cv2.INTER_LINEAR)
+        resized_image = cv2.GaussianBlur(eroded_image, (5, 5), 0)
+
+        return Image.fromarray(resized_image)
+
+    def _serialize_zbar_result(self, result):
+        return "\n".join(
+            [
+                "",
+                "--- CODE ---",
+                "TYPE: {}".format(result.type),
+                "QUALITY: {}".format(result.quality),
+                "ORIENTATION: {}".format(result.orientation),
+                "POSITION: {}".format(list(result.rect)),
+                "DATA: {}".format(result.data.decode("utf-8")),
+            ]
+        )
+
+    def _results_to_text(self, results):
+        return "---\n".join([self._serialize_zbar_result(result) for result in results])
+
+    def _try_best(self, image):
+        results = pyzbar.decode(image)
+        # Found it at first try
+        if len(results) > 0:
+            log.info("OCR: zbar found (%d) results at first shot", len(results))
+            return results
+
+        log.info("OCR: zbar ehnahcing image")
+        # Try with our enhance logic
+        for threshold in self.THRESHOLDS:
+            log.info("OCR: zbar applying threshold %d", threshold)
+            new_image = self._enhance_image(image, threshold=threshold)
+            results = pyzbar.decode(new_image)
+
+            if len(results) > 0:
+                log.info(
+                    "OCR: zbar found (%d) results with threshold=%d",
+                    len(results),
+                    threshold,
+                )
+                return results
+
+        # no results found then
+        return []
+
+    def extract_barcodes(self, image):
+        log.info("OCR: zbar scanning for codes")
+        return self._results_to_text(self._try_best(image))
 
 
 class LocalOCRService(object):
@@ -90,6 +176,7 @@ class LocalOCRService(object):
             log.error("Cannot open image data using Pillow: %s", exc)
             return ""
 
+        text = ""
         with temp_locale(TESSERACT_LOCALE):
             languages = self.language_list(languages)
             api = self.configure_engine(languages)
@@ -109,12 +196,13 @@ class LocalOCRService(object):
                     confidence,
                     duration,
                 )
-                return text
             except Exception as exc:
                 log.error("OCR error: %s", exc)
-                return ""
             finally:
                 api.Clear()
+
+        text += ZBarDetectorService().extract_barcodes(image)
+        return text
 
 
 class GoogleOCRService(object):

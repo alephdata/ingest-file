@@ -12,6 +12,9 @@ tesserocr==2.6.2
 spacy==3.6.1
 fingerprints==1.1.1
 fasttext==0.9.2
+pyzbar==0.1.9
+opencv-python==4.10.0.84
+numpy==1.24.4
 
 # Development
 pytest==8.2.0
