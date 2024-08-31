@@ -102,6 +102,7 @@ RUN apt-get -qq -y update \
     fonts-droid-fallback fonts-dustin fonts-f500 fonts-fanwood fonts-freefont-ttf \
     fonts-liberation fonts-lmodern fonts-lyx fonts-sil-gentium fonts-texgyre \
     fonts-tlwg-purisa \
+    libzbar0 \
     ###
     && apt-get -qq -y autoremove \
     && apt-get clean \
@@ -145,11 +146,6 @@ RUN python3 -m spacy download el_core_news_sm \
     && python3 -m spacy download nb_core_news_sm \
     && python3 -m spacy download da_core_news_sm
 # RUN python3 -m spacy download zh_core_web_sm
-
-RUN apt-get update && apt-get -qq -y install libzbar0 && apt-get -qq -y autoremove \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
 COPY . /ingestors
 WORKDIR /ingestors
