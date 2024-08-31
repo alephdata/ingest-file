@@ -102,6 +102,7 @@ RUN apt-get -qq -y update \
     fonts-droid-fallback fonts-dustin fonts-f500 fonts-fanwood fonts-freefont-ttf \
     fonts-liberation fonts-lmodern fonts-lyx fonts-sil-gentium fonts-texgyre \
     fonts-tlwg-purisa \
+    libzbar0 \
     ###
     && apt-get -qq -y autoremove \
     && apt-get clean \

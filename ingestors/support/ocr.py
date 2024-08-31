@@ -3,7 +3,10 @@ import logging
 import threading
 from hashlib import sha1
 from normality import stringify
-from PIL import Image
+from PIL import Image, ImageFilter
+
+from pyzbar import pyzbar
+
 from io import BytesIO
 from languagecodes import list_to_alpha3 as alpha3
 
@@ -43,6 +46,81 @@ class OCRSupport(CacheSupport):
             self.tags.set(key, text)
             log.info("OCR: %s chars (from %s bytes)", len(text), len(data))
         return stringify(text)
+
+
+class ZBarDetectorService(object):
+    THRESHOLDS = list(range(32, 230, 32))
+
+    def _enhance_image(self, image, threshold=127):
+        width, height = image.size
+
+        # Convert to grayscale using Pillow
+        image = image.convert("L")
+
+        # Apply Gaussian blur to reduce noise
+        image = image.filter(ImageFilter.GaussianBlur(3))
+
+        # Apply threshold
+        image = image.point(lambda p: 255 if p > threshold else 0)
+
+        # Dilatate the image
+        image = image.filter(ImageFilter.MaxFilter(3))
+
+        # Erode the image
+        image = image.filter(ImageFilter.MinFilter(3))
+
+        # Resize the image to make the QR code larger
+        new_size = map(lambda x: x * 2, image.size)
+        image = image.resize(new_size, resample=Image.Resampling.BILINEAR)
+
+        # Last round of gaussian blur
+        image = image.filter(ImageFilter.GaussianBlur(5))
+        return image
+
+    def _serialize_zbar_result(self, result):
+        return "\n".join(
+            [
+                "",
+                "--- {} CODE ---".format(result.type),
+                "QUALITY: {}".format(result.quality),
+                "ORIENTATION: {}".format(result.orientation),
+                "POSITION: {}".format(list(result.rect)),
+                "DATA: {}".format(result.data.decode("utf-8")),
+            ]
+        )
+
+    def _results_to_text(self, results):
+        return "---\n".join([self._serialize_zbar_result(result) for result in results])
+
+    def _try_best(self, image):
+        results = pyzbar.decode(image)
+        # Found it at first try
+        if len(results) > 0:
+            log.info("OCR: zbar found (%d) results at first shot", len(results))
+            return results
+
+        log.info("OCR: zbar ehnahcing image")
+        # Try with our enhance logic
+        for threshold in self.THRESHOLDS:
+            log.info("OCR: zbar applying threshold %d", threshold)
+            # Headsup: preserve the original image
+            new_image = self._enhance_image(image, threshold=threshold)
+            results = pyzbar.decode(new_image)
+
+            if len(results) > 0:
+                log.info(
+                    "OCR: zbar found (%d) results with threshold=%d",
+                    len(results),
+                    threshold,
+                )
+                return results
+
+        # no results found then
+        return []
+
+    def extract_barcodes(self, image):
+        log.info("OCR: zbar scanning for codes")
+        return self._results_to_text(self._try_best(image))
 
 
 class LocalOCRService(object):
@@ -90,6 +168,7 @@ class LocalOCRService(object):
             log.error("Cannot open image data using Pillow: %s", exc)
             return ""
 
+        text = ""
         with temp_locale(TESSERACT_LOCALE):
             languages = self.language_list(languages)
             api = self.configure_engine(languages)
@@ -109,12 +188,13 @@ class LocalOCRService(object):
                     confidence,
                     duration,
                 )
-                return text
             except Exception as exc:
                 log.error("OCR error: %s", exc)
-                return ""
             finally:
                 api.Clear()
+
+        text += ZBarDetectorService().extract_barcodes(image)
+        return text
 
 
 class GoogleOCRService(object):
