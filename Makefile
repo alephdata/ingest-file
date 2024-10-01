@@ -1,5 +1,5 @@
 INGEST=ghcr.io/alephdata/ingest-file
-COMPOSE=docker-compose
+COMPOSE=docker compose
 DOCKER=$(COMPOSE) run --rm ingest-file
 
 .PHONY: build
