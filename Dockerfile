@@ -9,6 +9,8 @@ LABEL org.opencontainers.image.source https://github.com/alephdata/ingest-file
 # RUN echo "deb http://http.us.debian.org/debian stretch non-free" >/etc/apt/sources.list.d/nonfree.list
 RUN apt-get -qq -y update \
     && apt-get -qq -y install build-essential locales ca-certificates \
+    # git
+    git \
     # python deps (mostly to install their dependencies)
     python3-pip python3-dev python3-pil \
     # tesseract
@@ -121,8 +123,6 @@ RUN groupadd -g 1000 -r app \
 RUN mkdir /models/ && \
     curl -o "/models/model_type_prediction.ftz" "https://public.data.occrp.org/develop/models/types/type-08012020-7a69d1b.ftz"
 
-# Having updated pip/setuptools seems to break the test run for some reason (12/01/2022)
-# RUN pip3 install --no-cache-dir -U pip setuptools
 COPY requirements.txt /tmp/
 RUN pip3 install --no-cache-dir --prefer-binary --upgrade pip
 RUN pip3 install --no-cache-dir --prefer-binary --upgrade setuptools wheel
@@ -155,7 +155,8 @@ ENV ARCHIVE_TYPE=file \
     ARCHIVE_PATH=/data \
     FTM_STORE_URI=postgresql://aleph:aleph@postgres/aleph \
     REDIS_URL=redis://redis:6379/0 \
-    TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
+    TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata \
+    LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libgomp.so.1
 
 # USER app
 CMD ingestors process
