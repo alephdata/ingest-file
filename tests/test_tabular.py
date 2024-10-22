@@ -53,3 +53,27 @@ class TabularIngestorTest(TestCase):
         self.assertIn(ENCRYPTED_MSG, err)
         status = self.manager.entities[0].first("processingStatus")
         self.assertEqual("failure", status)
+
+    def test_metadata_inheritance(self):
+        fixture_path, entity = self.fixture("staff_list.xlsx")
+        self.manager.ingest(fixture_path, entity)
+        table_entities = self.get_emitted("Table")
+        import pprint
+
+        pprint.pprint([x.to_dict() for x in table_entities])
+        parent_entity = self.get_emitted("Workbook").pop()
+        self.assertEqual(len(table_entities), 3)
+
+        for metadatum in [
+            "authoredAt",
+            "modifiedAt",
+            "author",
+            "summary",
+            "generator",
+            "language",
+            "processingAgent",
+        ]:
+            for table_entity in table_entities:
+                self.assertEqual(
+                    table_entity.get(metadatum), parent_entity.get(metadatum)
+                )
