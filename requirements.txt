@@ -31,6 +31,7 @@ cchardet==2.1.7
 lxml==5.0.0
 olefile==0.47
 Pillow==10.1.0
+pillow-heif==0.15.0
 vobject==0.9.6.1
 msglite==0.30.0
 icalendar==5.0.12
