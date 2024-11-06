@@ -2,7 +2,7 @@
 
 import logging
 
-__version__ = "4.0.0"
+__version__ = "4.0.1-rc1"
 
 logging.getLogger("chardet").setLevel(logging.INFO)
 logging.getLogger("PIL").setLevel(logging.INFO)
