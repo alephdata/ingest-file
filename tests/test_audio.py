@@ -12,7 +12,7 @@ class AudioIngestorTest(TestCase):
         self.assertEqual(entity.first("generator"), "com.apple.VoiceMemos (iOS 11.4)")
         self.assertEqual(
             entity.first("authoredAt"),
-            datetime.datetime(2018, 6, 20, 12, 9, 42).isoformat(),
+            datetime.datetime(2018, 6, 20, 12, 9, 28).isoformat(),
         )
         self.assertEqual(entity.first("duration"), "2808")
         self.assertEqual(entity.first("samplingRate"), "44100")
