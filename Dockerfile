@@ -31,7 +31,7 @@ RUN apt-get -qq -y update \
     tesseract-ocr-eng \
     tesseract-ocr-swa \
     tesseract-ocr-swe \
-    # tesseract-ocr-tam \
+    tesseract-ocr-tam \
     # tesseract-ocr-tel \
     tesseract-ocr-fil \
     # tesseract-ocr-tha \
@@ -79,7 +79,7 @@ RUN apt-get -qq -y update \
     tesseract-ocr-hrv \
     tesseract-ocr-hye \
     tesseract-ocr-hun \
-    # tesseract-ocr-ben \
+    tesseract-ocr-ben \
     tesseract-ocr-bul \
     tesseract-ocr-cat \
     tesseract-ocr-ces \
@@ -98,6 +98,7 @@ RUN apt-get -qq -y update \
     tesseract-ocr-aze \
     tesseract-ocr-bel \
     tesseract-ocr-uzb \
+    tesseract-ocr-sin \
     ### pdf convert: libreoffice + a bunch of fonts
     libreoffice fonts-opensymbol hyphen-fr hyphen-de \
     hyphen-en-us hyphen-it hyphen-ru fonts-dejavu fonts-dejavu-core fonts-dejavu-extra \
