@@ -78,7 +78,6 @@ class OpenOfficeSpreadsheetIngestor(Ingestor, TableSupport, OpenDocumentSupport)
             # in the middle of processing.
             # See https://github.com/alephdata/ingest-file/issues/171
             self.manager.emit_entity(table, fragment="initial")
-            log.debug("Sheet: %s", name)
             self.emit_row_tuples(table, self.generate_csv(sheet))
             if table.has("csvHash"):
                 self.manager.emit_entity(table)

@@ -58,9 +58,6 @@ class TabularIngestorTest(TestCase):
         fixture_path, entity = self.fixture("staff_list.xlsx")
         self.manager.ingest(fixture_path, entity)
         table_entities = self.get_emitted("Table")
-        import pprint
-
-        pprint.pprint([x.to_dict() for x in table_entities])
         parent_entity = self.get_emitted("Workbook").pop()
         self.assertEqual(len(table_entities), 3)
 
