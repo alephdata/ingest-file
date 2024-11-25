@@ -48,12 +48,22 @@ class ExcelXMLIngestor(Ingestor, TableSupport, OOXMLSupport):
                 table = self.manager.make_entity("Table", parent=entity)
                 table.make_id(entity.id, name)
                 table.set("title", name)
+                # add workbook metadata to individual tables
+                for metadatum in [
+                    "authoredAt",
+                    "modifiedAt",
+                    "author",
+                    "summary",
+                    "generator",
+                    "language",
+                    "processingAgent",
+                ]:
+                    table.set(metadatum, entity.get(metadatum))
                 # Emit a partial table fragment with parent reference and name
                 # early, so that we don't have orphan fragments in case of an error
                 # in the middle of processing.
                 # See https://github.com/alephdata/ingest-file/issues/171
                 self.manager.emit_entity(table, fragment="initial")
-                log.debug("Sheet: %s", name)
                 self.emit_row_tuples(table, self.generate_rows(sheet))
                 if table.has("csvHash"):
                     self.manager.emit_entity(table)
