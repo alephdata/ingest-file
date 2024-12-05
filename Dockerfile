@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.9-bookworm
 ENV DEBIAN_FRONTEND noninteractive
 
 LABEL org.opencontainers.image.title "FollowTheMoney File Ingestors"
@@ -8,25 +8,22 @@ LABEL org.opencontainers.image.source https://github.com/alephdata/ingest-file
 # Enable non-free archive for `unrar`.
 RUN echo "deb http://http.us.debian.org/debian stable non-free" >/etc/apt/sources.list.d/nonfree.list \
   && apt-get -qq -y update \
-  && apt-get -qq -y install build-essential locales ca-certificates \
-  # git
-  git \
+  && apt-get -qq -y install build-essential locales \
   # python deps (mostly to install their dependencies)
   python3-dev \
   # tesseract
-  tesseract-ocr libtesseract-dev libleptonica-dev pkg-config\
+  tesseract-ocr libtesseract-dev libleptonica-dev \
   # libraries
-  libxslt1-dev libpq-dev libldap2-dev libsasl2-dev \
-  zlib1g-dev libicu-dev libxml2-dev \
+  libldap2-dev libsasl2-dev \
   # package tools
   unrar p7zip-full \
   # audio & video metadata
   libmediainfo-dev \
   # image processing, djvu
-  imagemagick-common imagemagick mdbtools djvulibre-bin \
-  libtiff5-dev libjpeg-dev libfreetype6-dev libwebp-dev \
+  mdbtools djvulibre-bin \
+  libtiff5-dev \
   libtiff-tools ghostscript librsvg2-bin jbig2dec \
-  pst-utils libopenjp2-7-dev libgif-dev libpng-dev \
+  pst-utils libgif-dev \
   ### tesseract
   tesseract-ocr-eng \
   tesseract-ocr-swa \
@@ -100,7 +97,7 @@ RUN echo "deb http://http.us.debian.org/debian stable non-free" >/etc/apt/source
   tesseract-ocr-uzb \
   ### pdf convert: libreoffice + a bunch of fonts
   libreoffice fonts-opensymbol hyphen-fr hyphen-de \
-  hyphen-en-us hyphen-it hyphen-ru fonts-dejavu fonts-dejavu-core fonts-dejavu-extra \
+  hyphen-en-us hyphen-it hyphen-ru fonts-dejavu fonts-dejavu-extra \
   fonts-droid-fallback fonts-dustin fonts-f500 fonts-fanwood fonts-freefont-ttf \
   fonts-liberation fonts-lmodern fonts-lyx fonts-sil-gentium fonts-texgyre \
   fonts-tlwg-purisa \
