@@ -36,7 +36,7 @@ vobject==0.9.6.1
 msglite==0.30.0
 icalendar==5.0.12
 
-cryptography==41.0.7
+cryptography==44.0.0
 requests[security]==2.31.0
 pymupdf==1.21.1
 
