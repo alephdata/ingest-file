@@ -36,7 +36,7 @@ format-check:
 	black --check .
 
 test: services
-	$(DOCKER) pytest --cov=ingestors --cov-report html --cov-report term
+	PYTHONDEVMODE=1 PYTHONTRACEMALLOC=1 $(DOCKER) pytest --cov=ingestors --cov-report html --cov-report term
 
 restart: build
 	$(COMPOSE) up --force-recreate --no-deps --detach ingest-file
