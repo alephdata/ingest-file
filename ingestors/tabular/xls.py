@@ -59,6 +59,17 @@ class ExcelIngestor(Ingestor, TableSupport, OLESupport):
                 table = self.manager.make_entity("Table", parent=entity)
                 table.make_id(entity.id, sheet.name)
                 table.set("title", sheet.name)
+                # add workbook metadata to individual tables
+                for metadatum in [
+                    "authoredAt",
+                    "modifiedAt",
+                    "author",
+                    "summary",
+                    "generator",
+                    "language",
+                    "processingAgent",
+                ]:
+                    table.set(metadatum, entity.get(metadatum))
                 # Emit a partial table fragment with parent reference and name
                 # early, so that we don't have orphan fragments in case of an error
                 # in the middle of processing.

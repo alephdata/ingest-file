@@ -63,6 +63,16 @@ class OpenOfficeSpreadsheetIngestor(Ingestor, TableSupport, OpenDocumentSupport)
             table = self.manager.make_entity("Table", parent=entity)
             table.make_id(entity.id, name)
             table.set("title", name)
+            # add workbook metadata to individual tables
+            for metadatum in [
+                "authoredAt",
+                "author",
+                "summary",
+                "generator",
+                "date",
+                "processingAgent",
+            ]:
+                table.set(metadatum, entity.get(metadatum))
             # Emit a partial table fragment with parent reference and name
             # early, so that we don't have orphan fragments in case of an error
             # in the middle of processing.

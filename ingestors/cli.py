@@ -8,7 +8,12 @@ from random import randrange
 from ftmstore import get_dataset
 from servicelayer.cache import get_redis
 from servicelayer.logs import configure_logging
-from servicelayer.taskqueue import Dataset, Task
+from servicelayer.taskqueue import (
+    Dataset,
+    Task,
+    get_rabbitmq_channel,
+    declare_rabbitmq_queue,
+)
 from servicelayer import settings as sl_settings
 from servicelayer.archive.util import ensure_path
 from servicelayer import settings as sls
@@ -78,6 +83,7 @@ def _ingest_path(db, dataset, path, languages=[]):
             entity.make_id(checksum)
             entity.set("fileName", path.name)
             log.info("Queue: %r", entity.to_dict())
+
             manager.queue_entity(entity)
         if path.is_dir():
             DirectoryIngestor.crawl(manager, path)
@@ -116,6 +122,7 @@ def analyze(dataset):
 def debug(path, languages=None):
     """Debug the ingest for the given path."""
     settings.fts.DATABASE_URI = "sqlite:////tmp/debug.sqlite3"
+    settings.TESTING = True
 
     # collection ID that is meant for testing purposes only
     debug_datatset_id = 100
@@ -126,6 +133,13 @@ def debug(path, languages=None):
         database_uri=settings.fts.DATABASE_URI,
     )
     db.delete()
+    channel = get_rabbitmq_channel()
+    qos_mapping = {
+        settings.STAGE_INGEST: settings.RABBITMQ_QOS_INGEST_QUEUE,
+        settings.STAGE_ANALYZE: settings.RABBITMQ_QOS_ANALYZE_QUEUE,
+    }
+    for queue_name in qos_mapping.keys():
+        declare_rabbitmq_queue(channel, queue_name, qos_mapping[queue_name])
     _ingest_path(db, debug_datatset_id, path, languages=languages)
     worker = get_worker()
     worker.process(blocking=False)
