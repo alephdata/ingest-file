@@ -3,7 +3,7 @@ normality==2.5.0
 pantomime==0.6.1
 followthemoney==3.5.9
 followthemoney-store[postgresql]==3.1.0
-servicelayer[google,amazon]==1.23.3-rc6
+servicelayer[google,amazon]==1.23.3-rc7
 languagecodes==1.1.1
 countrytagger==0.1.2
 pyicu==2.12
@@ -40,4 +40,4 @@ requests[security]==2.31.0
 pymupdf==1.21.1
 
 prometheus-client==0.17.1
-sentry_sdk==2.0.1
+sentry_sdk==2.19.2
