@@ -1,6 +1,6 @@
 import logging
 from io import BytesIO
-from PIL import Image, ExifTags
+from PIL import Image, ExifTags, ImageFile
 from followthemoney import model
 
 from ingestors.ingestor import Ingestor
@@ -9,6 +9,9 @@ from ingestors.support.timestamp import TimestampSupport
 from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
+
+# from https://stackoverflow.com/a/47958486
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class ImageIngestor(Ingestor, OCRSupport, TimestampSupport):
