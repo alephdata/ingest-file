@@ -91,3 +91,12 @@ class ImageIngestorTest(TestCase):
                     image_entity.first("indexText"),
                     f"Test failed for {test_data[test_image_type]['file']}",
                 )
+
+    def test_ingest_heif(self):
+        fixture_path, entity = self.fixture("image1.heic")
+        self.manager.ingest(fixture_path, entity)
+
+        self.assertEqual(
+            entity.first("processingStatus"),
+            self.manager.STATUS_SUCCESS,
+        )
