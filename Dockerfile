@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM python:3.9-bookworm
 ENV DEBIAN_FRONTEND noninteractive
 
 LABEL org.opencontainers.image.title "FollowTheMoney File Ingestors"
@@ -6,25 +6,24 @@ LABEL org.opencontainers.image.licenses MIT
 LABEL org.opencontainers.image.source https://github.com/alephdata/ingest-file
 
 # Enable non-free archive for `unrar`.
-# RUN echo "deb http://http.us.debian.org/debian stretch non-free" >/etc/apt/sources.list.d/nonfree.list
-RUN apt-get -qq -y update \
-    && apt-get -qq -y install build-essential locales ca-certificates \
+RUN echo "deb http://http.us.debian.org/debian stable non-free" >/etc/apt/sources.list.d/nonfree.list \
+    && apt-get -qq -y update \
+    && apt-get -qq -y install build-essential locales \
     # python deps (mostly to install their dependencies)
-    python3-pip python3-dev python3-pil \
+    python3-dev \
     # tesseract
-    tesseract-ocr libtesseract-dev libleptonica-dev pkg-config\
+    tesseract-ocr libtesseract-dev libleptonica-dev \
     # libraries
-    libxslt1-dev libpq-dev libldap2-dev libsasl2-dev \
-    zlib1g-dev libicu-dev libxml2-dev \
+    libldap2-dev libsasl2-dev \
     # package tools
     unrar p7zip-full \
     # audio & video metadata
     libmediainfo-dev \
     # image processing, djvu
-    imagemagick-common imagemagick mdbtools djvulibre-bin \
-    libtiff5-dev libjpeg-dev libfreetype6-dev libwebp-dev \
+    mdbtools djvulibre-bin \
+    libtiff5-dev \
     libtiff-tools ghostscript librsvg2-bin jbig2dec \
-    pst-utils \
+    pst-utils libgif-dev \
     ### tesseract
     tesseract-ocr-eng \
     tesseract-ocr-swa \
@@ -98,7 +97,7 @@ RUN apt-get -qq -y update \
     tesseract-ocr-uzb \
     ### pdf convert: libreoffice + a bunch of fonts
     libreoffice fonts-opensymbol hyphen-fr hyphen-de \
-    hyphen-en-us hyphen-it hyphen-ru fonts-dejavu fonts-dejavu-core fonts-dejavu-extra \
+    hyphen-en-us hyphen-it hyphen-ru fonts-dejavu fonts-dejavu-extra \
     fonts-droid-fallback fonts-dustin fonts-f500 fonts-fanwood fonts-freefont-ttf \
     fonts-liberation fonts-lmodern fonts-lyx fonts-sil-gentium fonts-texgyre \
     fonts-tlwg-purisa \
@@ -121,11 +120,7 @@ RUN groupadd -g 1000 -r app \
 RUN mkdir /models/ && \
     curl -o "/models/model_type_prediction.ftz" "https://public.data.occrp.org/develop/models/types/type-08012020-7a69d1b.ftz"
 
-# Having updated pip/setuptools seems to break the test run for some reason (12/01/2022)
-# RUN pip3 install --no-cache-dir -U pip setuptools
 COPY requirements.txt /tmp/
-RUN pip3 install --no-cache-dir --prefer-binary --upgrade pip
-RUN pip3 install --no-cache-dir --prefer-binary --upgrade setuptools wheel
 RUN pip3 install --no-cache-dir --no-binary "tesserocr" -r /tmp/requirements.txt
 
 # Install spaCy models
@@ -148,14 +143,15 @@ RUN python3 -m spacy download el_core_news_sm \
 
 COPY . /ingestors
 WORKDIR /ingestors
-RUN pip3 install --no-cache-dir --config-settings editable_mode=compat --use-pep517 -e /ingestors
+RUN pip install --no-cache-dir --config-settings editable_mode=compat --use-pep517 -e /ingestors
 RUN chown -R app:app /ingestors
 
 ENV ARCHIVE_TYPE=file \
     ARCHIVE_PATH=/data \
     FTM_STORE_URI=postgresql://aleph:aleph@postgres/aleph \
     REDIS_URL=redis://redis:6379/0 \
-    TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
+    TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata \
+    LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libgomp.so.1
 
 # USER app
 CMD ingestors process
