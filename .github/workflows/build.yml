@@ -15,7 +15,7 @@ jobs:
       - name: Set up
         run: |
           docker --version
-          docker-compose --version
+          docker compose --version
           echo "${GITHUB_REF}"
       - name: Start services
         run: |
