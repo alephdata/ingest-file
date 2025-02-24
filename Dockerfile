@@ -118,7 +118,7 @@ RUN groupadd -g 1000 -r app \
 
 # Download the ftm-typepredict model
 RUN mkdir /models/ && \
-  curl -o "/models/model_type_prediction.ftz" "https://public.data.occrp.org/develop/models/types/type-08012020-7a69d1b.ftz"
+  curl --keepalive-time 2 -o "/models/model_type_prediction.ftz" "https://public.data.occrp.org/develop/models/types/type-08012020-7a69d1b.ftz"
 
 COPY requirements.txt /tmp/
 RUN pip3 install --no-cache-dir --no-binary "tesserocr" --no-binary "Pillow" -r /tmp/requirements.txt
