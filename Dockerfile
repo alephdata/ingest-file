@@ -10,7 +10,7 @@ RUN echo "deb http://http.us.debian.org/debian stable non-free" >/etc/apt/source
   && apt-get -qq -y update \
   && apt-get -qq -y install build-essential locales \
   # python deps (mostly to install their dependencies)
-  python3-dev python3-setuptools \
+  python3-dev \
   # tesseract
   tesseract-ocr libtesseract-dev libleptonica-dev \
   # libraries
@@ -121,7 +121,7 @@ RUN mkdir /models/ && \
   curl --keepalive-time 2 -o "/models/model_type_prediction.ftz" "https://public.data.occrp.org/develop/models/types/type-08012020-7a69d1b.ftz"
 
 COPY requirements.txt /tmp/
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip setuptools
 RUN pip3 install --no-cache-dir --no-binary "tesserocr" --no-binary "Pillow" -r /tmp/requirements.txt
 
 # Install spaCy models
