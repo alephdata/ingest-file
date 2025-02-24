@@ -10,7 +10,7 @@ RUN echo "deb http://http.us.debian.org/debian stable non-free" >/etc/apt/source
   && apt-get -qq -y update \
   && apt-get -qq -y install build-essential locales \
   # python deps (mostly to install their dependencies)
-  python3-dev \
+  python3-dev python3-setuptools \
   # tesseract
   tesseract-ocr libtesseract-dev libleptonica-dev \
   # libraries
