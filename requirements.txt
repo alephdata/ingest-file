@@ -9,7 +9,7 @@ countrytagger==0.1.2
 pyicu==2.12
 google-cloud-vision==3.7.2
 tesserocr==2.7.1
-spacy==3.6.1 # pinned because spacy 3.8 requires numpy >2 which breaks fasttext (see https://groups.google.com/g/fasttext-library/c/4EOM0-S6xHU)
+spacy==3.8.2 # pinned because spacy 3.8 requires numpy >2 which breaks fasttext (see https://groups.google.com/g/fasttext-library/c/4EOM0-S6xHU)
 numpy<2.0.0 # pinned because otherwise spacy requires an incompatible numpy
 fingerprints==1.1.1
 fasttext==0.9.2
