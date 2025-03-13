@@ -3,7 +3,7 @@ import logging
 import threading
 from hashlib import sha1
 from normality import stringify
-from PIL import Image
+from PIL import Image, ImageFile
 from io import BytesIO
 from languagecodes import list_to_alpha3 as alpha3
 
@@ -13,6 +13,7 @@ from ingestors.util import temp_locale
 
 log = logging.getLogger(__name__)
 TESSERACT_LOCALE = "C"
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class OCRSupport(CacheSupport):

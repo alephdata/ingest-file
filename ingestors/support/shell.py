@@ -1,7 +1,7 @@
 import os
+import shutil
 import subprocess
 from servicelayer import env
-from distutils.spawn import find_executable
 
 from ingestors.util import path_string
 from ingestors.exc import ProcessingException
@@ -17,7 +17,7 @@ class ShellSupport(object):
     def find_command(self, name):
         config_name = "%s_BIN" % name
         config_name = config_name.replace("-", "_").upper()
-        return env.get(config_name, find_executable(name))
+        return env.get(config_name, shutil.which(name))
 
     def exec_command(self, command, *args):
         binary = self.find_command(command)

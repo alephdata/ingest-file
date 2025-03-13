@@ -22,7 +22,7 @@ RUN echo "deb http://http.us.debian.org/debian stable non-free" >/etc/apt/source
   # image processing, djvu
   mdbtools djvulibre-bin \
   libtiff5-dev \
-  libtiff-tools ghostscript librsvg2-bin jbig2dec \
+  libtiff-tools ghostscript librsvg2-bin jbig2dec libopenjp2-7-dev \
   pst-utils libgif-dev \
   ### tesseract
   tesseract-ocr-eng \
@@ -118,10 +118,11 @@ RUN groupadd -g 1000 -r app \
 
 # Download the ftm-typepredict model
 RUN mkdir /models/ && \
-  curl -o "/models/model_type_prediction.ftz" "https://public.data.occrp.org/develop/models/types/type-08012020-7a69d1b.ftz"
+  curl --keepalive-time 2 -o "/models/model_type_prediction.ftz" "https://public.data.occrp.org/develop/models/types/type-08012020-7a69d1b.ftz"
 
 COPY requirements.txt /tmp/
-RUN pip3 install --no-cache-dir --no-binary "tesserocr" -r /tmp/requirements.txt
+RUN pip install --upgrade pip setuptools
+RUN pip3 install --no-cache-dir --no-binary "tesserocr" --no-binary "Pillow" -r /tmp/requirements.txt
 
 # Install spaCy models
 RUN python3 -m spacy download en_core_web_sm \
@@ -147,11 +148,10 @@ RUN pip install --no-cache-dir --config-settings editable_mode=compat --use-pep5
 RUN chown -R app:app /ingestors
 
 ENV ARCHIVE_TYPE=file \
-  ARCHIVE_PATH=/data \
-  FTM_STORE_URI=postgresql://aleph:aleph@postgres/aleph \
-  REDIS_URL=redis://redis:6379/0 \
-  TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata \
-  LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libgomp.so.1
+    ARCHIVE_PATH=/data \
+    FTM_STORE_URI=postgresql://aleph:aleph@postgres/aleph \
+    REDIS_URL=redis://redis:6379/0 \
+    TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
 
 # USER app
 CMD ingestors process

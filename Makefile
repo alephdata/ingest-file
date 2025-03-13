@@ -1,6 +1,6 @@
 INGEST=ghcr.io/alephdata/ingest-file
 COMPOSE=docker compose
-DOCKER=$(COMPOSE) run --rm ingest-file
+DOCKER=$(COMPOSE) run --rm -e LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libgomp.so.1 ingest-file
 
 .PHONY: build
 
