@@ -26,7 +26,7 @@ pymediainfo==6.1.0
 python-magic==0.4.27
 rarfile==4.2
 xlrd==2.0.1
-openpyxl==3.1.2
+openpyxl==3.1.5
 odfpy==1.4.1
 cchardet==2.1.7
 lxml==5.0.0
