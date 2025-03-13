@@ -3,6 +3,7 @@ ENCRYPTED_MSG = "The document might be protected with a password. Try removing t
 
 class ProcessingException(Exception):
     "A data-related error occuring during file processing."
+
     pass
 
 
