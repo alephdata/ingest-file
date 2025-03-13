@@ -7,6 +7,7 @@ from ingestors.support.encoding import EncodingSupport
 
 class HTMLIngestor(Ingestor, EncodingSupport, HTMLSupport):
     "HTML file ingestor class. Extracts the text from the web page."
+
     MIME_TYPES = ["text/html"]
     EXTENSIONS = [
         "htm",
