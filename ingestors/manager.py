@@ -2,8 +2,6 @@ import magic
 import logging
 from timeit import default_timer
 from tempfile import mkdtemp
-from datetime import datetime
-from pkg_resources import get_distribution
 
 from followthemoney import model
 from banal import ensure_list
@@ -201,12 +199,7 @@ class Manager(object):
         if file_size is not None and not entity.has("fileSize"):
             entity.add("fileSize", file_size)
 
-        now = datetime.now()
-        now_string = now.strftime("%Y-%m-%dT%H:%M:%S.%f")
-
         entity.set("processingStatus", self.STATUS_FAILURE)
-        entity.set("processingAgent", get_distribution("ingest").version)
-        entity.set("processedAt", now_string)
 
         ingestor_class = None
         ingestor_name = None
