@@ -21,7 +21,7 @@ pytest-cov==6.1.0
 click==8.1.7
 
 # File format support
-dbf==0.99.9
+dbf==0.99.10
 pymediainfo==6.1.0
 python-magic==0.4.27
 rarfile==4.2
