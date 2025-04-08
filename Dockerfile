@@ -76,7 +76,7 @@ RUN echo "deb http://http.us.debian.org/debian stable non-free" >/etc/apt/source
   tesseract-ocr-hrv \
   tesseract-ocr-hye \
   tesseract-ocr-hun \
-  # tesseract-ocr-ben \
+  tesseract-ocr-ben \
   tesseract-ocr-bul \
   tesseract-ocr-cat \
   tesseract-ocr-ces \
