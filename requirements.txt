@@ -22,7 +22,7 @@ click==8.1.7
 
 # File format support
 dbf==0.99.10
-pymediainfo==6.1.0
+pymediainfo==7.0.1
 python-magic==0.4.27
 rarfile==4.2
 xlrd==2.0.1
