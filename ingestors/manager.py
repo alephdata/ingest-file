@@ -193,7 +193,7 @@ class Manager(object):
         now_string = now.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
         entity.set("processingStatus", self.STATUS_FAILURE)
-        entity.set("processingAgent", get_distribution("ingest").version)
+        entity.set("processingAgent", get_distribution("ingestors").version)
         entity.set("processedAt", now_string)
 
         ingestor_class = None

@@ -78,3 +78,7 @@ class TestCase(unittest.TestCase):
 
     def assertSuccess(self, entity):
         self.assertEqual(entity.first("processingStatus"), self.manager.STATUS_SUCCESS)
+
+
+class TranscriptionSupport_:
+    pass

@@ -1,16 +1,43 @@
-FROM python:3.9-bookworm
-ENV DEBIAN_FRONTEND noninteractive
+#### BUILD WHISPER.CPP
+#----------------------------------
+FROM nvidia/cuda:11.6.2-devel-ubuntu20.04 AS build
 
-LABEL org.opencontainers.image.title "FollowTheMoney File Ingestors"
-LABEL org.opencontainers.image.licenses MIT
-LABEL org.opencontainers.image.source https://github.com/alephdata/ingest-file
+WORKDIR /usr/local/src
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
+        bash git make wget g++ ffmpeg cmake
+RUN git clone https://github.com/ggml-org/whisper.cpp --depth 1
+
+# whisper.cpp setup
+WORKDIR /usr/local/src/whisper.cpp
+RUN WHISPER_CUBLAS=0 make -j
+RUN bash ./models/download-ggml-model.sh medium-q8_0
+
+#### copy the compiled binaries to the image for prod
+# the image above will be discarded
+# ----------------------------------
+FROM python:3.11-slim
+
+# copy whisper 
+COPY --from=build /usr/local/src/whisper.cpp /whisper
+COPY --from=build /lib/*/libgomp.so.1 /whisper/build/src
+
+# fix some libs
+ENV LD_LIBRARY_PATH=/whisper/build/src/:/whisper/build/ggml/src/
+
+# ingest-file
+ENV DEBIAN_FRONTEND="noninteractive"
+
+LABEL org.opencontainers.image.title="FollowTheMoney File Ingestors"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.source="https://github.com/alephdata/ingest-file"
 
 # Enable non-free archive for `unrar`.
 RUN echo "deb http://http.us.debian.org/debian stable non-free" >/etc/apt/sources.list.d/nonfree.list \
     && apt-get -qq -y update \
     && apt-get -qq -y install build-essential locales \
     # python deps (mostly to install their dependencies)
-    python3-dev \
+    git python3-dev \
+    pkg-config libicu-dev \
     # tesseract
     tesseract-ocr libtesseract-dev libleptonica-dev \
     # libraries
@@ -24,6 +51,8 @@ RUN echo "deb http://http.us.debian.org/debian stable non-free" >/etc/apt/source
     libtiff5-dev \
     libtiff-tools ghostscript librsvg2-bin jbig2dec \
     pst-utils libgif-dev \
+    # necessary for python-magic
+    libmagic1 \
     ### tesseract
     tesseract-ocr-eng \
     tesseract-ocr-swa \
@@ -101,6 +130,7 @@ RUN echo "deb http://http.us.debian.org/debian stable non-free" >/etc/apt/source
     fonts-droid-fallback fonts-dustin fonts-f500 fonts-fanwood fonts-freefont-ttf \
     fonts-liberation fonts-lmodern fonts-lyx fonts-sil-gentium fonts-texgyre \
     fonts-tlwg-purisa \
+    ffmpeg \
     ###
     && apt-get -qq -y autoremove \
     && apt-get clean \
@@ -121,6 +151,8 @@ RUN mkdir /models/ && \
     curl -o "/models/model_type_prediction.ftz" "https://public.data.occrp.org/develop/models/types/type-08012020-7a69d1b.ftz"
 
 COPY requirements.txt /tmp/
+RUN pip3 install --no-cache-dir -q -U pip setuptools
+RUN pip3 install --no-binary=:pyicu: pyicu
 RUN pip3 install --no-cache-dir --no-binary "tesserocr" -r /tmp/requirements.txt
 
 # Install spaCy models
@@ -143,7 +175,7 @@ RUN python3 -m spacy download el_core_news_sm \
 
 COPY . /ingestors
 WORKDIR /ingestors
-RUN pip install --no-cache-dir --config-settings editable_mode=compat --use-pep517 -e /ingestors
+RUN pip3 install --no-cache-dir --config-settings editable_mode=compat --use-pep517 -e /ingestors
 RUN chown -R app:app /ingestors
 
 ENV ARCHIVE_TYPE=file \

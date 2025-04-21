@@ -17,7 +17,7 @@ class XMLSupport(object):
             recover=True,
             resolve_entities=False,
             no_network=True,
-            **kwargs
+            **kwargs,
         )
 
     def parse_xml_path(self, file_path, **kwargs):

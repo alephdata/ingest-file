@@ -3,7 +3,7 @@ import logging
 from functools import lru_cache
 from normality import collapse_spaces
 from languagecodes import list_to_alpha3
-from fingerprints import clean_entity_name
+from fingerprints import clean_entity_prefix
 from followthemoney.types import registry
 
 from ingestors import settings
@@ -27,7 +27,7 @@ SPACY_TYPES = {
 def clean_name(text):
     if text is None or len(text) > NAME_MAX_LENGTH:
         return
-    text = clean_entity_name(text)
+    text = clean_entity_prefix(text)
     text = collapse_spaces(text)
     if text is None or len(text) <= NAME_MIN_LENGTH or " " not in text:
         return
