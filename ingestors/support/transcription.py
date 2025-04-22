@@ -85,7 +85,7 @@ class TranscriptionSupport:
             full_transcription = ""
             for interval in transcription_intervals:
                 full_transcription += f"[{interval['timestamps']['from']} -> {interval['timestamps']['to']}] {interval['text'].strip()}"
-            entity.add("indexText", full_transcription)
+            entity.add("bodyText", full_transcription)
 
         else:
             self.delete_temporary_file(output_path)

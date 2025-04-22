@@ -11,5 +11,5 @@ class TranscriptionSupportTest(TestCase):
         self.assertEqual(entity.first("processingStatus"), self.manager.STATUS_SUCCESS)
         self.assertIn(
             "Everything you hold worthwhile is at stake",
-            self.manager.entities[0].first("indexText"),
+            self.manager.entities[0].first("bodyText"),
         )
