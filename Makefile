@@ -1,4 +1,4 @@
-INGEST=ghcr.io/alephdata/ingest-file
+INGEST=ghcr.io/investigativedata/ingest-file
 COMPOSE=docker compose
 DOCKER=$(COMPOSE) run --rm ingest-file
 
