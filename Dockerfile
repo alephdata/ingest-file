@@ -4,7 +4,7 @@ FROM nvidia/cuda:11.6.2-devel-ubuntu20.04 AS build
 
 WORKDIR /usr/local/src
 RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
-        bash git make wget g++ ffmpeg cmake
+    bash git make wget g++ ffmpeg cmake libopenblas-dev
 RUN git clone https://github.com/ggml-org/whisper.cpp --depth 1
 
 # whisper.cpp setup
@@ -22,7 +22,7 @@ COPY --from=build /usr/local/src/whisper.cpp /whisper
 COPY --from=build /lib/*/libgomp.so.1 /whisper/build/src
 
 # fix some libs
-ENV LD_LIBRARY_PATH=/whisper/build/src/:/whisper/build/ggml/src/
+ENV LD_LIBRARY_PATH="/whisper/build/src/:/whisper/build/ggml/src/"
 
 # ingest-file
 ENV DEBIAN_FRONTEND="noninteractive"
@@ -178,12 +178,14 @@ WORKDIR /ingestors
 RUN pip3 install --no-cache-dir --config-settings editable_mode=compat --use-pep517 -e /ingestors
 RUN chown -R app:app /ingestors
 
+
 ENV ARCHIVE_TYPE=file \
     ARCHIVE_PATH=/data \
     FTM_STORE_URI=postgresql://aleph:aleph@postgres/aleph \
     REDIS_URL=redis://redis:6379/0 \
-    TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata \
-    LD_PRELOAD=/usr/lib/aarch64-linux-gnu/libgomp.so.1
+    TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata 
+
+ENV LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
 
 # USER app
 CMD ingestors process
