@@ -1,5 +1,7 @@
+import re
 import email
 import logging
+from email.header import decode_header, make_header
 from email.policy import default
 from email.errors import MessageError
 from html import escape
@@ -13,6 +15,14 @@ from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
+linesep_splitter = re.compile(r'\n|\r')
+
+def my_header_fetch_parse(name, value):
+    if hasattr(value, 'name'):
+        return value
+    v = str(make_header(decode_header(value)))
+    v = ''.join(linesep_splitter.split(v))
+    return email.policy.default.header_factory(name, v)
 
 class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
     MIME_TYPES = ["multipart/mixed", "message/rfc822"]
@@ -131,7 +141,8 @@ class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
         entity.schema = model.get("Email")
         try:
             with open(file_path, "rb") as fh:
-                msg = email.message_from_binary_file(fh, policy=default)
+                policy = default.clone(header_fetch_parse=my_header_fetch_parse)
+                msg = email.message_from_binary_file(fh, policy=policy)
         except (MessageError, ValueError, IndexError) as err:
             raise ProcessingException("Cannot parse email: %s" % err) from err
 

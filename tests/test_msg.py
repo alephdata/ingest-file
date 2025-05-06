@@ -167,3 +167,20 @@ class RFC822Test(TestCase):
                 "This is the body of a plaintext message.",
             ],
         )
+
+    def test_headers(self):
+        fixture_path, entity = self.fixture("email_multiline_headers.eml")
+        self.manager.ingest(fixture_path, entity)
+        self.assertSuccess(entity)
+        self.assertEqual(
+            entity.get("from"),
+            [
+                "Отдел по работе с прохождением законопроектов <redacted@example.com>",
+            ],
+        )
+        self.assertEqual(
+            entity.get("subject"),
+            [
+                "Дополнительное заключение Профильного Комитета на проект закона №145-Д",
+            ]
+        )
