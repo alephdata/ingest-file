@@ -15,14 +15,16 @@ from ingestors.exc import ProcessingException
 
 log = logging.getLogger(__name__)
 
-linesep_splitter = re.compile(r'\n|\r')
+linesep_splitter = re.compile(r"\n|\r")
+
 
 def my_header_fetch_parse(name, value):
-    if hasattr(value, 'name'):
+    if hasattr(value, "name"):
         return value
     v = str(make_header(decode_header(value)))
-    v = ''.join(linesep_splitter.split(v))
+    v = "".join(linesep_splitter.split(v))
     return email.policy.default.header_factory(name, v)
+
 
 class RFC822Ingestor(Ingestor, EmailSupport, EncodingSupport):
     MIME_TYPES = ["multipart/mixed", "message/rfc822"]
