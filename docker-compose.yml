@@ -13,7 +13,7 @@ services:
   ingest-file:
     build:
       context: .
-    # image: ghcr.io/dataresearchcenter/ingest-file
+    # image: ghcr.io/openaleph/ingest-file
     hostname: ingest
     tmpfs:
       - /tmp:mode=777
