@@ -1,30 +1,5 @@
-#### BUILD WHISPER.CPP
-#----------------------------------
-FROM nvidia/cuda:11.6.2-devel-ubuntu20.04 AS build
-
-WORKDIR /usr/local/src
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
-    bash git make wget g++ ffmpeg cmake libopenblas-dev
-RUN git clone https://github.com/ggml-org/whisper.cpp --depth 1
-
-# whisper.cpp setup
-WORKDIR /usr/local/src/whisper.cpp
-RUN WHISPER_CUBLAS=0 make -j
-RUN bash ./models/download-ggml-model.sh medium-q8_0
-
-#### copy the compiled binaries to the image for prod
-# the image above will be discarded
-# ----------------------------------
 FROM python:3.11-slim
 
-# copy whisper 
-COPY --from=build /usr/local/src/whisper.cpp /whisper
-COPY --from=build /lib/*/libgomp.so.1 /whisper/build/src
-
-# fix some libs
-ENV LD_LIBRARY_PATH="/whisper/build/src/:/whisper/build/ggml/src/"
-
-# ingest-file
 ENV DEBIAN_FRONTEND="noninteractive"
 
 LABEL org.opencontainers.image.title="FollowTheMoney File Ingestors"
@@ -130,7 +105,6 @@ RUN echo "deb http://http.us.debian.org/debian stable non-free" >/etc/apt/source
     fonts-droid-fallback fonts-dustin fonts-f500 fonts-fanwood fonts-freefont-ttf \
     fonts-liberation fonts-lmodern fonts-lyx fonts-sil-gentium fonts-texgyre \
     fonts-tlwg-purisa \
-    ffmpeg \
     ###
     && apt-get -qq -y autoremove \
     && apt-get clean \
