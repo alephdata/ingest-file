@@ -1,18 +1,15 @@
 import logging
-from datetime import datetime
 from followthemoney import model
 from pymediainfo import MediaInfo
-from normality import stringify
 
 from ingestors.ingestor import Ingestor
 from ingestors.support.timestamp import TimestampSupport
 from ingestors.exc import ProcessingException
-from ingestors.support.transcription import TranscriptionSupport
 
 log = logging.getLogger(__name__)
 
 
-class AudioIngestor(Ingestor, TimestampSupport, TranscriptionSupport):
+class AudioIngestor(Ingestor, TimestampSupport):
     MIME_TYPES = [
         "audio/mpeg",
         "audio/mp3",
@@ -59,22 +56,6 @@ class AudioIngestor(Ingestor, TimestampSupport, TranscriptionSupport):
                 entity.add("duration", track.duration)
         except Exception as ex:
             raise ProcessingException(f"Could not read audio: {ex}") from ex
-        try:
-            start = datetime.now()
-            log.info(f"Attempting to transcribe {file_path}")
-            self.transcribe(file_path, entity)
-            elapsed_time = datetime.now() - start
-            # caution! this can't store an elapsed time larger than 24h
-            # datetime.seconds capped at [0,86400)
-            elapsed_time = divmod(elapsed_time.total_seconds(), 60)[0]
-            log.info(
-                f"Transcription duration: {elapsed_time} minutes (audio duration: {entity.get('duration')})"
-            )
-        except Exception as ex:
-            # If the transcription fails, the file processing should still count as a success.
-            # The existance of a transcription is not mandatory, for now.
-            entity.set("processingError", stringify(ex))
-            log.error(ex)
 
     @classmethod
     def match(cls, file_path, entity):
