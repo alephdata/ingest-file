@@ -50,7 +50,8 @@ dependencies = [
     # servicelayer extras requirements
     "boto3 (>=1.11.9,<2.0.0)",
     "grpcio (>=1.32.0,<2.0.0)",
-    "google-cloud-storage (>=1.31.0,<3.0.0)"
+    "google-cloud-storage (>=1.31.0,<3.0.0)",
+    "py7zr (==1.0.0)",
 ]
 
 [project.scripts]
