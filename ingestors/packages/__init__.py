@@ -4,6 +4,9 @@ import shutil
 import tarfile
 from pathlib import PurePath
 
+import py7zr
+from py7zr.exceptions import ArchiveError
+
 from ingestors.ingestor import Ingestor
 from ingestors.support.package import PackageSupport
 from ingestors.support.shell import ShellSupport
@@ -24,9 +27,11 @@ class SevenZipIngestor(PackageSupport, Ingestor, ShellSupport):
                 *pure_file_path.parts[1:-1], reconstructed_filename
             )
 
-        self.exec_command(
-            "7z", "x", str(pure_file_path), "-y", "-r", "-bb0", "-bd", f"-oc:{temp_dir}"
-        )
+        try:
+            with py7zr.SevenZipFile(str(pure_file_path), mode="r") as z:
+                z.extractall(path=temp_dir)
+        except ArchiveError as e:
+            raise ProcessingException(f"Error: {e}")
 
 
 class SingleFilePackageIngestor(PackageSupport, Ingestor):
