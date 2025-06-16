@@ -2,7 +2,7 @@
 
 ``ingestors`` extract useful information from documents of different types in
 a structured standard format. It retains folder structures across directories,
-compressed archives and emails. The extracted data is formatted as Follow the 
+compressed archives and emails. The extracted data is formatted as Follow the
 Money (FtM) entities, ready for import into Aleph, or processing as an object
 graph.
 
@@ -20,16 +20,20 @@ Other features:
 * Extendable and composable using classes and mixins.
 * Generates FollowTheMoney objects to a database as result objects.
 * Lightweight worker-style support for logging, failures and callbacks.
-* Throughly tested.
+* Thoroughly tested.
 
 ## Development environment
 
-For local development with a virtualenv:
+For local development use [poetry](https://python-poetry.org/)
 
 ```bash
-python3 -mvenv .env
-source .env/bin/activate
-pip install -r requirements.txt
+poetry install --with dev --all-extras
+```
+
+### pre-commit
+
+```bash
+pre-commit install
 ```
 
 ## Release procedure
@@ -56,7 +60,7 @@ make shell
 
 Inside the shell, you will find the `ingestors` command-line tool. During
 development, it is convenient to call its debug mode using files present
-in the user's home directory, which is mounted at `/host`: 
+in the user's home directory, which is mounted at `/host`:
 
 ```bash
 ingestors debug /host/Documents/sample.xlsx

@@ -26,7 +26,7 @@ jobs:
             type=ref,event=branch
             type=semver,pattern={{version}}
             type=sha
-            type=raw,value=latest
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags') }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -50,7 +50,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           load: true
           cache-from: type=registry,ref=ghcr.io/openaleph/ingest-file:cache
           cache-to: type=registry,ref=ghcr.io/openaleph/ingest-file:cache,mode=max
@@ -73,10 +73,9 @@ jobs:
 
       - name: Push docker images
         uses: docker/build-push-action@v6
-        if: (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags')) && github.actor != 'dependabot[bot]'
         with:
           context: .
-          platforms: linux/amd64, linux/arm64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
