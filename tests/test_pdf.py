@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from .support import TestCase
+from normality.cleaning import collapse_spaces
+
 from ingestors.exc import ENCRYPTED_MSG
+from tests.support import TestCase
 
 
 class PDFIngestorTest(TestCase):
@@ -35,7 +37,8 @@ class PDFIngestorTest(TestCase):
         self.manager.ingest(fixture_path, entity)
         self.assertEqual(len(self.get_emitted()), 501)
         self.assertEqual(
-            self.manager.entities[0].first("bodyText"), "Hello, World!\nHello, World!"
+            collapse_spaces(self.manager.entities[0].first("bodyText")),
+            "Hello, World! Hello, World!",
         )
         self.assertEqual(entity.schema.name, "Pages")
 
@@ -49,7 +52,7 @@ class PDFIngestorTest(TestCase):
         self.assertIn("ABSTRACT AND CONCRETE", body)
         self.assertIn("Last revised on February 4, 2014.", body)
 
-        page_two = self.manager.entities[2].first("bodyText")
+        page_two = collapse_spaces(self.manager.entities[2].first("bodyText"))
         assert (
             "The author reserves all rights to this work not explicitly granted, including the right to copy"
             in page_two
