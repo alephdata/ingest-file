@@ -78,3 +78,6 @@ repos:
     hooks:
       - id: poetry-export
         args: ["--without-hashes", "-o", "requirements.txt"]
+      - id: poetry-export
+        args:
+          ["--without-hashes", "--only", "dev", "-o", "requirements-dev.txt"]
