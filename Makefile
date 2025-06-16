@@ -9,6 +9,9 @@ all: build shell
 build:
 	$(COMPOSE) build --no-rm --parallel
 
+build-base:
+	docker build . -f Dockerfile.base -t ghcr.io/openaleph/ingest-file-base
+
 services:
 	$(COMPOSE) up -d --remove-orphans postgres redis
 
