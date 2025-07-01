@@ -38,7 +38,7 @@ msglite==0.30.0
 icalendar==5.0.12
 
 cryptography==44.0.2
-requests[security]==2.32.3
+requests[security]==2.32.4
 pymupdf==1.21.1
 
 prometheus-client==0.17.1
