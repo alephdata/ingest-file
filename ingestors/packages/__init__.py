@@ -32,6 +32,8 @@ class SevenZipIngestor(PackageSupport, Ingestor, ShellSupport):
                 z.extractall(path=temp_dir)
         except ArchiveError as e:
             raise ProcessingException(f"Error: {e}")
+        except py7zr.PasswordRequired:
+            raise ProcessingException("Password protected 7z archive")
 
 
 class SingleFilePackageIngestor(PackageSupport, Ingestor):
