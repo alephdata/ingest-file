@@ -89,3 +89,12 @@ class PackagesTest(TestCase):
         assert len(self.manager.entities) == 1
         assert self.manager.entities[0].first("fileName") == "bad7zip.7z"
         assert self.manager.entities[0].first("processingStatus") == "failure"
+
+    def test_7zip_password(self):
+        fixture_path, entity = self.fixture("7z_password.7z")
+
+        self.manager.ingest(fixture_path, entity)
+
+        assert len(self.manager.entities) == 1
+        assert self.manager.entities[0].first("fileName") == "7z_password.7z"
+        assert self.manager.entities[0].first("processingStatus") == "failure"
