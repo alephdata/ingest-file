@@ -6,7 +6,7 @@ LABEL org.opencontainers.image.licenses MIT
 LABEL org.opencontainers.image.source https://github.com/alephdata/ingest-file
 
 # Enable non-free archive for `unrar`.
-RUN echo "deb http://http.us.debian.org/debian stable non-free" >/etc/apt/sources.list.d/nonfree.list \
+RUN echo "deb http://http.us.debian.org/debian bookworm non-free" >/etc/apt/sources.list.d/nonfree.list \
   && apt-get -qq -y update \
   && apt-get -qq -y install build-essential locales \
   # python deps (mostly to install their dependencies)
@@ -148,10 +148,10 @@ RUN pip install --no-cache-dir --config-settings editable_mode=compat --use-pep5
 RUN chown -R app:app /ingestors
 
 ENV ARCHIVE_TYPE=file \
-    ARCHIVE_PATH=/data \
-    FTM_STORE_URI=postgresql://aleph:aleph@postgres/aleph \
-    REDIS_URL=redis://redis:6379/0 \
-    TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
+  ARCHIVE_PATH=/data \
+  FTM_STORE_URI=postgresql://aleph:aleph@postgres/aleph \
+  REDIS_URL=redis://redis:6379/0 \
+  TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
 
 # USER app
 CMD ingestors process
