@@ -3,7 +3,6 @@ import logging
 from timeit import default_timer
 from tempfile import mkdtemp
 from datetime import datetime
-from pkg_resources import get_distribution
 
 from followthemoney import model
 from banal import ensure_list
@@ -23,7 +22,7 @@ from prometheus_client import Counter, Histogram
 from ingestors.directory import DirectoryIngestor
 from ingestors.exc import ProcessingException, ENCRYPTED_MSG
 from ingestors.util import filter_text, remove_directory
-from ingestors import settings
+from ingestors import settings, __version__ as ingest_file_version
 
 log = logging.getLogger(__name__)
 
@@ -205,7 +204,7 @@ class Manager(object):
         now_string = now.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
         entity.set("processingStatus", self.STATUS_FAILURE)
-        entity.set("processingAgent", get_distribution("ingest").version)
+        entity.set("processingAgent", ingest_file_version)
         entity.set("processedAt", now_string)
 
         ingestor_class = None
