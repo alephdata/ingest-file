@@ -20,7 +20,7 @@ py7zr==1.0.0
 pytest==8.3.5
 pytest-cov==6.1.0
 click==8.1.8
-fakeredis==2.30.3
+fakeredis==2.31.3
 
 # File format support
 dbf==0.99.10
