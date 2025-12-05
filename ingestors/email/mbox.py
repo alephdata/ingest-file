@@ -16,7 +16,7 @@ class MboxFileIngestor(RFC822Ingestor, TempFileSupport):
     MIME_TYPES = [DEFAULT_MIME]
     EXTENSIONS = ["mbox"]
     MAGIC = "From "
-    SCORE = 6
+    SCORE = 10
 
     def ingest(self, file_path, entity):
         mbox = mailbox.mbox(file_path)
