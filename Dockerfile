@@ -1,9 +1,9 @@
 FROM python:3.10-bookworm
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
-LABEL org.opencontainers.image.title "FollowTheMoney File Ingestors"
-LABEL org.opencontainers.image.licenses MIT
-LABEL org.opencontainers.image.source https://github.com/alephdata/ingest-file
+LABEL org.opencontainers.image.title="FollowTheMoney File Ingestors"
+LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.source=https://github.com/alephdata/ingest-file
 
 # Enable non-free archive for `unrar`.
 RUN echo "deb http://http.us.debian.org/debian bookworm non-free" >/etc/apt/sources.list.d/nonfree.list \
@@ -154,4 +154,4 @@ ENV ARCHIVE_TYPE=file \
   TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
 
 # USER app
-CMD ingestors process
+CMD ["ingestors", "process"]
