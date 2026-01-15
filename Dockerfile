@@ -1,4 +1,4 @@
-FROM python:3.10-bookworm
+FROM python:3.14-bookworm
 ENV DEBIAN_FRONTEND noninteractive
 
 LABEL org.opencontainers.image.title "FollowTheMoney File Ingestors"
